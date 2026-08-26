@@ -1,0 +1,84 @@
+# Хөгжүүлэлтийн Postgres. Production-д managed DB (Neon / RDS / Supabase).
+#
+#   docker compose up -d          асаах
+#   docker compose down           зогсоох (өгөгдөл үлдэнэ)
+#   docker compose down -v        өгөгдлийг ч устгах
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: starter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: starter
+      POSTGRES_PASSWORD: starter
+      POSTGRES_DB: starter
+      # Тест DB-г контейнер эхлэхэд үүсгэнэ — dev өгөгдөл хөндөгдөхгүй.
+      POSTGRES_MULTIPLE_DATABASES: starter_test
+    ports:
+      # Host дээр аль хэдийн Postgres ажиллаж байж болно (winu-гийн dev DB г.м).
+      # 5432-ыг булаахгүйн тулд 5433 дээр гаргана.
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh:ro
+    healthcheck:
+      # Migration/seed-ыг DB бэлэн болохоос өмнө ажиллуулахаас сэргийлнэ.
+      test: ["CMD-SHELL", "pg_isready -U starter -d starter"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Rate limit болон дараагийн ээлжийн cache-д (одоогоор заавал биш).
+  redis:
+    image: redis:7-alpine
+    container_name: starter-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Хөгжүүлэлтийн SMTP — и-мэйл ГАДАГШ явахгүй, бүгд web UI-д хуримтлагдана.
+  # http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: starter-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-тэй нийцтэй локал хадгалалт. Production-д AWS S3 / Cloudflare R2 /
+  # DigitalOcean Spaces — API ижил, зөвхөн endpoint солигдоно.
+  # Консол: http://localhost:9001 (minioadmin / minioadmin)
+  minio:
+    image: minio/minio:latest
+    container_name: starter-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  postgres-data:
+  minio-data:

@@ -1,0 +1,28 @@
+{
+  "name": "@winu/mn-integrations",
+  "version": "0.1.0",
+  "private": true,
+  "description": "\u041c\u043e\u043d\u0433\u043e\u043b\u044b\u043d \u0438\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0443\u0443\u0434: e-Barimt, \u0414\u0410\u041d, \u0431\u0430\u043d\u043a, SMS, QR",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ebarimt": "./src/ebarimt/index.ts",
+    "./payment": "./src/payment/index.ts",
+    "./sms": "./src/sms/index.ts",
+    "./qr": "./src/qr/index.ts",
+    "./banks": "./src/banks/index.ts",
+    "./mn": "./src/mn/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest --run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

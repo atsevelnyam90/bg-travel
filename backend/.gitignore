@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Нууц утга — БҮҮ commit хий
+.env
+.env.*
+!.env.example
+*.pem
+
+.DS_Store
+*-debug.log*
+
+# Prisma-гийн үүсгэсэн client — pnpm exec prisma generate
+src/generated/

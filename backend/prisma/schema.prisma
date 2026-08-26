@@ -1,0 +1,304 @@
+// Үе шат 2 — Auth + RBAC. Дэлгэрэнгүй: ~/Desktop/docs/{04-auth,05-permissions}.md
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Prisma 7: холболтын URL нь schema-д БАЙХГҮЙ.
+//   migrate  → prisma.config.ts
+//   client   → PrismaClient({ adapter }) — src/lib/prisma.ts
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Байгууллага ────────────────────────────────────────────────────────────
+// ⚠️ Энэ нь ГАНЦ МӨРТЭЙ тохиргооны хүснэгт, tenant түлхүүр БИШ.
+//
+// Starter нь "клиент бүрт тусдаа deployment, тусдаа DB" загвартай тул нэг DB
+// дотор нэг л байгууллага байна. Тиймээс хүснэгтүүдэд `orgId` байхгүй —
+// байсан ч юуг ч тусгаарлахгүй мөртөө query бүрд мартагдах эрсдэл нэмнэ.
+//
+// Хожим нэг deployment дотор олон байгууллага хэрэгтэй болбол: `orgId`-г
+// Prisma client extension-ТОЙ ХАМТ нэмнэ (гараар биш) — тэгвэл шүүлт бүх
+// query-д автоматаар шахагдаж, мартах боломжгүй болно.
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+
+  /// Төлбөр хүлээн авах данс — EMVCo QR үүсгэхэд.
+  /// bankCode нь Монголбанкны оролцогчийн код (mn-integrations/banks).
+  bankCode        String?
+  bankAccount     String?
+  bankAccountName String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@map("organizations")
+}
+
+// ─── Хэрэглэгч ──────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String
+  passwordHash String?
+  status       UserStatus @default(INVITED)
+  lastLoginAt  DateTime?
+  /// Optimistic locking. Runtime edit нь version-оо буцааж илгээж,
+  /// зөрвөл 409 буцаана.
+  version      Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  /// Deployment даяар нэг role систем. Membership давхарга хэрэггүй.
+  roleId String?
+  role   Role?   @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+  sessions      Session[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@index([status])
+  @@map("users")
+}
+
+// ─── Эрх ────────────────────────────────────────────────────────────────────
+// Role бол ӨГӨГДӨЛ, код биш. Шинэ role = DB мөр нэмнэ, deploy хэрэггүй.
+// permissions нь "resource:action" мөрүүд (05-permissions.md §2.1).
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions String[]
+  /// Системийн role устгагдахгүй (owner/admin/member/viewer).
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  invitations Invitation[]
+
+  @@map("roles")
+}
+
+// ─── Session ────────────────────────────────────────────────────────────────
+// ⚠️ winu-д session нь process санах ой дахь Map байсан (libs/sessionStore.ts)
+// бөгөөд express-session-д store тохируулаагүй байв. Үр дагавар: deploy бүрт
+// session алга болох, олон instance дээр ажиллахгүй байх, санах ой хавдах.
+// Энд DB-д хадгална (04-auth.md §2).
+
+model Session {
+  key       String   @id
+  userId    String
+  expiresAt DateTime
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Refresh token-ыг ЗӨВХӨН hash-аар хадгална — түүхий токен DB-д байхгүй тул
+// DB алдагдсан ч дахин ашиглах боломжгүй (winu-гийн зөв шийдэл, хэвээр авсан).
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  tokenHash  String    @unique
+  userId     String
+  sessionKey String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  /// Rotation: энэ токеныг сольсон шинэ токен.
+  replacedBy String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionKey])
+  @@map("refresh_tokens")
+}
+
+// ─── Урилга ─────────────────────────────────────────────────────────────────
+
+model Invitation {
+  id         String    @id @default(uuid())
+  email      String
+  roleId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@index([email])
+  @@map("invitations")
+}
+
+// ─── Audit log ──────────────────────────────────────────────────────────────
+// ERP клиент 100% асуудаг: хэн, юуг, хэзээ өөрчилсөн (06-features.md Tier 1 #9).
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  action     String
+  resource   String
+  resourceId String?
+  meta       Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([resource, resourceId])
+  @@map("audit_logs")
+}
+
+// ─── Builder ────────────────────────────────────────────────────────────────
+// Form/List definition нэг table дээр type-аар ялгарна. View нь form/list
+// definition-уудыг id-аар холбоно.
+
+model BuilderDefinition {
+  id          String   @id @default(uuid())
+  type        String
+  title       String
+  description String?
+  source      Json?
+  schema      Json
+  triggers    Json?
+  version     Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  formViews BuilderView[] @relation("BuilderViewForm")
+  listViews BuilderView[] @relation("BuilderViewList")
+
+  @@index([type, createdAt])
+  @@map("builder_definitions")
+}
+
+model BuilderView {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  formId          String?
+  listId          String?
+  permissionRead  String?
+  permissionWrite String?
+  triggers        Json?
+  version         Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  form BuilderDefinition? @relation("BuilderViewForm", fields: [formId], references: [id], onDelete: SetNull)
+  list BuilderDefinition? @relation("BuilderViewList", fields: [listId], references: [id], onDelete: SetNull)
+
+  @@index([formId])
+  @@index([listId])
+  @@index([createdAt])
+  @@map("builder_views")
+}
+
+model BuilderSchemaMigration {
+  version   Int      @id
+  name      String
+  appliedAt DateTime @default(now())
+
+  @@map("builder_schema_migrations")
+}
+
+// ─── Бараа (жишээ домэйн) ───────────────────────────────────────────────────
+// eShop төрлийн төслийн жишээ: public талд жагсаалт, admin талд CRUD.
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  name        String
+  description String?
+  /// Мөнгийг ЦЭЛ тоогоор (мөнгөн тэмдэгтийн хамгийн жижиг нэгжээр) хадгална.
+  /// Float ашиглавал 0.1 + 0.2 !== 0.3 маягийн алдаа мөнгөнд хүрнэ.
+  priceMinor  Int
+  currency    String        @default("MNT")
+  status      ProductStatus @default(DRAFT)
+  imageUrl    String?
+  /// Optimistic locking. Засах бүрд нэмэгдэнэ; клиент өөрийн уншсан утгыг
+  /// буцааж илгээнэ. Зөрвөл 409 — сүүлд бичсэн нь нөгөөг чимээгүй дарахгүй.
+  version     Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+
+  @@index([status])
+  @@map("products")
+}
+
+// ─── Төлбөрийн лавлагаа ─────────────────────────────────────────────────────
+// QR-ийн "гүйлгээний утга"-д орох ДАВТАГДАШГҮЙ дугаар.
+//
+// ⚠️ Энэ нь захиалгын систем БИШ. Зорилго нь ганцхан: банкны хуулга дээрх
+// гүйлгээг тодорхой QR-тэй тулгах боломжтой болгох. Барааны нэрийг утга
+// болгон ашиглавал хоёр худалдан авагчийг ялгах боломжгүй болно.
+//
+// Төлбөр орсныг БАТАЛГААЖУУЛАХ хэсэг (webhook эсвэл хуулга тулгах) энд
+// хэрэгжээгүй — тэр нь захиалгын model шаарддаг тул төсөл бүрд өөрөө.
+
+model PaymentReference {
+  id          String   @id @default(uuid())
+  /// QR-д орох богино код. Латин том үсэг + тоо (EMVCo-д аюулгүй).
+  reference   String   @unique
+  productId   String?
+  amountMinor Int
+  currency    String   @default("MNT")
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([createdAt])
+  @@map("payment_references")
+}
+
+// ─── Баримтын дугаарлалт ────────────────────────────────────────────────────
+// ⚠️ `count() + 1` ХЭЗЭЭ Ч БҮҮ АШИГЛА — зэрэг дуудахад давхардана, устгасан
+// мөр байвал дугаар давтагдана.
+//
+// Энэ хүснэгт нь атомарт өсгөгч. Нэг `INSERT ... ON CONFLICT DO UPDATE
+// ... RETURNING` хүсэлтээр өсгөдөг тул түгжээ шаардахгүй, уралдаангүй.
+
+model DocumentSequence {
+  name    String
+  /// Дугаар шинэчлэгдэх мөчлөг: "2026" (жил бүр), "2026-08" (сар бүр),
+  /// эсвэл "" (хэзээ ч эргэхгүй).
+  period  String
+  counter Int    @default(0)
+
+  @@id([name, period])
+  @@map("document_sequences")
+}

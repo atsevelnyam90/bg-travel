@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Нууц утга — БҮҮ commit хий
+.env
+.env.*
+!.env.example
+
+.vercel
+.DS_Store
+*-debug.log*
+
+# Capacitor
+android/
+ios/

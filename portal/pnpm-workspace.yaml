@@ -1,0 +1,8 @@
+# pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
+packages:
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false

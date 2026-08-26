@@ -1,0 +1,9 @@
+# pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
+# backend нь дотроо packages/* -тэй тул тэднийг энд зарлана.
+packages:
+  - "packages/*"
+
+allowBuilds:
+  "@prisma/engines": true
+  prisma: true
+  esbuild: true

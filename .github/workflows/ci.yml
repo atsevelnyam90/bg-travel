@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # Бодит Postgres — migration эвдрэл болон integration тестийг ЭНД барина,
+    # deploy дээр биш.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: starter
+          POSTGRES_PASSWORD: starter
+          POSTGRES_DB: starter_test
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U starter"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://starter:starter@localhost:5433/starter_test?schema=public
+      TEST_DATABASE_URL: postgresql://starter:starter@localhost:5433/starter_test?schema=public
+      SESSION_SECRET: ci-secret-at-least-32-characters-long
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm, cache-dependency-path: backend/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+
+      # Migration бодитоор хэрэглэгдэж байгааг шалгана.
+      - run: pnpm exec prisma migrate deploy
+
+      # Schema болон migration зөрчилгүй эсэх — "миграци бичихээ мартсан" тохиолдлыг барина.
+      - name: Migration нь schema-тай тааарч байгаа эсэх
+        run: |
+          pnpm exec prisma migrate diff \
+            --from-config-datasource --to-schema prisma/schema.prisma \
+            --exit-code && echo "OK — зөрүү алга" || {
+              echo "::error::schema.prisma-д migration бичигдээгүй өөрчлөлт байна"
+              exit 1
+            }
+
+      - run: pnpm test:run
+      - run: pnpm build
+
+  portal:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: portal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm, cache-dependency-path: portal/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test:run
+      - run: pnpm build
+      - run: pnpm build:mobile
+
+  # Contract drift: portal-ын хуулбар backend-тэйгээ таарч байгаа эсэх.
+  contracts-in-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node backend/scripts/gen-contracts.mjs
+      - name: Ялгаа байхгүй эсэх
+        run: |
+          if ! git diff --exit-code -- portal/src/api/generated; then
+            echo "::error::Contract хуучирсан. backend-д \`pnpm gen:contracts\` ажиллуулаад commit хий."
+            exit 1
+          fi
+
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Capacitor static build нь server action-той нийцэхгүй.
+      - name: '"use server" ашиглаагүй эсэх'
+        run: |
+          if grep -rn '"use server"' portal/src 2>/dev/null; then
+            echo "::error::Server action олдлоо — Capacitor build эвдэрнэ (docs/09)"
+            exit 1
+          fi
+      # Банкны түлхүүр frontend-ийн dependency graph-д орохоос сэргийлнэ.
+      - name: Backend package portal-д ороогүй эсэх
+        run: |
+          if grep -q '@winu/mn-integrations' portal/package.json 2>/dev/null; then
+            echo "::error::mn-integrations нь СЕРВЕР талын package. portal-д оруулж болохгүй."
+            exit 1
+          fi
+          if grep -rn '@winu/mn-integrations' portal/src 2>/dev/null; then
+            echo "::error::portal/src дотроос mn-integrations import хийсэн байна."
+            exit 1
+          fi
