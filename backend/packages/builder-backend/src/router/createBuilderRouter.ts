@@ -52,6 +52,7 @@ export function createBuilderRouter(deps: BuilderRouterDependencies): Router {
     ...adminMiddlewares,
     asyncHandler(builderAdminController.listFormOptions),
   );
+  router.get("/forms/:id", ...adminMiddlewares, asyncHandler(builderAdminController.getForm));
   router.post("/forms", ...adminMiddlewares, asyncHandler(builderAdminController.createForm));
   router.patch("/forms/:id", ...adminMiddlewares, asyncHandler(builderAdminController.updateForm));
   router.post(
@@ -67,6 +68,7 @@ export function createBuilderRouter(deps: BuilderRouterDependencies): Router {
     ...adminMiddlewares,
     asyncHandler(builderAdminController.listListOptions),
   );
+  router.get("/lists/:id", ...adminMiddlewares, asyncHandler(builderAdminController.getList));
   router.post("/lists", ...adminMiddlewares, asyncHandler(builderAdminController.createList));
   router.patch("/lists/:id", ...adminMiddlewares, asyncHandler(builderAdminController.updateList));
   router.post(

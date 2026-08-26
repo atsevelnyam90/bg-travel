@@ -185,7 +185,7 @@ List triggers:
 Field trigger нь энэ lifecycle trigger-ээс тусдаа. Field event (`onChange`, `onBlur`)
 гарахад backend runtime endpoint дуудагдаж, host backend handler response-оор form state
 update хийнэ. MVP дээр `onChange` UI wiring орсон, `onBlur` event schema/endpoint
-бэлэн бөгөөд UI wiring дараагийн pass. Дэлгэрэнгүй: [Builder Field Triggers Plan](./builder-field-triggers-plan.md).
+бэлэн бөгөөд UI wiring дараагийн pass. Дэлгэрэнгүй: [Builder Field Triggers Plan](./field-triggers-plan.md).
 
 ## Permission
 

@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import {
+  PRODUCT_DISCOUNT_FIELD_TRIGGER,
+  PRODUCT_SLUG_FIELD_TRIGGER,
+} from "@/modules/products/triggers";
+import {
   api,
   bearer,
   createUser,
@@ -33,7 +37,7 @@ async function seedProductBuilderView() {
               triggers: [
                 {
                   event: "onChange",
-                  action: "/api/v1/builder-triggers/product-slug",
+                  action: PRODUCT_SLUG_FIELD_TRIGGER,
                   enabled: true,
                   debounceMs: 300,
                   config: {},
@@ -41,7 +45,28 @@ async function seedProductBuilderView() {
               ],
             },
             { key: "slug", label: "Slug", type: "text", required: true },
-            { key: "priceMinor", label: "Үнэ", type: "money", required: true },
+            {
+              key: "priceMinor",
+              label: "Үнэ",
+              type: "money",
+              required: true,
+              triggers: [
+                {
+                  event: "onChange",
+                  action: PRODUCT_DISCOUNT_FIELD_TRIGGER,
+                  enabled: true,
+                  debounceMs: 300,
+                  config: {},
+                },
+              ],
+            },
+            {
+              key: "discountMinor",
+              label: "10% хөнгөлөлт",
+              type: "money",
+              required: false,
+              disabled: true,
+            },
             {
               key: "status",
               label: "Төлөв",
@@ -92,6 +117,26 @@ describe("builder runtime view", () => {
     await seedProductBuilderView();
   });
 
+  it("admin form detail нь datasource-тойгоо буцна", async () => {
+    const response = await api()
+      .get(`${PREFIX}/builder/forms/${PRODUCT_FORM_ID}`)
+      .set(bearer(token))
+      .expect(200);
+
+    expect(response.body.source).toEqual({ type: "dbTable", tableName: "products" });
+    expect(response.body.schema.fields[0].key).toBe("name");
+  });
+
+  it("admin list detail нь datasource-тойгоо буцна", async () => {
+    const response = await api()
+      .get(`${PREFIX}/builder/lists/${PRODUCT_LIST_ID}`)
+      .set(bearer(token))
+      .expect(200);
+
+    expect(response.body.source).toEqual({ type: "dbTable", tableName: "products" });
+    expect(response.body.schema.columns[0].key).toBe("name");
+  });
+
   it("viewId-аар Product Form + List metadata болон product rows уншина", async () => {
     await prisma.product.create({
       data: { name: "Keyboard", slug: "keyboard", priceMinor: 320000, status: "PUBLISHED" },
@@ -120,6 +165,7 @@ describe("builder runtime view", () => {
         values: {
           name: "Mouse",
           slug: "mouse",
+          discountMinor: 8900,
           priceMinor: 89000,
           status: "PUBLISHED",
         },
@@ -136,6 +182,7 @@ describe("builder runtime view", () => {
         values: {
           name: "Wireless Mouse",
           slug: "wireless-mouse",
+          discountMinor: 9900,
           priceMinor: 99000,
           status: "PUBLISHED",
         },
@@ -143,6 +190,7 @@ describe("builder runtime view", () => {
       .expect(200);
 
     expect(updated.body.values.slug).toBe("wireless-mouse");
+    expect(updated.body.values.discountMinor).toBe(9900);
     expect(updated.body.version).toBe(created.body.version + 1);
 
     const audit = await prisma.auditLog.findFirstOrThrow({
@@ -198,6 +246,30 @@ describe("builder runtime view", () => {
 
     expect(result.body).toMatchObject({
       schema: [{ field: "slug", value: "iphone-xr-1" }],
+      fieldErrors: {},
+    });
+  });
+
+  it("field trigger нь priceMinor-оос discountMinor бодож patch буцаана", async () => {
+    const result = await api()
+      .post(
+        `${PREFIX}/builder/runtime/views/${PRODUCT_VIEW_ID}/fields/priceMinor/triggers/onChange`,
+      )
+      .set(bearer(token))
+      .send({
+        value: 250000,
+        values: {
+          name: "Keyboard",
+          slug: "keyboard",
+          priceMinor: 250000,
+          discountMinor: 0,
+          status: "PUBLISHED",
+        },
+      })
+      .expect(200);
+
+    expect(result.body).toMatchObject({
+      schema: [{ field: "discountMinor", value: 25000 }],
       fieldErrors: {},
     });
   });

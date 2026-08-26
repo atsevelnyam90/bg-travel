@@ -15,6 +15,7 @@
     "test:run": "vitest --run --passWithNoTests && COREPACK_ENABLE_AUTO_PIN=0 corepack pnpm --recursive --filter \"./packages/*\" test:run",
     "builder:migrate": "tsx --env-file-if-exists=.env src/modules/builder/scripts/migrateBuilder.ts",
     "gen:contracts": "node scripts/gen-contracts.mjs",
+    "check:boundaries": "node ../scripts/check-boundaries.mjs",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "infra:up": "docker compose up -d",

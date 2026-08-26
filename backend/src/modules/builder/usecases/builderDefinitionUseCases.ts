@@ -12,6 +12,8 @@ export const {
   createBuilderList,
   deleteBuilderForm,
   deleteBuilderList,
+  getBuilderForm,
+  getBuilderList,
   listAllBuilderForms,
   listAllBuilderLists,
   listBuilderForms,

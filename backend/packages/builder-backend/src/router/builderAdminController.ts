@@ -35,6 +35,10 @@ export function createBuilderAdminController(
       res.json(await useCases.listAllBuilderForms());
     },
 
+    async getForm(req: Request, res: Response) {
+      res.json(await useCases.getBuilderForm(idParam(errors, req)));
+    },
+
     async createForm(req: Request, res: Response) {
       const form = await useCases.createBuilderForm(
         builderContract.createBuilderFormSchema.parse(req.body),
@@ -89,6 +93,10 @@ export function createBuilderAdminController(
 
     async listListOptions(_req: Request, res: Response) {
       res.json(await useCases.listAllBuilderLists());
+    },
+
+    async getList(req: Request, res: Response) {
+      res.json(await useCases.getBuilderList(idParam(errors, req)));
     },
 
     async createList(req: Request, res: Response) {

@@ -162,7 +162,7 @@ App code шууд package factory-уудыг эсвэл starter-ийн host wrap
 
 - [Backend builder package](./backend/packages/builder-backend/README.md)
 - [Frontend builder package](./portal/packages/builder-ui/README.md)
-- [Builder architecture](./docs/winu-builder.md)
+- [Builder architecture](./docs/builder/winu-builder.md)
 
 ## ⚠️ Сервер / клиент хил
 

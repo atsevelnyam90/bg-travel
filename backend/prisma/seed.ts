@@ -1,6 +1,11 @@
 import { SYSTEM_ROLES } from "@winu/contracts";
 import { prisma } from "../src/lib/prisma";
 import { hashPassword } from "../src/modules/auth/passwordService";
+import {
+  PRODUCT_DISCOUNT_FIELD_TRIGGER,
+  PRODUCT_SLUG_FIELD_TRIGGER,
+} from "../src/modules/products/triggers";
+import { USER_TEST_BEFORE_DELETE_TRIGGER } from "../src/modules/users/triggers";
 
 // Байгууллага (ганц мөр), системийн role-ууд, owner хэрэглэгч.
 // Дахин ажиллуулахад аюулгүй (upsert).
@@ -19,6 +24,16 @@ const USER_FORM_ID = "22222222-2222-4222-8222-222222222221";
 const USER_LIST_ID = "22222222-2222-4222-8222-222222222222";
 const USER_VIEW_ID = "22222222-2222-4222-8222-222222222223";
 
+const userListTriggers = [
+  {
+    event: "beforeDelete",
+    action: "callApi",
+    enabled: true,
+    blocking: true,
+    config: { route: USER_TEST_BEFORE_DELETE_TRIGGER },
+  },
+];
+
 const productFormSchema = {
   fields: [
     {
@@ -29,7 +44,7 @@ const productFormSchema = {
       triggers: [
         {
           event: "onChange",
-          action: "/api/v1/builder-triggers/product-slug",
+          action: PRODUCT_SLUG_FIELD_TRIGGER,
           enabled: true,
           debounceMs: 300,
           config: {},
@@ -38,7 +53,28 @@ const productFormSchema = {
     },
     { key: "slug", label: "Slug", type: "text", required: true },
     { key: "description", label: "Тайлбар", type: "textarea", required: false },
-    { key: "priceMinor", label: "Үнэ", type: "money", required: true },
+    {
+      key: "priceMinor",
+      label: "Үнэ",
+      type: "money",
+      required: true,
+      triggers: [
+        {
+          event: "onChange",
+          action: PRODUCT_DISCOUNT_FIELD_TRIGGER,
+          enabled: true,
+          debounceMs: 300,
+          config: {},
+        },
+      ],
+    },
+    {
+      key: "discountMinor",
+      label: "10% хөнгөлөлт",
+      type: "money",
+      required: false,
+      disabled: true,
+    },
     {
       key: "status",
       label: "Төлөв",
@@ -52,12 +88,80 @@ const productFormSchema = {
     },
     { key: "imageUrl", label: "Зургийн URL", type: "text", required: false },
   ],
+  layout: {
+    groups: [
+      {
+        id: "main",
+        title: "Үндсэн мэдээлэл",
+        columns: 12,
+        fields: [
+          { key: "name", span: 6 },
+          { key: "slug", span: 6 },
+          { key: "description", span: 12 },
+        ],
+      },
+      {
+        id: "pricing",
+        title: "Үнэ",
+        columns: 12,
+        fields: [
+          { key: "priceMinor", span: 4 },
+          { key: "discountMinor", span: 4 },
+          { key: "status", span: 4 },
+        ],
+      },
+      {
+        id: "media",
+        title: "Медиа",
+        columns: 12,
+        fields: [{ key: "imageUrl", span: 12 }],
+      },
+    ],
+  },
+};
+
+const userFormSchema = {
+  fields: [
+    { key: "email", label: "И-мэйл", type: "text", required: true },
+    { key: "name", label: "Нэр", type: "text", required: true },
+    {
+      key: "status",
+      label: "Төлөв",
+      type: "select",
+      required: true,
+      options: [
+        { label: "Идэвхтэй", value: "ACTIVE" },
+        { label: "Уригдсан", value: "INVITED" },
+        { label: "Идэвхгүй", value: "DISABLED" },
+      ],
+    },
+    { key: "roleId", label: "Role ID", type: "text", required: false },
+  ],
+  layout: {
+    groups: [
+      {
+        id: "main",
+        title: "Үндсэн мэдээлэл",
+        columns: 12,
+        fields: [
+          { key: "email", span: 6 },
+          { key: "name", span: 6 },
+          { key: "status", span: 6 },
+          { key: "roleId", span: 6 },
+        ],
+      },
+    ],
+  },
 };
 
 async function seedBuilderDefinitions() {
   await prisma.builderDefinition.upsert({
     where: { id: PRODUCT_FORM_ID },
-    update: { schema: productFormSchema, triggers: [] },
+    update: {
+      source: { type: "dbTable", tableName: "products" },
+      schema: productFormSchema,
+      triggers: [],
+    },
     create: {
       id: PRODUCT_FORM_ID,
       type: "form",
@@ -71,7 +175,7 @@ async function seedBuilderDefinitions() {
 
   await prisma.builderDefinition.upsert({
     where: { id: PRODUCT_LIST_ID },
-    update: { triggers: [] },
+    update: { source: { type: "dbTable", tableName: "products" }, triggers: [] },
     create: {
       id: PRODUCT_LIST_ID,
       type: "list",
@@ -84,6 +188,7 @@ async function seedBuilderDefinitions() {
           { key: "name", label: "Нэр", sortable: true, align: "left" },
           { key: "slug", label: "Slug", sortable: true, align: "left" },
           { key: "priceMinor", label: "Үнэ", sortable: true, align: "right" },
+          { key: "discountMinor", label: "Хөнгөлөлт", sortable: true, align: "right" },
           { key: "status", label: "Төлөв", sortable: true, align: "left" },
         ],
       },
@@ -107,7 +212,11 @@ async function seedBuilderDefinitions() {
 
   await prisma.builderDefinition.upsert({
     where: { id: USER_FORM_ID },
-    update: { triggers: [] },
+    update: {
+      source: { type: "dbTable", tableName: "users" },
+      schema: userFormSchema,
+      triggers: [],
+    },
     create: {
       id: USER_FORM_ID,
       type: "form",
@@ -115,37 +224,20 @@ async function seedBuilderDefinitions() {
       description: "Хэрэглэгч нэмэх, засах form.",
       source: { type: "dbTable", tableName: "users" },
       triggers: [],
-      schema: {
-        fields: [
-          { key: "email", label: "И-мэйл", type: "text", required: true },
-          { key: "name", label: "Нэр", type: "text", required: true },
-          {
-            key: "status",
-            label: "Төлөв",
-            type: "select",
-            required: true,
-            options: [
-              { label: "Идэвхтэй", value: "ACTIVE" },
-              { label: "Уригдсан", value: "INVITED" },
-              { label: "Идэвхгүй", value: "DISABLED" },
-            ],
-          },
-          { key: "roleId", label: "Role ID", type: "text", required: false },
-        ],
-      },
+      schema: userFormSchema,
     },
   });
 
   await prisma.builderDefinition.upsert({
     where: { id: USER_LIST_ID },
-    update: { triggers: [] },
+    update: { source: { type: "dbTable", tableName: "users" }, triggers: userListTriggers },
     create: {
       id: USER_LIST_ID,
       type: "list",
       title: "User List",
       description: "Хэрэглэгчийн grid/list баганууд.",
       source: { type: "dbTable", tableName: "users" },
-      triggers: [],
+      triggers: userListTriggers,
       schema: {
         columns: [
           { key: "name", label: "Нэр", sortable: true, align: "left" },

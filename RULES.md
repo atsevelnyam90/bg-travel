@@ -114,7 +114,7 @@ View = Form + List runtime CRUD composition
 - Дан form хэрэгтэй бол `DynamicForm`.
 - Дан list/grid хэрэгтэй бол `DynamicList`.
 - Builder lifecycle trigger болон field-level computed behavior хоёрыг бүү хутга.
-- Field computed trigger roadmap: `docs/builder-field-triggers-plan.md`.
+- Field computed trigger roadmap: `docs/builder/field-triggers-plan.md`.
 - Builder backend migration нь builder metadata table-д л хамаатай.
 - App domain migration Prisma workflow-оор тусдаа явна.
 
@@ -204,12 +204,15 @@ Minimum:
 - package/release flow
 - migration/versioning strategy
 - field trigger/computed behavior
+- builder form layout
 - auth/permission model change
 - mobile/Capacitor build constraint
 
 Existing docs:
 
-- `docs/winu-builder.md`
-- `docs/builder-in-repo-package-plan.md`
-- `docs/builder-field-triggers-plan.md`
-- `docs/capacitor-build.md`
+- `docs/builder/winu-builder.md`
+- `docs/builder/in-repo-package-plan.md`
+- `docs/builder/field-triggers-plan.md`
+- `docs/builder/form-layout-plan.md`
+- `docs/builder/boundary-hardening.md`
+- `docs/mobile/capacitor-build.md`

@@ -24,19 +24,19 @@ datasource db {
 // query-д автоматаар шахагдаж, мартах боломжгүй болно.
 
 model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  slug      String   @unique
-  logoUrl   String?
+  id      String  @id @default(uuid())
+  name    String
+  slug    String  @unique
+  logoUrl String?
 
   /// Төлбөр хүлээн авах данс — EMVCo QR үүсгэхэд.
   /// bankCode нь Монголбанкны оролцогчийн код (mn-integrations/banks).
   bankCode        String?
   bankAccount     String?
   bankAccountName String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
 
   @@map("organizations")
 }
@@ -102,12 +102,12 @@ model Role {
 // Энд DB-д хадгална (04-auth.md §2).
 
 model Session {
-  key       String   @id
-  userId    String
-  expiresAt DateTime
-  userAgent String?
-  ip        String?
-  createdAt DateTime @default(now())
+  key        String   @id
+  userId     String
+  expiresAt  DateTime
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime @default(now())
   lastSeenAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -180,16 +180,16 @@ model AuditLog {
 // definition-уудыг id-аар холбоно.
 
 model BuilderDefinition {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   type        String
   title       String
   description String?
   source      Json?
   schema      Json
   triggers    Json?
-  version     Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  version     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   formViews BuilderView[] @relation("BuilderViewForm")
@@ -200,7 +200,7 @@ model BuilderDefinition {
 }
 
 model BuilderView {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   title           String
   description     String?
   formId          String?
@@ -208,9 +208,9 @@ model BuilderView {
   permissionRead  String?
   permissionWrite String?
   triggers        Json?
-  version         Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  version         Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
   form BuilderDefinition? @relation("BuilderViewForm", fields: [formId], references: [id], onDelete: SetNull)
@@ -240,22 +240,23 @@ enum ProductStatus {
 }
 
 model Product {
-  id          String        @id @default(uuid())
-  slug        String        @unique
-  name        String
-  description String?
+  id            String        @id @default(uuid())
+  slug          String        @unique
+  name          String
+  description   String?
   /// Мөнгийг ЦЭЛ тоогоор (мөнгөн тэмдэгтийн хамгийн жижиг нэгжээр) хадгална.
   /// Float ашиглавал 0.1 + 0.2 !== 0.3 маягийн алдаа мөнгөнд хүрнэ.
-  priceMinor  Int
-  currency    String        @default("MNT")
-  status      ProductStatus @default(DRAFT)
-  imageUrl    String?
+  priceMinor    Int
+  discountMinor Int           @default(0)
+  currency      String        @default("MNT")
+  status        ProductStatus @default(DRAFT)
+  imageUrl      String?
   /// Optimistic locking. Засах бүрд нэмэгдэнэ; клиент өөрийн уншсан утгыг
   /// буцааж илгээнэ. Зөрвөл 409 — сүүлд бичсэн нь нөгөөг чимээгүй дарахгүй.
-  version     Int           @default(0)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
+  version       Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
 
   @@index([status])
   @@map("products")

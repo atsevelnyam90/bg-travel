@@ -19,6 +19,7 @@ const toDto = (row: {
   name: string;
   description: string | null;
   priceMinor: number;
+  discountMinor: number;
   currency: string;
   status: productsContract.ProductStatus;
   imageUrl: string | null;
@@ -32,6 +33,7 @@ const SELECT = {
   name: true,
   description: true,
   priceMinor: true,
+  discountMinor: true,
   currency: true,
   status: true,
   imageUrl: true,
@@ -154,6 +156,7 @@ export async function listPublicProducts(
         name: true,
         description: true,
         priceMinor: true,
+        discountMinor: true,
         currency: true,
         imageUrl: true,
       },
@@ -172,6 +175,7 @@ export async function getPublicProduct(slug: string): Promise<productsContract.P
       name: true,
       description: true,
       priceMinor: true,
+      discountMinor: true,
       currency: true,
       imageUrl: true,
     },

@@ -71,6 +71,19 @@ function requiredInteger(values: Record<string, unknown>, key: string, label: st
   return number;
 }
 
+function optionalInteger(
+  values: Record<string, unknown>,
+  key: string,
+  label: string,
+  fallback = 0,
+) {
+  const value = values[key];
+  if (isBlank(value)) return fallback;
+  const number = Number(value);
+  if (!Number.isInteger(number)) throw builderBadRequest(`${label} талбар бүхэл тоо байх ёстой`);
+  return number;
+}
+
 function optionalEnum<const T extends readonly string[]>(
   values: Record<string, unknown>,
   key: string,
@@ -92,6 +105,7 @@ function productValues(values: Record<string, unknown>) {
     slug: requiredText(values, "slug", "Slug"),
     description: optionalText(values, "description"),
     priceMinor: requiredInteger(values, "priceMinor", "Үнэ"),
+    discountMinor: optionalInteger(values, "discountMinor", "Хөнгөлөлт"),
     status: optionalEnum(values, "status", PRODUCT_STATUS_VALUES, "DRAFT"),
     imageUrl: optionalText(values, "imageUrl"),
   });
@@ -113,6 +127,7 @@ function productEntry(
       slug: row.slug,
       description: row.description,
       priceMinor: row.priceMinor,
+      discountMinor: row.discountMinor,
       currency: row.currency,
       status: row.status,
       imageUrl: row.imageUrl,

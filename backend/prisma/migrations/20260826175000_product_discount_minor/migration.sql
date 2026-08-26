@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "discountMinor" INTEGER NOT NULL DEFAULT 0;

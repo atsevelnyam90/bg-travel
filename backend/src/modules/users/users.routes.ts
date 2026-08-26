@@ -4,9 +4,9 @@ import { asyncHandler } from "@/lib/asyncHandler";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/middlewares/requirePermission";
 import { auditFromRequest } from "@/modules/audit/writeAudit";
-import { inviteUser } from "./inviteUser";
-import { listRoles } from "./listRoles";
-import { listUsers } from "./listUsers";
+import { inviteUser } from "./usecases/inviteUser";
+import { listRoles } from "./usecases/listRoles";
+import { listUsers } from "./usecases/listUsers";
 
 // Route нь ЗӨВХӨН: зам + middleware + validation. Бизнес логик модульд.
 export const usersRouter: Router = Router();

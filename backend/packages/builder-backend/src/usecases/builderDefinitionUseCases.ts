@@ -51,6 +51,12 @@ export function createBuilderDefinitionUseCases(deps: BuilderDefinitionUseCaseDe
     return rows.map(toFormDto);
   }
 
+  async function getBuilderForm(id: string): Promise<builderContract.BuilderForm> {
+    const row = await metadataRepository.findDefinitionRow({ id, type: "form" });
+    if (!row) throw errors.notFound("Form олдсонгүй");
+    return toFormDto(row);
+  }
+
   async function createBuilderForm(
     input: builderContract.CreateBuilderFormInput,
   ): Promise<builderContract.BuilderForm> {
@@ -119,6 +125,12 @@ export function createBuilderDefinitionUseCases(deps: BuilderDefinitionUseCaseDe
     return rows.map(toListDto);
   }
 
+  async function getBuilderList(id: string): Promise<builderContract.BuilderList> {
+    const row = await metadataRepository.findDefinitionRow({ id, type: "list" });
+    if (!row) throw errors.notFound("List олдсонгүй");
+    return toListDto(row);
+  }
+
   async function createBuilderList(
     input: builderContract.CreateBuilderListInput,
   ): Promise<builderContract.BuilderList> {
@@ -174,6 +186,8 @@ export function createBuilderDefinitionUseCases(deps: BuilderDefinitionUseCaseDe
     createBuilderList,
     deleteBuilderForm,
     deleteBuilderList,
+    getBuilderForm,
+    getBuilderList,
     listAllBuilderForms,
     listAllBuilderLists,
     listBuilderForms,

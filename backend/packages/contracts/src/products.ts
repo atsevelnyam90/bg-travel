@@ -11,6 +11,7 @@ export const productSchema = z.object({
   description: z.string().nullable(),
   /// Мөнгө нь ЦЭЛ тоо (₮-ийн хувьд мөнгө). Float ашиглахгүй.
   priceMinor: z.number().int(),
+  discountMinor: z.number().int(),
   currency: z.string(),
   status: productStatusSchema,
   imageUrl: z.url().nullable(),
@@ -55,6 +56,7 @@ export const createProductSchema = z.object({
     .regex(slugPattern, "Зөвхөн жижиг латин үсэг, тоо, зураас"),
   description: z.string().max(5000).nullable().optional(),
   priceMinor: z.number().int().min(0, "Үнэ сөрөг байж болохгүй"),
+  discountMinor: z.number().int().min(0, "Хөнгөлөлт сөрөг байж болохгүй").default(0),
   status: productStatusSchema,
   imageUrl: optionalUrlSchema,
 });
