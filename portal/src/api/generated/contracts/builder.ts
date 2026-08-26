@@ -125,8 +125,28 @@ export const builderColumnSchema = z.object({
 });
 export type BuilderColumn = z.infer<typeof builderColumnSchema>;
 
+export const builderFormLayoutFieldSchema = z.object({
+  key: z.string().regex(fieldKeyPattern),
+  span: z.number().int().min(1).max(12).default(12),
+});
+export type BuilderFormLayoutField = z.infer<typeof builderFormLayoutFieldSchema>;
+
+export const builderFormLayoutGroupSchema = z.object({
+  id: z.string().regex(fieldKeyPattern),
+  title: z.string().min(1).max(120).optional(),
+  columns: z.union([z.literal(6), z.literal(8), z.literal(12)]).default(12),
+  fields: z.array(builderFormLayoutFieldSchema).max(64).default([]),
+});
+export type BuilderFormLayoutGroup = z.infer<typeof builderFormLayoutGroupSchema>;
+
+export const builderFormLayoutSchema = z.object({
+  groups: z.array(builderFormLayoutGroupSchema).max(24).default([]),
+});
+export type BuilderFormLayout = z.infer<typeof builderFormLayoutSchema>;
+
 export const builderFormSchema = z.object({
   fields: z.array(builderFieldSchema).min(1).max(64),
+  layout: builderFormLayoutSchema.optional(),
 });
 export type BuilderFormSchema = z.infer<typeof builderFormSchema>;
 

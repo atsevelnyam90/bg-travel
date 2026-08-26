@@ -60,6 +60,19 @@ type BuilderEditorField<TFieldType extends string> = {
     } | undefined;
     triggers?: BuilderEditorFieldTrigger[];
 };
+type BuilderEditorFormLayoutField = {
+    key: string;
+    span?: number;
+};
+type BuilderEditorFormLayoutGroup = {
+    id: string;
+    title?: string | null;
+    columns?: 6 | 8 | 12;
+    fields?: BuilderEditorFormLayoutField[];
+};
+type BuilderEditorFormLayout = {
+    groups?: BuilderEditorFormLayoutGroup[];
+};
 type BuilderEditorColumn = {
     key: string;
     label: string;
@@ -73,6 +86,7 @@ type BuilderFormEditorEntity<TFieldType extends string = string, TTriggerEvent e
     source: BuilderEditorSource;
     schema: {
         fields: BuilderEditorField<TFieldType>[];
+        layout?: BuilderEditorFormLayout;
     };
     triggers: BuilderEditorTrigger<TTriggerEvent>[];
 };
@@ -104,6 +118,16 @@ type BuilderFormEditorFieldValues<TFieldType extends string = string> = {
     optionsFilterField?: string;
     triggers: BuilderEditorFieldTriggerValues[];
 };
+type BuilderFormEditorLayoutFieldValues = {
+    key: string;
+    span: number;
+};
+type BuilderFormEditorLayoutGroupValues = {
+    id: string;
+    title: string;
+    columns: 6 | 8 | 12;
+    fields: BuilderFormEditorLayoutFieldValues[];
+};
 type BuilderEditorTriggerValues<TEvent extends string = string> = {
     event: TEvent;
     route: string;
@@ -130,6 +154,7 @@ type BuilderFormEditorValues<TFieldType extends string = string, TTriggerEvent e
     sourceTable: string;
     apiBasePath?: string;
     fields: BuilderFormEditorFieldValues<TFieldType>[];
+    layoutGroups: BuilderFormEditorLayoutGroupValues[];
     triggers: BuilderEditorTriggerValues<TTriggerEvent>[];
     version: number;
 };
@@ -174,6 +199,8 @@ declare function builderEditorTextToOptions(value?: string): BuilderEditorSelect
 declare function builderEditorSearchFieldsToText(fields?: string[]): string;
 declare function builderEditorTextToSearchFields(value?: string): string[] | undefined;
 declare function getBuilderEditorTriggerRoute(config: Record<string, unknown>): string;
+declare function builderFormEditorDefaultSpan<TFieldType extends string>(field: BuilderFormEditorFieldValues<TFieldType>): 6 | 12;
+declare function builderFormEditorDefaultLayoutGroups<TFieldType extends string>(fields: BuilderFormEditorFieldValues<TFieldType>[]): BuilderFormEditorLayoutGroupValues[];
 declare function builderFormEditorValuesFromEntity<TFieldType extends string, TTriggerEvent extends string>(form: BuilderFormEditorEntity<TFieldType, TTriggerEvent> | null, emptyValues: BuilderFormEditorValues<TFieldType, TTriggerEvent>): BuilderFormEditorValues<TFieldType, TTriggerEvent>;
 declare function builderListEditorValuesFromEntity<TTriggerEvent extends string>(list: BuilderListEditorEntity<TTriggerEvent> | null, emptyValues: BuilderListEditorValues<TTriggerEvent>): BuilderListEditorValues<TTriggerEvent>;
 declare function builderViewEditorValuesFromEntity<TTrigger>(view: BuilderViewEditorEntity<TTrigger> | null, emptyValues: BuilderViewEditorValues, defaultPermission: string): BuilderViewEditorValues;
@@ -199,7 +226,7 @@ declare function builderFormEditorInputFromValues<TFieldType extends string, TTr
             required: boolean;
             hidden: boolean;
             disabled: boolean;
-            placeholder: string | undefined;
+            placeholder: string;
             options: BuilderEditorSelectOption[] | undefined;
             optionsSource: {
                 type: "dbTable";
@@ -220,6 +247,9 @@ declare function builderFormEditorInputFromValues<TFieldType extends string, TTr
                 config: {};
             }[];
         }[];
+        layout: {
+            groups: BuilderFormEditorLayoutGroupValues[];
+        };
     };
     triggers: {
         event: TTriggerEvent;
@@ -567,4 +597,4 @@ declare function createBuilderViewDialogComponent<TView extends BuilderViewEdito
     id: string;
 }, TForm extends BuilderOptionEntity, TList extends BuilderOptionEntity, TInput>(deps: BuilderViewDialogDependencies<TView, TForm, TList, TInput>): ({ open, editing, forms, lists, onClose, onSave, isSaving, }: BuilderViewDialogProps<TView, TForm, TList, TInput>) => react.JSX.Element;
 
-export { BUILDER_EDITOR_NONE_VALUE, type BuilderEditorDbTable, type BuilderEditorSelectOption, type BuilderEditorTriggerValues, type BuilderEntityDialogManagerDependencies, type BuilderEntityManagerActions, type BuilderEntityManagerAddButtonProps, type BuilderEntityManagerDataGridProps, type BuilderEntityManagerDeleteDialogProps, type BuilderEntityManagerDependencies, type BuilderEntityManagerDialogAddButtonProps, type BuilderEntityManagerEditorDialogProps, type BuilderEntityManagerEntity, type BuilderEntityManagerHookResult, type BuilderEntityManagerLabels, type BuilderEntityManagerMutation, type BuilderFormEditorBodyProps, type BuilderFormEditorEntity, type BuilderFormEditorFieldValues, type BuilderFormEditorPageDependencies, type BuilderFormEditorValues, type BuilderListEditorBodyProps, type BuilderListEditorColumnValues, type BuilderListEditorEntity, type BuilderListEditorPageDependencies, type BuilderListEditorValues, type BuilderViewDialogBodyProps, type BuilderViewDialogDependencies, type BuilderViewDialogProps, type BuilderViewDialogShellProps, type BuilderViewEditorEntity, type BuilderViewEditorValues, builderEditorOptionsToText, builderEditorSearchFieldsToText, builderEditorTextToOptions, builderEditorTextToSearchFields, builderFormEditorFieldsFromTable, builderFormEditorInputFromValues, builderFormEditorValuesFromEntity, builderListEditorColumnsFromTable, builderListEditorInputFromValues, builderListEditorValuesFromEntity, builderViewEditorInputFromValues, builderViewEditorValuesFromEntity, createBuilderEntityDialogManagerComponent, createBuilderEntityManagerComponent, createBuilderFormEditorPageComponent, createBuilderListEditorPageComponent, createBuilderViewDialogComponent, getBuilderEditorTriggerRoute };
+export { BUILDER_EDITOR_NONE_VALUE, type BuilderEditorDbTable, type BuilderEditorSelectOption, type BuilderEditorTriggerValues, type BuilderEntityDialogManagerDependencies, type BuilderEntityManagerActions, type BuilderEntityManagerAddButtonProps, type BuilderEntityManagerDataGridProps, type BuilderEntityManagerDeleteDialogProps, type BuilderEntityManagerDependencies, type BuilderEntityManagerDialogAddButtonProps, type BuilderEntityManagerEditorDialogProps, type BuilderEntityManagerEntity, type BuilderEntityManagerHookResult, type BuilderEntityManagerLabels, type BuilderEntityManagerMutation, type BuilderFormEditorBodyProps, type BuilderFormEditorEntity, type BuilderFormEditorFieldValues, type BuilderFormEditorLayoutGroupValues, type BuilderFormEditorPageDependencies, type BuilderFormEditorValues, type BuilderListEditorBodyProps, type BuilderListEditorColumnValues, type BuilderListEditorEntity, type BuilderListEditorPageDependencies, type BuilderListEditorValues, type BuilderViewDialogBodyProps, type BuilderViewDialogDependencies, type BuilderViewDialogProps, type BuilderViewDialogShellProps, type BuilderViewEditorEntity, type BuilderViewEditorValues, builderEditorOptionsToText, builderEditorSearchFieldsToText, builderEditorTextToOptions, builderEditorTextToSearchFields, builderFormEditorDefaultLayoutGroups, builderFormEditorDefaultSpan, builderFormEditorFieldsFromTable, builderFormEditorInputFromValues, builderFormEditorValuesFromEntity, builderListEditorColumnsFromTable, builderListEditorInputFromValues, builderListEditorValuesFromEntity, builderViewEditorInputFromValues, builderViewEditorValuesFromEntity, createBuilderEntityDialogManagerComponent, createBuilderEntityManagerComponent, createBuilderFormEditorPageComponent, createBuilderListEditorPageComponent, createBuilderViewDialogComponent, getBuilderEditorTriggerRoute };

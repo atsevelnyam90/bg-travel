@@ -11,6 +11,7 @@ import {
 } from "@winu/builder-ui/components";
 import { formatBuilderRuntimeValue } from "@winu/builder-ui/runtime";
 import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
 import {
   DataGrid,
@@ -38,6 +39,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { apiErrorMessage } from "@/lib/api/errorMessage";
 import type { PortalBuilderApiContracts } from "../api";
 import {
   useBuilderViewEntries,
@@ -84,12 +86,25 @@ function buildColumns(
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-36">
-            <DropdownMenuItem onSelect={() => actions.onEdit(row.original)}>
+            <DropdownMenuItem
+              onClick={(event) => event.stopPropagation()}
+              onSelect={(event) => {
+                event.stopPropagation();
+                actions.onEdit(row.original);
+              }}
+            >
               <Pencil />
               Засах
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={() => actions.onDelete(row.original)}>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={(event) => event.stopPropagation()}
+              onSelect={(event) => {
+                event.stopPropagation();
+                actions.onDelete(row.original);
+              }}
+            >
               <Trash2 />
               Устгах
             </DropdownMenuItem>
@@ -176,6 +191,21 @@ function useBuilderDataTable(args: {
   return useDataTable<builder.BuilderViewEntry>(args);
 }
 
+function useDeleteBuilderViewEntryWithToast(viewId: string) {
+  const mutation = useDeleteBuilderViewEntry(viewId);
+  return {
+    ...mutation,
+    mutateAsync: async (entryId: string) => {
+      try {
+        return await mutation.mutateAsync(entryId);
+      } catch (error) {
+        toast.error(apiErrorMessage(error, "Мөр устгахад алдаа гарлаа"));
+        throw error;
+      }
+    },
+  };
+}
+
 export const DynamicView = createDynamicViewComponent<
   PortalBuilderApiContracts,
   ReturnType<typeof buildColumns>[number],
@@ -184,7 +214,7 @@ export const DynamicView = createDynamicViewComponent<
 >({
   hooks: {
     useBuilderViewEntries,
-    useDeleteBuilderViewEntry,
+    useDeleteBuilderViewEntry: useDeleteBuilderViewEntryWithToast,
     useRuntimeBuilderView,
     useSaveBuilderViewEntry,
   },

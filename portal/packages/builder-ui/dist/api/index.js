@@ -16,7 +16,7 @@ function createBuilderApiClient(transport) {
     }),
     listBuilderDbTables: () => transport.get("/builder/datasources/tables"),
     listBuilderFormOptions: () => transport.get("/builder/forms/options"),
-    getBuilderForm: (id) => transport.get(`/builder/runtime/forms/${encodeURIComponent(id)}`),
+    getBuilderForm: (id) => transport.get(`/builder/forms/${encodeURIComponent(id)}`),
     createBuilderForm: (input) => transport.post("/builder/forms", input),
     updateBuilderForm: (id, input) => transport.patch(`/builder/forms/${encodeURIComponent(id)}`, input),
     replicateBuilderForm: (id, input) => transport.post(`/builder/forms/${encodeURIComponent(id)}/replicate`, input),
@@ -25,7 +25,7 @@ function createBuilderApiClient(transport) {
       query: queryParams(query)
     }),
     listBuilderListOptions: () => transport.get("/builder/lists/options"),
-    getBuilderList: (id) => transport.get(`/builder/runtime/lists/${encodeURIComponent(id)}`),
+    getBuilderList: (id) => transport.get(`/builder/lists/${encodeURIComponent(id)}`),
     createBuilderList: (input) => transport.post("/builder/lists", input),
     updateBuilderList: (id, input) => transport.patch(`/builder/lists/${encodeURIComponent(id)}`, input),
     replicateBuilderList: (id, input) => transport.post(`/builder/lists/${encodeURIComponent(id)}/replicate`, input),

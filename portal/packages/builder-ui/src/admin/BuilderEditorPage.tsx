@@ -20,6 +20,7 @@ import {
   type BuilderListEditorColumnValues,
   type BuilderListEditorEntity,
   type BuilderListEditorValues,
+  builderFormEditorDefaultLayoutGroups,
   builderFormEditorFieldsFromTable,
   builderFormEditorValuesFromEntity,
   builderListEditorColumnsFromTable,
@@ -162,7 +163,11 @@ export function createBuilderFormEditorPageComponent<
     const importFieldsFromTable = () => {
       const table = tables.data?.find((item) => item.name === sourceTable);
       if (!table) return;
-      fieldArray.replace(builderFormEditorFieldsFromTable(table));
+      const nextFields = builderFormEditorFieldsFromTable(table);
+      fieldArray.replace(nextFields);
+      form.setValue("layoutGroups", builderFormEditorDefaultLayoutGroups(nextFields), {
+        shouldDirty: true,
+      });
     };
 
     const onSubmit = form.handleSubmit(async (values) => {

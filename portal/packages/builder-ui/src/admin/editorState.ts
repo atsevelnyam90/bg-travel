@@ -61,6 +61,22 @@ type BuilderEditorField<TFieldType extends string> = {
   triggers?: BuilderEditorFieldTrigger[];
 };
 
+type BuilderEditorFormLayoutField = {
+  key: string;
+  span?: number;
+};
+
+type BuilderEditorFormLayoutGroup = {
+  id: string;
+  title?: string | null;
+  columns?: 6 | 8 | 12;
+  fields?: BuilderEditorFormLayoutField[];
+};
+
+type BuilderEditorFormLayout = {
+  groups?: BuilderEditorFormLayoutGroup[];
+};
+
 type BuilderEditorColumn = {
   key: string;
   label: string;
@@ -76,7 +92,7 @@ export type BuilderFormEditorEntity<
   description: string | null;
   version: number;
   source: BuilderEditorSource;
-  schema: { fields: BuilderEditorField<TFieldType>[] };
+  schema: { fields: BuilderEditorField<TFieldType>[]; layout?: BuilderEditorFormLayout };
   triggers: BuilderEditorTrigger<TTriggerEvent>[];
 };
 
@@ -106,6 +122,18 @@ export type BuilderFormEditorFieldValues<TFieldType extends string = string> = {
   optionsDependsOn?: string;
   optionsFilterField?: string;
   triggers: BuilderEditorFieldTriggerValues[];
+};
+
+export type BuilderFormEditorLayoutFieldValues = {
+  key: string;
+  span: number;
+};
+
+export type BuilderFormEditorLayoutGroupValues = {
+  id: string;
+  title: string;
+  columns: 6 | 8 | 12;
+  fields: BuilderFormEditorLayoutFieldValues[];
 };
 
 export type BuilderEditorTriggerValues<TEvent extends string = string> = {
@@ -140,6 +168,7 @@ export type BuilderFormEditorValues<
   sourceTable: string;
   apiBasePath?: string;
   fields: BuilderFormEditorFieldValues<TFieldType>[];
+  layoutGroups: BuilderFormEditorLayoutGroupValues[];
   triggers: BuilderEditorTriggerValues<TTriggerEvent>[];
   version: number;
 };
@@ -244,6 +273,84 @@ function valuesFromFieldTriggers(
   }));
 }
 
+function clampLayoutSpan(span: number | undefined, columns: 6 | 8 | 12) {
+  if (!span || Number.isNaN(span)) return columns;
+  return Math.max(1, Math.min(columns, Math.trunc(span)));
+}
+
+export function builderFormEditorDefaultSpan<TFieldType extends string>(
+  field: BuilderFormEditorFieldValues<TFieldType>,
+) {
+  if (field.type === "textarea" || field.type === "checkbox") return 12;
+  return 6;
+}
+
+export function builderFormEditorDefaultLayoutGroups<TFieldType extends string>(
+  fields: BuilderFormEditorFieldValues<TFieldType>[],
+): BuilderFormEditorLayoutGroupValues[] {
+  return [
+    {
+      id: "main",
+      title: "Үндсэн",
+      columns: 12,
+      fields: fields.map((field) => ({
+        key: field.key,
+        span: builderFormEditorDefaultSpan(field),
+      })),
+    },
+  ];
+}
+
+export function normalizeBuilderFormEditorLayoutGroups<TFieldType extends string>(
+  groups: BuilderEditorFormLayoutGroup[] | undefined,
+  fields: BuilderFormEditorFieldValues<TFieldType>[],
+): BuilderFormEditorLayoutGroupValues[] {
+  if (fields.length === 0) return [];
+
+  const fieldKeys = new Set(fields.map((field) => field.key));
+  const usedKeys = new Set<string>();
+  const normalized = (groups ?? [])
+    .map((group, index) => {
+      const columns: 6 | 8 | 12 = group.columns === 6 || group.columns === 8 ? group.columns : 12;
+      const groupFields = (group.fields ?? [])
+        .filter((field) => fieldKeys.has(field.key) && !usedKeys.has(field.key))
+        .map((field) => {
+          usedKeys.add(field.key);
+          return { key: field.key, span: clampLayoutSpan(field.span, columns) };
+        });
+
+      return {
+        id: group.id || `group${index + 1}`,
+        title: group.title || `Group ${index + 1}`,
+        columns,
+        fields: groupFields,
+      };
+    })
+    .filter((group) => group.fields.length > 0 || group.title.trim());
+
+  const missingFields = fields
+    .filter((field) => !usedKeys.has(field.key))
+    .map((field) => ({
+      key: field.key,
+      span: builderFormEditorDefaultSpan(field),
+    }));
+
+  if (normalized.length === 0) {
+    return builderFormEditorDefaultLayoutGroups(fields);
+  }
+
+  if (missingFields.length > 0) {
+    normalized.push({
+      id: "ungrouped",
+      title: "Бусад",
+      columns: 12,
+      fields: missingFields,
+    });
+  }
+
+  return normalized;
+}
+
 export function builderFormEditorValuesFromEntity<
   TFieldType extends string,
   TTriggerEvent extends string,
@@ -253,46 +360,48 @@ export function builderFormEditorValuesFromEntity<
 ): BuilderFormEditorValues<TFieldType, TTriggerEvent> {
   if (!form) return emptyValues;
   const source = form.source;
+  const fields: BuilderFormEditorFieldValues<TFieldType>[] = form.schema.fields.map((field) => ({
+    key: field.key,
+    label: field.label,
+    type: field.type,
+    required: field.required,
+    hidden: field.hidden ?? false,
+    disabled: field.disabled ?? false,
+    placeholder: field.placeholder ?? "",
+    optionsText: builderEditorOptionsToText(field.options),
+    optionsMode: field.optionsSource?.type === "dbTable" ? "table" : "static",
+    optionsTable:
+      field.optionsSource?.type === "dbTable"
+        ? field.optionsSource.tableName
+        : BUILDER_EDITOR_NONE_VALUE,
+    optionsValueField:
+      field.optionsSource?.type === "dbTable"
+        ? field.optionsSource.valueField
+        : BUILDER_EDITOR_NONE_VALUE,
+    optionsLabelField:
+      field.optionsSource?.type === "dbTable"
+        ? field.optionsSource.labelField
+        : BUILDER_EDITOR_NONE_VALUE,
+    optionsSearchFieldsText:
+      field.optionsSource?.type === "dbTable"
+        ? builderEditorSearchFieldsToText(field.optionsSource.searchFields)
+        : "",
+    optionsDependsOn:
+      field.optionsSource?.type === "dbTable"
+        ? (field.optionsSource.filterBy?.valueFromField ?? "")
+        : "",
+    optionsFilterField:
+      field.optionsSource?.type === "dbTable" ? (field.optionsSource.filterBy?.field ?? "") : "",
+    triggers: valuesFromFieldTriggers(field.triggers),
+  }));
   return {
     title: form.title,
     description: form.description ?? "",
     sourceType: source?.type ?? "none",
     sourceTable: source?.type === "dbTable" ? source.tableName : BUILDER_EDITOR_NONE_VALUE,
     apiBasePath: source?.type === "apiEndpoint" ? source.basePath : "",
-    fields: form.schema.fields.map((field) => ({
-      key: field.key,
-      label: field.label,
-      type: field.type,
-      required: field.required,
-      hidden: field.hidden ?? false,
-      disabled: field.disabled ?? false,
-      placeholder: field.placeholder ?? "",
-      optionsText: builderEditorOptionsToText(field.options),
-      optionsMode: field.optionsSource?.type === "dbTable" ? "table" : "static",
-      optionsTable:
-        field.optionsSource?.type === "dbTable"
-          ? field.optionsSource.tableName
-          : BUILDER_EDITOR_NONE_VALUE,
-      optionsValueField:
-        field.optionsSource?.type === "dbTable"
-          ? field.optionsSource.valueField
-          : BUILDER_EDITOR_NONE_VALUE,
-      optionsLabelField:
-        field.optionsSource?.type === "dbTable"
-          ? field.optionsSource.labelField
-          : BUILDER_EDITOR_NONE_VALUE,
-      optionsSearchFieldsText:
-        field.optionsSource?.type === "dbTable"
-          ? builderEditorSearchFieldsToText(field.optionsSource.searchFields)
-          : "",
-      optionsDependsOn:
-        field.optionsSource?.type === "dbTable"
-          ? (field.optionsSource.filterBy?.valueFromField ?? "")
-          : "",
-      optionsFilterField:
-        field.optionsSource?.type === "dbTable" ? (field.optionsSource.filterBy?.field ?? "") : "",
-      triggers: valuesFromFieldTriggers(field.triggers),
-    })),
+    fields,
+    layoutGroups: normalizeBuilderFormEditorLayoutGroups(form.schema.layout?.groups, fields),
     triggers: valuesFromTriggers(form.triggers),
     version: form.version,
   };
@@ -349,7 +458,7 @@ export function builderFormEditorFieldsFromTable<TFieldType extends string>(
     required: !column.nullable,
     hidden: false,
     disabled: false,
-    placeholder: "",
+    placeholder: column.label,
     optionsText: "",
     optionsMode: "static",
     optionsTable: BUILDER_EDITOR_NONE_VALUE,
@@ -396,7 +505,7 @@ export function builderFormEditorInputFromValues<
         required: field.required,
         hidden: field.hidden,
         disabled: field.disabled,
-        placeholder: field.placeholder || undefined,
+        placeholder: field.placeholder?.trim() || field.label,
         options:
           field.type === "select" && field.optionsMode === "static"
             ? builderEditorTextToOptions(field.optionsText)
@@ -430,6 +539,9 @@ export function builderFormEditorInputFromValues<
           config: {},
         })),
       })),
+      layout: {
+        groups: normalizeBuilderFormEditorLayoutGroups(values.layoutGroups, values.fields),
+      },
     },
     triggers: values.triggers.map((trigger) => ({
       event: trigger.event,

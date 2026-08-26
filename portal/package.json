@@ -22,6 +22,7 @@
     "build:androidrelease:packaged": "pnpm run build:cap:android:packaged && cd android && ./gradlew bundleRelease",
     "start": "next start",
     "build:packages": "pnpm --recursive --filter \"./packages/*\" --if-present build",
+    "check:boundaries": "node ../scripts/check-boundaries.mjs",
     "typecheck": "pnpm build:packages && tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "test": "vitest",

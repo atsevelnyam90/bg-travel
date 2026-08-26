@@ -69,7 +69,7 @@ export function createBuilderApiClient<C extends BuilderApiContracts>(
     listBuilderFormOptions: () => transport.get<C["BuilderForm"][]>("/builder/forms/options"),
 
     getBuilderForm: (id: string) =>
-      transport.get<C["BuilderForm"]>(`/builder/runtime/forms/${encodeURIComponent(id)}`),
+      transport.get<C["BuilderForm"]>(`/builder/forms/${encodeURIComponent(id)}`),
 
     createBuilderForm: (input: C["CreateBuilderFormInput"]) =>
       transport.post<C["BuilderForm"]>("/builder/forms", input),
@@ -91,7 +91,7 @@ export function createBuilderApiClient<C extends BuilderApiContracts>(
     listBuilderListOptions: () => transport.get<C["BuilderList"][]>("/builder/lists/options"),
 
     getBuilderList: (id: string) =>
-      transport.get<C["BuilderList"]>(`/builder/runtime/lists/${encodeURIComponent(id)}`),
+      transport.get<C["BuilderList"]>(`/builder/lists/${encodeURIComponent(id)}`),
 
     createBuilderList: (input: C["CreateBuilderListInput"]) =>
       transport.post<C["BuilderList"]>("/builder/lists", input),

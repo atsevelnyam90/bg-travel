@@ -117,23 +117,45 @@ function buildBaseColumns<T extends BaseEntity>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
               {runtimeHref ? (
-                <DropdownMenuItem asChild>
-                  <Link href={runtimeHref(row.original)}>
+                <DropdownMenuItem asChild onClick={(event) => event.stopPropagation()}>
+                  <Link
+                    href={runtimeHref(row.original)}
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     <ExternalLink />
                     Runtime
                   </Link>
                 </DropdownMenuItem>
               ) : null}
-              <DropdownMenuItem onSelect={() => onEdit(row.original)}>
+              <DropdownMenuItem
+                onClick={(event) => event.stopPropagation()}
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  onEdit(row.original);
+                }}
+              >
                 <Pencil />
                 Засах
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onReplicate(row.original)}>
+              <DropdownMenuItem
+                onClick={(event) => event.stopPropagation()}
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  onReplicate(row.original);
+                }}
+              >
                 <Copy />
                 Replicate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onSelect={() => onDelete(row.original)}>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(event) => event.stopPropagation()}
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  onDelete(row.original);
+                }}
+              >
                 <Trash2 />
                 Устгах
               </DropdownMenuItem>

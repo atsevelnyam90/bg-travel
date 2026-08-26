@@ -50,12 +50,122 @@ function triggerPatches(response: builder.BuilderFieldTriggerResponse) {
   };
 }
 
+const layoutColumnClasses: Record<6 | 8 | 12, string> = {
+  6: "md:grid-cols-6",
+  8: "md:grid-cols-8",
+  12: "md:grid-cols-12",
+};
+
+const layoutSpanClasses: Record<number, string> = {
+  1: "md:col-span-1",
+  2: "md:col-span-2",
+  3: "md:col-span-3",
+  4: "md:col-span-4",
+  5: "md:col-span-5",
+  6: "md:col-span-6",
+  7: "md:col-span-7",
+  8: "md:col-span-8",
+  9: "md:col-span-9",
+  10: "md:col-span-10",
+  11: "md:col-span-11",
+  12: "md:col-span-12",
+};
+
+type DataFormLayoutField = {
+  field: builder.BuilderField;
+  span: number;
+};
+
+type DataFormLayoutGroup = {
+  id: string;
+  title?: string;
+  columns: 6 | 8 | 12;
+  fields: DataFormLayoutField[];
+};
+
+function clampLayoutSpan(span: number | undefined, columns: 6 | 8 | 12) {
+  if (!span || Number.isNaN(span)) return columns;
+  return Math.max(1, Math.min(columns, Math.trunc(span)));
+}
+
+function getDataFormLayoutGroups(schema: builder.BuilderFormSchema): DataFormLayoutGroup[] | null {
+  if (!schema.layout?.groups?.length) return null;
+
+  const visibleFields = schema.fields.filter((field) => !field.hidden);
+  const fieldsByKey = new Map(visibleFields.map((field) => [field.key, field]));
+  const usedKeys = new Set<string>();
+  const groups = schema.layout.groups
+    .map((group, index) => {
+      const columns: 6 | 8 | 12 = group.columns === 6 || group.columns === 8 ? group.columns : 12;
+      const groupFields = (group.fields ?? [])
+        .map((layoutField) => {
+          const field = fieldsByKey.get(layoutField.key);
+          if (!field || usedKeys.has(layoutField.key)) return null;
+          usedKeys.add(layoutField.key);
+          return {
+            field,
+            span: clampLayoutSpan(layoutField.span, columns),
+          };
+        })
+        .filter((field): field is DataFormLayoutField => Boolean(field));
+
+      return {
+        id: group.id || `group${index + 1}`,
+        title: group.title,
+        columns,
+        fields: groupFields,
+      };
+    })
+    .filter((group) => group.fields.length > 0);
+
+  const missingFields = visibleFields.filter((field) => !usedKeys.has(field.key));
+  if (missingFields.length > 0) {
+    groups.push({
+      id: "ungrouped",
+      title: "Бусад",
+      columns: 12,
+      fields: missingFields.map((field) => ({ field, span: 12 })),
+    });
+  }
+
+  return groups.length > 0 ? groups : null;
+}
+
 export function DataForm<T extends FieldValues>({
   formId,
   viewId,
   schema,
   namePrefix,
 }: DataFormProps<T>) {
+  const layoutGroups = getDataFormLayoutGroups(schema);
+
+  if (layoutGroups) {
+    return (
+      <div className="space-y-6">
+        {layoutGroups.map((group) => (
+          <section key={group.id} className="space-y-3">
+            {group.title ? <h3 className="font-medium text-sm">{group.title}</h3> : null}
+            <div className={`grid grid-cols-1 gap-4 ${layoutColumnClasses[group.columns]}`}>
+              {group.fields.map(({ field, span }) => (
+                <div
+                  key={field.key}
+                  className={`min-w-0 ${layoutSpanClasses[span] ?? "md:col-span-12"}`}
+                >
+                  <DataFormField<T>
+                    formId={formId}
+                    viewId={viewId}
+                    field={field}
+                    namePrefix={namePrefix}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <>
       {schema.fields.map((field) => (
@@ -87,6 +197,7 @@ function DataFormField<T extends FieldValues>({
   const { control, getValues } = useFormContext<T>();
   const isDisabled = field.disabled ?? false;
   const name = fieldName<T>(namePrefix, field.key);
+  const placeholder = field.placeholder?.trim() || field.label;
   const { runFieldTriggers } = useFieldTriggerActions<T>({
     formId,
     viewId,
@@ -107,7 +218,7 @@ function DataFormField<T extends FieldValues>({
         name={name}
         label={field.label}
         description={field.description}
-        placeholder={field.placeholder}
+        placeholder={placeholder}
         rows={4}
         disabled={isDisabled}
         onBlur={runBlurTriggers}
@@ -130,7 +241,7 @@ function DataFormField<T extends FieldValues>({
           name={name}
           label={field.label}
           description={field.description}
-          placeholder={field.placeholder}
+          placeholder={placeholder}
           options={field.options ?? []}
           disabled={isDisabled}
         />
@@ -166,7 +277,7 @@ function DataFormField<T extends FieldValues>({
             <Input
               id={name}
               type="number"
-              placeholder={field.placeholder}
+              placeholder={placeholder}
               disabled={isDisabled}
               value={controlField.value == null ? "" : String(controlField.value)}
               onChange={(event) =>
@@ -188,7 +299,7 @@ function DataFormField<T extends FieldValues>({
         name={name}
         label={field.label}
         description={field.description}
-        placeholder={field.placeholder}
+        placeholder={placeholder}
         type={field.type === "date" ? "date" : "text"}
         disabled={isDisabled}
         onBlur={runBlurTriggers}
@@ -348,7 +459,7 @@ function DatasourceSelectField<T extends FieldValues>({
       name={name}
       label={field.label}
       description={field.description}
-      placeholder={field.placeholder ?? (options.isPending ? "Уншиж байна..." : "Сонгоно уу")}
+      placeholder={options.isPending ? "Уншиж байна..." : field.placeholder?.trim() || field.label}
       options={options.data ?? []}
       disabled={disabled || !formId || options.isPending}
     />
