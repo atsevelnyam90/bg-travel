@@ -70,6 +70,7 @@ model User {
   sessions      Session[]
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
+  confirmedOrders Order[]
 
   @@index([status])
   @@map("users")
@@ -301,6 +302,61 @@ model WebsiteSection {
   @@index([pageId, sortOrder])
   @@index([type])
   @@map("website_sections")
+}
+
+// ─── Захиалга ───────────────────────────────────────────────────────────────
+// Customer account үүсгэхгүй, public form-оос ирсэн мэдээллийг snapshot хэлбэрээр хадгална.
+// Admin талд builder DynamicView-ээр жагсааж, шаардлагатай үед төлбөрийн төлөв баталгаажуулна.
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PAID
+
+  @@map("order_status")
+}
+
+enum TransportType {
+  GROUND
+  DIRECT_FLIGHT
+
+  @@map("transport_type")
+}
+
+model Order {
+  id            String @id @default(uuid())
+  publicOrderId String @unique @map("public_order_id") @db.VarChar(20)
+
+  firstName String @map("first_name") @db.VarChar(100)
+  lastName  String @map("last_name") @db.VarChar(100)
+  address   String
+  phone     String @db.VarChar(30)
+  email     String @db.VarChar(255)
+
+  serviceCode   String         @map("service_code") @db.VarChar(50)
+  transportType TransportType? @map("transport_type")
+  travelDate    DateTime       @map("travel_date") @db.Date
+  travelerCount Int            @map("traveler_count")
+
+  serviceNameSnapshot   String  @map("service_name_snapshot") @db.VarChar(255)
+  transportNameSnapshot String? @map("transport_name_snapshot") @db.VarChar(100)
+  unitPriceMnt          BigInt  @map("unit_price_mnt")
+  totalPriceMnt         BigInt  @map("total_price_mnt")
+
+  status            OrderStatus @default(AWAITING_PAYMENT)
+  confirmedByUserId String?     @map("confirmed_by_user_id")
+  confirmedAt       DateTime?   @map("confirmed_at")
+
+  idempotencyKey String @unique @map("idempotency_key") @db.VarChar(64)
+
+  version   Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deletedAt")
+
+  confirmedBy User? @relation(fields: [confirmedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt], map: "idx_orders_status_created")
+  @@map("orders")
 }
 
 // ─── Төлбөрийн лавлагаа ─────────────────────────────────────────────────────

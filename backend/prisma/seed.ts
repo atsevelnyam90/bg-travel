@@ -1,6 +1,7 @@
 import { SYSTEM_ROLES } from "@winu/contracts";
 import { prisma } from "../src/lib/prisma";
 import { hashPassword } from "../src/modules/auth/passwordService";
+import { ORDER_CONFIRM_PAID_TRIGGER } from "../src/modules/orders/triggers";
 import {
   PRODUCT_DISCOUNT_FIELD_TRIGGER,
   PRODUCT_SLUG_FIELD_TRIGGER,
@@ -23,6 +24,9 @@ const PRODUCT_VIEW_ID = "11111111-1111-4111-8111-111111111113";
 const USER_FORM_ID = "22222222-2222-4222-8222-222222222221";
 const USER_LIST_ID = "22222222-2222-4222-8222-222222222222";
 const USER_VIEW_ID = "22222222-2222-4222-8222-222222222223";
+const ORDER_FORM_ID = "33333333-3333-4333-8333-333333333331";
+const ORDER_LIST_ID = "33333333-3333-4333-8333-333333333332";
+const ORDER_VIEW_ID = "33333333-3333-4333-8333-333333333333";
 
 const userListTriggers = [
   {
@@ -31,6 +35,23 @@ const userListTriggers = [
     enabled: true,
     blocking: true,
     config: { route: USER_TEST_BEFORE_DELETE_TRIGGER },
+  },
+];
+
+const orderFormTriggers = [
+  {
+    event: "beforeCreate",
+    action: "callApi",
+    enabled: true,
+    blocking: true,
+    config: { route: ORDER_CONFIRM_PAID_TRIGGER },
+  },
+  {
+    event: "beforeUpdate",
+    action: "callApi",
+    enabled: true,
+    blocking: true,
+    config: { route: ORDER_CONFIRM_PAID_TRIGGER },
   },
 ];
 
@@ -154,6 +175,104 @@ const userFormSchema = {
   },
 };
 
+const orderFormSchema = {
+  fields: [
+    { key: "public_order_id", label: "Захиалгын дугаар", type: "text", required: true },
+    { key: "first_name", label: "Нэр", type: "text", required: true },
+    { key: "last_name", label: "Овог", type: "text", required: true },
+    { key: "address", label: "Хаяг", type: "textarea", required: true },
+    { key: "phone", label: "Утас", type: "text", required: true },
+    { key: "email", label: "И-мэйл", type: "text", required: true },
+    { key: "service_code", label: "Үйлчилгээний код", type: "text", required: true },
+    {
+      key: "transport_type",
+      label: "Тээврийн төрөл",
+      type: "select",
+      required: false,
+      options: [
+        { label: "Газраар", value: "GROUND" },
+        { label: "Шууд нислэг", value: "DIRECT_FLIGHT" },
+      ],
+    },
+    { key: "travel_date", label: "Аяллын огноо", type: "date", required: true },
+    { key: "traveler_count", label: "Зорчигчийн тоо", type: "number", required: true },
+    { key: "service_name_snapshot", label: "Үйлчилгээний нэр", type: "text", required: true },
+    { key: "transport_name_snapshot", label: "Тээврийн нэр", type: "text", required: false },
+    { key: "unit_price_mnt", label: "Нэгж үнэ", type: "money", required: true },
+    { key: "total_price_mnt", label: "Нийт үнэ", type: "money", required: true },
+    {
+      key: "status",
+      label: "Төлөв",
+      type: "select",
+      required: true,
+      options: [
+        { label: "Төлбөр хүлээгдэж байна", value: "AWAITING_PAYMENT" },
+        { label: "Төлсөн", value: "PAID" },
+      ],
+    },
+    {
+      key: "confirmed_by_user_id",
+      label: "Баталгаажуулсан хэрэглэгч ID",
+      type: "text",
+      required: false,
+      hidden: true,
+      disabled: true,
+    },
+    {
+      key: "confirmed_at",
+      label: "Баталгаажуулсан огноо",
+      type: "date",
+      required: false,
+      hidden: true,
+      disabled: true,
+    },
+    { key: "idempotency_key", label: "Idempotency key", type: "text", required: true },
+  ],
+  layout: {
+    groups: [
+      {
+        id: "customer",
+        title: "Захиалагч",
+        columns: 12,
+        fields: [
+          { key: "public_order_id", span: 4 },
+          { key: "first_name", span: 4 },
+          { key: "last_name", span: 4 },
+          { key: "address", span: 12 },
+          { key: "phone", span: 6 },
+          { key: "email", span: 6 },
+        ],
+      },
+      {
+        id: "service",
+        title: "Аялал",
+        columns: 12,
+        fields: [
+          { key: "service_code", span: 4 },
+          { key: "transport_type", span: 4 },
+          { key: "travel_date", span: 4 },
+          { key: "traveler_count", span: 4 },
+          { key: "service_name_snapshot", span: 4 },
+          { key: "transport_name_snapshot", span: 4 },
+        ],
+      },
+      {
+        id: "payment",
+        title: "Төлбөр",
+        columns: 12,
+        fields: [
+          { key: "unit_price_mnt", span: 4 },
+          { key: "total_price_mnt", span: 4 },
+          { key: "status", span: 4 },
+          { key: "confirmed_by_user_id", span: 6 },
+          { key: "confirmed_at", span: 6 },
+          { key: "idempotency_key", span: 12 },
+        ],
+      },
+    ],
+  },
+};
+
 async function seedBuilderDefinitions() {
   await prisma.builderDefinition.upsert({
     where: { id: PRODUCT_FORM_ID },
@@ -263,7 +382,94 @@ async function seedBuilderDefinitions() {
     },
   });
 
-  return { PRODUCT_VIEW_ID, USER_VIEW_ID };
+  await prisma.builderDefinition.upsert({
+    where: { id: ORDER_FORM_ID },
+    update: {
+      source: { type: "dbTable", tableName: "orders" },
+      schema: orderFormSchema,
+      triggers: orderFormTriggers,
+    },
+    create: {
+      id: ORDER_FORM_ID,
+      type: "form",
+      title: "Order Form",
+      description: "Захиалга нэмэх, засах form.",
+      source: { type: "dbTable", tableName: "orders" },
+      triggers: orderFormTriggers,
+      schema: orderFormSchema,
+    },
+  });
+
+  await prisma.builderDefinition.upsert({
+    where: { id: ORDER_LIST_ID },
+    update: {
+      source: { type: "dbTable", tableName: "orders" },
+      triggers: [],
+      schema: {
+        columns: [
+          { key: "public_order_id", label: "Дугаар", sortable: true, align: "left" },
+          { key: "first_name", label: "Нэр", sortable: true, align: "left" },
+          { key: "last_name", label: "Овог", sortable: true, align: "left" },
+          { key: "phone", label: "Утас", sortable: true, align: "left" },
+          { key: "service_code", label: "Үйлчилгээ", sortable: true, align: "left" },
+          { key: "transport_type", label: "Тээвэр", sortable: true, align: "left" },
+          { key: "travel_date", label: "Аяллын огноо", sortable: true, align: "left" },
+          { key: "traveler_count", label: "Зорчигч", sortable: true, align: "right" },
+          { key: "total_price_mnt", label: "Нийт үнэ", sortable: true, align: "right" },
+          { key: "status", label: "Төлөв", sortable: true, align: "left" },
+          { key: "created_at", label: "Үүссэн", sortable: true, align: "left" },
+        ],
+      },
+    },
+    create: {
+      id: ORDER_LIST_ID,
+      type: "list",
+      title: "Order List",
+      description: "Захиалгын grid/list баганууд.",
+      source: { type: "dbTable", tableName: "orders" },
+      triggers: [],
+      schema: {
+        columns: [
+          { key: "public_order_id", label: "Дугаар", sortable: true, align: "left" },
+          { key: "first_name", label: "Нэр", sortable: true, align: "left" },
+          { key: "last_name", label: "Овог", sortable: true, align: "left" },
+          { key: "phone", label: "Утас", sortable: true, align: "left" },
+          { key: "service_code", label: "Үйлчилгээ", sortable: true, align: "left" },
+          { key: "transport_type", label: "Тээвэр", sortable: true, align: "left" },
+          { key: "travel_date", label: "Аяллын огноо", sortable: true, align: "left" },
+          { key: "traveler_count", label: "Зорчигч", sortable: true, align: "right" },
+          { key: "total_price_mnt", label: "Нийт үнэ", sortable: true, align: "right" },
+          { key: "status", label: "Төлөв", sortable: true, align: "left" },
+          { key: "created_at", label: "Үүссэн", sortable: true, align: "left" },
+        ],
+      },
+    },
+  });
+
+  await prisma.builderView.upsert({
+    where: { id: ORDER_VIEW_ID },
+    update: {
+      title: "Захиалга",
+      description: "Builder view-ээр дуудагдаж байгаа захиалгын CRUD.",
+      formId: ORDER_FORM_ID,
+      listId: ORDER_LIST_ID,
+      permissionRead: "order:read",
+      permissionWrite: "order:write",
+      triggers: [],
+    },
+    create: {
+      id: ORDER_VIEW_ID,
+      title: "Захиалга",
+      description: "Builder view-ээр дуудагдаж байгаа захиалгын CRUD.",
+      formId: ORDER_FORM_ID,
+      listId: ORDER_LIST_ID,
+      permissionRead: "order:read",
+      permissionWrite: "order:write",
+      triggers: [],
+    },
+  });
+
+  return { PRODUCT_VIEW_ID, USER_VIEW_ID, ORDER_VIEW_ID };
 }
 
 async function main() {
@@ -313,6 +519,7 @@ async function main() {
   console.log(`✓ Owner: ${owner.email}`);
   console.log(`✓ Builder Product View: ${views.PRODUCT_VIEW_ID}`);
   console.log(`✓ Builder User View: ${views.USER_VIEW_ID}`);
+  console.log(`✓ Builder Order View: ${views.ORDER_VIEW_ID}`);
   if (OWNER_PASSWORD === DEFAULT_PASSWORD) {
     console.log(`⚠️  Нууц үг default (${DEFAULT_PASSWORD}) — заавал соль.`);
   }

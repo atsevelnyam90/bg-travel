@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
+import { ORDER_CONFIRM_PAID_TRIGGER } from "@/modules/orders/triggers";
 import {
   PRODUCT_DISCOUNT_FIELD_TRIGGER,
   PRODUCT_SLUG_FIELD_TRIGGER,
@@ -24,6 +25,9 @@ const WEBSITE_PAGE_VIEW_ID = "44444444-4444-4444-8444-444444444443";
 const WEBSITE_SECTION_FORM_ID = "44444444-4444-4444-8444-444444444451";
 const WEBSITE_SECTION_LIST_ID = "44444444-4444-4444-8444-444444444452";
 const WEBSITE_SECTION_VIEW_ID = "44444444-4444-4444-8444-444444444453";
+const ORDER_FORM_ID = "55555555-5555-4555-8555-555555555551";
+const ORDER_LIST_ID = "55555555-5555-4555-8555-555555555552";
+const ORDER_VIEW_ID = "55555555-5555-4555-8555-555555555553";
 
 async function seedProductBuilderView() {
   await prisma.builderDefinition.createMany({
@@ -230,14 +234,134 @@ async function seedWebsitePageBuilderView() {
   });
 }
 
+async function seedOrderBuilderView() {
+  await prisma.builderDefinition.createMany({
+    data: [
+      {
+        id: ORDER_FORM_ID,
+        type: "form",
+        title: "Order Form",
+        source: { type: "dbTable", tableName: "orders" },
+        triggers: [
+          {
+            event: "beforeCreate",
+            action: "callApi",
+            enabled: true,
+            blocking: true,
+            config: { route: ORDER_CONFIRM_PAID_TRIGGER },
+          },
+          {
+            event: "beforeUpdate",
+            action: "callApi",
+            enabled: true,
+            blocking: true,
+            config: { route: ORDER_CONFIRM_PAID_TRIGGER },
+          },
+        ],
+        schema: {
+          fields: [
+            { key: "public_order_id", label: "Дугаар", type: "text", required: true },
+            { key: "first_name", label: "Нэр", type: "text", required: true },
+            { key: "last_name", label: "Овог", type: "text", required: true },
+            { key: "address", label: "Хаяг", type: "textarea", required: true },
+            { key: "phone", label: "Утас", type: "text", required: true },
+            { key: "email", label: "И-мэйл", type: "text", required: true },
+            { key: "service_code", label: "Үйлчилгээ", type: "text", required: true },
+            {
+              key: "transport_type",
+              label: "Тээвэр",
+              type: "select",
+              required: false,
+              options: [{ label: "Газраар", value: "GROUND" }],
+            },
+            { key: "travel_date", label: "Огноо", type: "date", required: true },
+            { key: "traveler_count", label: "Зорчигч", type: "number", required: true },
+            {
+              key: "service_name_snapshot",
+              label: "Үйлчилгээний нэр",
+              type: "text",
+              required: true,
+            },
+            {
+              key: "transport_name_snapshot",
+              label: "Тээврийн нэр",
+              type: "text",
+              required: false,
+            },
+            { key: "unit_price_mnt", label: "Нэгж үнэ", type: "money", required: true },
+            { key: "total_price_mnt", label: "Нийт үнэ", type: "money", required: true },
+            {
+              key: "status",
+              label: "Төлөв",
+              type: "select",
+              required: true,
+              options: [
+                { label: "Төлбөр хүлээгдэж байна", value: "AWAITING_PAYMENT" },
+                { label: "Төлсөн", value: "PAID" },
+              ],
+            },
+            {
+              key: "confirmed_by_user_id",
+              label: "Баталгаажуулсан хэрэглэгч ID",
+              type: "text",
+              required: false,
+              hidden: true,
+              disabled: true,
+            },
+            {
+              key: "confirmed_at",
+              label: "Баталгаажуулсан огноо",
+              type: "date",
+              required: false,
+              hidden: true,
+              disabled: true,
+            },
+            { key: "idempotency_key", label: "Idempotency key", type: "text", required: true },
+          ],
+        },
+      },
+      {
+        id: ORDER_LIST_ID,
+        type: "list",
+        title: "Order List",
+        source: { type: "dbTable", tableName: "orders" },
+        schema: {
+          columns: [
+            { key: "public_order_id", label: "Дугаар", sortable: true, align: "left" },
+            { key: "status", label: "Төлөв", sortable: true, align: "left" },
+          ],
+        },
+      },
+    ],
+  });
+
+  await prisma.builderView.create({
+    data: {
+      id: ORDER_VIEW_ID,
+      title: "Захиалга",
+      formId: ORDER_FORM_ID,
+      listId: ORDER_LIST_ID,
+      permissionRead: "order:read",
+      permissionWrite: "order:write",
+      triggers: [],
+    },
+  });
+}
+
 describe("builder runtime view", () => {
   let token: string;
+  let ownerId: string;
 
   beforeEach(async () => {
     await resetDatabase();
     await seedOrganization();
     const roles = await seedRoles();
-    await createUser({ email: "owner@test.mn", password: "Test1234!", roleId: roles.owner });
+    const owner = await createUser({
+      email: "owner@test.mn",
+      password: "Test1234!",
+      roleId: roles.owner,
+    });
+    ownerId = owner.id;
     token = await login("owner@test.mn", "Test1234!");
     await seedProductBuilderView();
   });
@@ -381,6 +505,42 @@ describe("builder runtime view", () => {
 
     expect(section.body.values.pageId).toBe(created.body.id);
     expect(section.body.values.sortOrder).toBe(0);
+  });
+
+  it("order PAID болох үед баталгаажуулсан хэрэглэгчийг trigger автоматаар бөглөнө", async () => {
+    await seedOrderBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${ORDER_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({
+        values: {
+          public_order_id: "ORD-TRIGGER-1",
+          first_name: "Bold",
+          last_name: "Tester",
+          address: "Test address",
+          phone: "99999999",
+          email: "order@example.mn",
+          service_code: "tour-1",
+          transport_type: "GROUND",
+          travel_date: "2026-10-14",
+          traveler_count: 2,
+          service_name_snapshot: "Test tour",
+          transport_name_snapshot: "Газраар",
+          unit_price_mnt: 1000,
+          total_price_mnt: 2000,
+          status: "PAID",
+          idempotency_key: "order-trigger-test",
+        },
+      })
+      .expect(201);
+
+    expect(created.body.values.confirmed_by_user_id).toBe(ownerId);
+    expect(created.body.values.confirmed_at).toBeTruthy();
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: created.body.id } });
+    expect(order.confirmedByUserId).toBe(ownerId);
+    expect(order.confirmedAt).toBeInstanceOf(Date);
   });
 
   it("composite runtime нь parent page болон child sections-г хамт үүсгэнэ", async () => {

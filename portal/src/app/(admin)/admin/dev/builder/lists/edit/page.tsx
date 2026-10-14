@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { AdminEditListPage } from "@/features/builder/builder.config";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdminEditListRoutePage } from "@/features/builder/builder.config";
 
 export const metadata: Metadata = { title: "Edit Dynamic List" };
 
-export default async function EditBuilderListPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ id?: string }>;
-}) {
-  const { id } = await searchParams;
-  return <AdminEditListPage listId={id} />;
+export default function EditBuilderListPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
+      <AdminEditListRoutePage />
+    </Suspense>
+  );
 }

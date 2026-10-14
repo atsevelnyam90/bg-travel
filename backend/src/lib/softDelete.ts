@@ -21,6 +21,7 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "User",
   "Organization",
   "Product",
+  "Order",
   "WebsitePage",
   "WebsiteSection",
   "BuilderDefinition",

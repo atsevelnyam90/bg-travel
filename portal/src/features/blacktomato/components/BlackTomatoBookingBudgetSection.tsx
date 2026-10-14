@@ -23,6 +23,7 @@ type BlackTomatoBookingBudgetSectionProps = {
   initialTripId?: string;
   mode?: "home" | "detail";
   onContinue?: (quote: BookingQuote) => void;
+  variant?: "section" | "drawer";
 };
 
 function TripResult({
@@ -61,17 +62,106 @@ export function BlackTomatoBookingBudgetSection({
   initialTripId,
   mode = "home",
   onContinue,
+  variant = "section",
 }: BlackTomatoBookingBudgetSectionProps) {
   const screen = useBookingBudgetScreen({ initialTripId, mode, onContinue });
   const hasTransportChoices = (screen.selectedTrip?.transportOptions.length ?? 0) > 1;
+  const isDrawer = variant === "drawer";
 
   return (
-    <section className="bt-booking section" id="journey-start">
+    <section
+      className={`bt-booking bt-booking--${variant}${isDrawer ? "" : " section"}`}
+      id={isDrawer ? "booking-drawer" : "journey-start"}
+      aria-label="Захиалгын хэсэг"
+    >
       <style>{`
+        body.blacktomato-booking-open {
+          overflow: hidden;
+        }
+
         .bt-booking {
+          color: white;
+          font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+        }
+
+        .bt-booking--section {
+          background: rgb(15 15 15);
+          padding: 72px 24px 82px;
+          position: relative;
+        }
+
+        .bt-booking--drawer {
+          background: transparent;
+          inset: 0;
+          opacity: 0;
+          padding: 0;
+          pointer-events: none;
+          position: fixed;
+          transition: opacity 180ms ease;
+          z-index: 10050;
+        }
+
+        .blacktomato-shell--booking-open .bt-booking--drawer {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        .bt-booking__backdrop {
+          background: rgb(0 0 0 / 62%);
+          border: 0;
+          cursor: pointer;
+          inset: 0;
+          opacity: 0;
+          position: absolute;
+          transition: opacity 220ms ease;
+          width: 100%;
+        }
+
+        .blacktomato-shell--booking-open .bt-booking__backdrop {
+          opacity: 1;
+        }
+
+        .bt-booking--drawer .bt-booking__drawer {
+          background: rgb(15 15 15);
+          box-shadow: 18px 0 60px rgb(0 0 0 / 38%);
+          left: 0;
+          max-height: calc(100vh - 48px);
+          overflow-y: auto;
+          padding: 72px 24px 82px;
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translate(-100%, -50%);
+          transition: transform 260ms ease;
+          width: 100vw;
+        }
+
+        .blacktomato-shell--booking-open .bt-booking--drawer .bt-booking__drawer {
+          transform: translate(0, -50%);
+        }
+
+        .bt-booking__close {
+          align-items: center;
+          background: rgb(37 37 37);
+          border: 0;
+          border-radius: 999px;
+          color: white;
+          cursor: pointer;
+          display: inline-flex;
+          height: 38px;
+          justify-content: center;
+          position: absolute;
+          right: 28px;
+          top: 28px;
+          width: 38px;
+          z-index: 2;
+        }
+
+        .bt-booking__close:hover,
+        .bt-booking__close:focus-visible {
           background: white;
           color: black;
-          padding: 86px 24px 96px;
+          outline: none;
         }
 
         .bt-booking__wrap {
@@ -83,35 +173,34 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__eyebrow {
-          color: rgb(116 121 128);
-          font-size: 12px;
+          color: rgb(154 158 166);
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 2.4px;
-          margin: 0 0 14px;
+          letter-spacing: 1.6px;
+          margin: 0 0 12px;
           text-transform: uppercase;
         }
 
         .bt-booking__title {
-          color: black;
-          font-family: AlternateGotNo1D, sans-serif;
-          font-size: 58px;
-          font-weight: 400;
-          letter-spacing: 1.8px;
-          line-height: 0.98;
-          margin: 0 0 20px;
-          text-transform: uppercase;
+          color: white;
+          font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+          font-size: 36px;
+          font-weight: 700;
+          letter-spacing: 0;
+          line-height: 1.14;
+          margin: 0 0 18px;
         }
 
         .bt-booking__copy {
-          color: rgb(82 87 92);
-          font-size: 18px;
-          line-height: 1.72;
+          color: rgb(171 176 184);
+          font-size: 16px;
+          line-height: 1.65;
           margin: 0 0 28px;
           max-width: 470px;
         }
 
         .bt-booking__quote {
-          border: 1px solid rgb(225 226 228);
+          border: 1px solid rgb(54 54 54);
           border-radius: 8px;
           display: grid;
           gap: 14px;
@@ -120,24 +209,24 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__quote-title {
-          color: black;
-          font-size: 12px;
+          color: white;
+          font-size: 13px;
           font-weight: 700;
-          letter-spacing: 1.6px;
+          letter-spacing: 0.8px;
           margin: 0 0 4px;
           text-transform: uppercase;
         }
 
         .bt-booking__quote-empty {
-          color: rgb(116 121 128);
-          font-size: 15px;
+          color: rgb(146 151 159);
+          font-size: 14px;
           line-height: 1.55;
           margin: 0;
         }
 
         .bt-booking__quote-row {
           align-items: start;
-          border-top: 1px solid rgb(236 237 238);
+          border-top: 1px solid rgb(44 44 44);
           display: grid;
           gap: 16px;
           grid-template-columns: 110px 1fr;
@@ -145,14 +234,14 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__quote-label {
-          color: rgb(116 121 128);
+          color: rgb(146 151 159);
           font-size: 12px;
           line-height: 1.35;
         }
 
         .bt-booking__quote-value {
-          color: black;
-          font-size: 15px;
+          color: white;
+          font-size: 14px;
           font-weight: 700;
           line-height: 1.35;
           text-align: right;
@@ -167,14 +256,14 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__quote-value--total {
-          font-size: 24px;
+          font-size: 20px;
         }
 
         .bt-booking__panel {
-          background: rgb(18 18 18);
+          background: rgb(16 16 16);
           border-radius: 8px;
           color: white;
-          padding: 26px;
+          padding: 24px;
         }
 
         .bt-booking__form {
@@ -193,7 +282,7 @@ export function BlackTomatoBookingBudgetSection({
           display: grid;
           gap: 12px;
           grid-template-columns: auto 1fr auto;
-          min-height: 68px;
+          min-height: 58px;
           padding: 0 16px;
         }
 
@@ -201,8 +290,8 @@ export function BlackTomatoBookingBudgetSection({
           background: transparent;
           border: 0;
           color: white;
-          font-size: 20px;
-          font-weight: 700;
+          font-size: 16px;
+          font-weight: 600;
           min-width: 0;
           outline: none;
           width: 100%;
@@ -220,9 +309,9 @@ export function BlackTomatoBookingBudgetSection({
           color: white;
           cursor: pointer;
           display: inline-flex;
-          height: 36px;
+          height: 32px;
           justify-content: center;
-          width: 36px;
+          width: 32px;
         }
 
         .bt-booking__results {
@@ -250,9 +339,9 @@ export function BlackTomatoBookingBudgetSection({
 
         .bt-booking__group-label {
           color: rgb(143 149 157);
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 1.6px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 1.2px;
           padding: 10px 14px 4px;
           text-transform: uppercase;
         }
@@ -299,14 +388,14 @@ export function BlackTomatoBookingBudgetSection({
 
         .bt-trip-result__title {
           color: white;
-          font-size: 20px;
-          font-weight: 800;
-          line-height: 1.18;
+          font-size: 17px;
+          font-weight: 700;
+          line-height: 1.24;
         }
 
         .bt-trip-result__meta {
           color: rgb(217 217 217);
-          font-size: 14px;
+          font-size: 13px;
           line-height: 1.35;
         }
 
@@ -314,8 +403,8 @@ export function BlackTomatoBookingBudgetSection({
           background: rgb(37 37 37);
           border-radius: 7px;
           color: white;
-          font-size: 13px;
-          font-weight: 800;
+          font-size: 12px;
+          font-weight: 700;
           line-height: 1;
           padding: 10px 12px;
         }
@@ -345,10 +434,10 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__label {
-          color: rgb(204 204 204);
-          font-size: 11px;
+          color: rgb(190 194 201);
+          font-size: 12px;
           font-weight: 700;
-          letter-spacing: 1.4px;
+          letter-spacing: 0.6px;
           line-height: 1.2;
           text-transform: uppercase;
         }
@@ -359,7 +448,7 @@ export function BlackTomatoBookingBudgetSection({
           border-radius: 4px;
           display: grid;
           grid-template-columns: 48px 1fr 48px;
-          min-height: 50px;
+          min-height: 48px;
           overflow: hidden;
         }
 
@@ -370,7 +459,7 @@ export function BlackTomatoBookingBudgetSection({
           color: black;
           cursor: pointer;
           display: inline-flex;
-          height: 50px;
+          height: 48px;
           justify-content: center;
         }
 
@@ -385,8 +474,8 @@ export function BlackTomatoBookingBudgetSection({
           display: inline-flex;
           gap: 7px;
           justify-content: center;
-          font-size: 17px;
-          font-weight: 800;
+          font-size: 15px;
+          font-weight: 700;
           text-align: center;
         }
 
@@ -424,8 +513,8 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         .bt-booking__transport-name {
-          font-size: 14px;
-          font-weight: 800;
+          font-size: 13px;
+          font-weight: 700;
         }
 
         .bt-booking__transport-price {
@@ -443,6 +532,8 @@ export function BlackTomatoBookingBudgetSection({
           gap: 10px;
           min-height: 54px;
           padding: 14px 16px;
+          font-size: 14px;
+          line-height: 1.45;
         }
 
         .bt-booking__status svg {
@@ -477,9 +568,9 @@ export function BlackTomatoBookingBudgetSection({
           cursor: pointer;
           flex: 0 0 auto;
           font-size: 13px;
-          font-weight: 800;
-          letter-spacing: 1.8px;
-          min-height: 52px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          min-height: 50px;
           padding: 0 30px;
           text-transform: uppercase;
           transition: background-color 180ms ease, color 180ms ease, opacity 180ms ease;
@@ -496,8 +587,13 @@ export function BlackTomatoBookingBudgetSection({
         }
 
         @media screen and (max-width: 980px) {
-          .bt-booking {
+          .bt-booking--section {
             padding: 64px 18px;
+          }
+
+          .bt-booking--drawer .bt-booking__drawer {
+            max-height: calc(100vh - 28px);
+            padding: 70px 18px 48px;
           }
 
           .bt-booking__wrap,
@@ -506,11 +602,28 @@ export function BlackTomatoBookingBudgetSection({
           }
 
           .bt-booking__title {
-            font-size: 44px;
+            font-size: 30px;
           }
         }
 
         @media screen and (max-width: 680px) {
+          .bt-booking--drawer .bt-booking__drawer {
+            bottom: 0;
+            max-height: none;
+            padding: 58px 18px 32px;
+            top: 0;
+            transform: translateX(-100%);
+          }
+
+          .blacktomato-shell--booking-open .bt-booking--drawer .bt-booking__drawer {
+            transform: translateX(0);
+          }
+
+          .bt-booking__close {
+            right: 18px;
+            top: 18px;
+          }
+
           .bt-booking__panel {
             padding: 18px;
           }
@@ -535,215 +648,237 @@ export function BlackTomatoBookingBudgetSection({
         }
       `}</style>
 
-      <div className="bt-booking__wrap">
-        <div>
-          <p className="bt-booking__eyebrow">Booking</p>
-          <h2 className="bt-booking__title">Plan your journey</h2>
-          <p className="bt-booking__copy">
-            Аяллаа сонгоод огноо, хүний тоогоо оруулахад боломжит суудал болон үнийн санал шууд
-            харагдана.
-          </p>
+      {isDrawer ? (
+        <button
+          className="bt-booking__backdrop js-close-booking-drawer"
+          aria-label="Хаах"
+          type="button"
+        />
+      ) : null}
 
-          <div className="bt-booking__quote" aria-live="polite">
-            <p className="bt-booking__quote-title">Захиалгын хураангуй</p>
+      <div className="bt-booking__drawer">
+        {isDrawer ? (
+          <button
+            className="bt-booking__close js-close-booking-drawer"
+            aria-label="Хаах"
+            type="button"
+          >
+            <X size={22} />
+          </button>
+        ) : null}
 
-            {screen.quote ? (
-              <>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Аялал</span>
-                  <span className="bt-booking__quote-value">{screen.quote.selectedTrip.title}</span>
-                </div>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Огноо</span>
-                  <span className="bt-booking__quote-value">{screen.quote.travelDate}</span>
-                </div>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Хүний тоо</span>
-                  <span className="bt-booking__quote-value">{screen.quote.peopleCount}</span>
-                </div>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Тээвэр</span>
-                  <span className="bt-booking__quote-value">
-                    {screen.quote.selectedTransport.label}
-                  </span>
-                </div>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Суудал</span>
-                  <span
-                    className={
-                      screen.quote.hasAvailability
-                        ? "bt-booking__quote-value bt-booking__quote-value--good"
-                        : "bt-booking__quote-value bt-booking__quote-value--danger"
-                    }
-                  >
-                    {screen.quote.hasAvailability
-                      ? `${screen.quote.selectedTrip.availableSeats} сул суудал`
-                      : "Суудал хүрэлцэхгүй"}
-                  </span>
-                </div>
-                <div className="bt-booking__quote-row">
-                  <span className="bt-booking__quote-label">Нийт үнэ</span>
-                  <span className="bt-booking__quote-value bt-booking__quote-value--total">
-                    {formatTravelMoney(screen.quote.totalPriceMnt)}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <p className="bt-booking__quote-empty">
-                Аялал, огноо, хүний тоогоо сонгоод захиалгын саналаа харна уу.
-              </p>
-            )}
+        <div className="bt-booking__wrap">
+          <div>
+            <p className="bt-booking__eyebrow">Захиалга</p>
+            <h2 className="bt-booking__title">Аяллаа төлөвлөх</h2>
+            <p className="bt-booking__copy">
+              Аяллаа сонгоод огноо, хүний тоогоо оруулахад боломжит суудал болон үнийн санал шууд
+              харагдана.
+            </p>
+
+            <div className="bt-booking__quote" aria-live="polite">
+              <p className="bt-booking__quote-title">Захиалгын хураангуй</p>
+
+              {screen.quote ? (
+                <>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Аялал</span>
+                    <span className="bt-booking__quote-value">
+                      {screen.quote.selectedTrip.title}
+                    </span>
+                  </div>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Огноо</span>
+                    <span className="bt-booking__quote-value">{screen.quote.travelDate}</span>
+                  </div>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Хүний тоо</span>
+                    <span className="bt-booking__quote-value">{screen.quote.peopleCount}</span>
+                  </div>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Тээвэр</span>
+                    <span className="bt-booking__quote-value">
+                      {screen.quote.selectedTransport.label}
+                    </span>
+                  </div>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Суудал</span>
+                    <span
+                      className={
+                        screen.quote.hasAvailability
+                          ? "bt-booking__quote-value bt-booking__quote-value--good"
+                          : "bt-booking__quote-value bt-booking__quote-value--danger"
+                      }
+                    >
+                      {screen.quote.hasAvailability
+                        ? `${screen.quote.selectedTrip.availableSeats} сул суудал`
+                        : "Суудал хүрэлцэхгүй"}
+                    </span>
+                  </div>
+                  <div className="bt-booking__quote-row">
+                    <span className="bt-booking__quote-label">Нийт үнэ</span>
+                    <span className="bt-booking__quote-value bt-booking__quote-value--total">
+                      {formatTravelMoney(screen.quote.totalPriceMnt)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="bt-booking__quote-empty">
+                  Аялал, огноо, хүний тоогоо сонгоод захиалгын саналаа харна уу.
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="bt-booking__panel">
-          <form className="bt-booking__form" onSubmit={screen.continueBooking}>
-            <div className="bt-booking__travel">
-              <label className="bt-booking__field">
-                <span className="bt-booking__label">Аялал сонгох</span>
-                <span className="bt-booking__search">
-                  <Search aria-hidden="true" color="rgb(0 180 38)" size={24} />
-                  <input
-                    aria-autocomplete="list"
-                    aria-expanded={screen.isDropdownOpen}
-                    onChange={(event) => {
-                      screen.setQuery(event.target.value);
-                      screen.setDropdownOpen(true);
-                    }}
-                    onFocus={() => screen.setDropdownOpen(true)}
-                    placeholder={screen.selectedTrip?.title ?? "Аяллын нэр, улс, төрлөөр хайх"}
-                    role="combobox"
-                    type="search"
-                    value={screen.query}
-                  />
-                  <button
-                    aria-label="Clear trip search"
-                    className="bt-booking__clear"
-                    onClick={() => {
-                      screen.setQuery("");
-                      screen.setDropdownOpen(false);
-                    }}
-                    type="button"
-                  >
-                    <X size={23} />
-                  </button>
-                </span>
-              </label>
-
-              {screen.isDropdownOpen ? (
-                <div className="bt-booking__results">
-                  {screen.filteredTripGroups.some((group) => group.trips.length > 0) ? (
-                    screen.filteredTripGroups.map((group) =>
-                      group.trips.length > 0 ? (
-                        <div className="bt-booking__group" key={group.category}>
-                          <span className="bt-booking__group-label">{group.category}</span>
-                          {group.trips.map((trip) => (
-                            <TripResult
-                              isSelected={trip.id === screen.selectedTrip?.id}
-                              key={trip.id}
-                              onSelect={() => screen.selectTrip(trip)}
-                              trip={trip}
-                            />
-                          ))}
-                        </div>
-                      ) : null,
-                    )
-                  ) : (
-                    <p className="bt-booking__empty">Илэрц олдсонгүй.</p>
-                  )}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="bt-booking__controls">
-              <label className="bt-booking__field">
-                <span className="bt-booking__label">Огноо</span>
-                <span className="bt-booking__search">
-                  <CalendarDays aria-hidden="true" color="rgb(0 180 38)" size={24} />
-                  <input
-                    onChange={(event) => screen.setTravelDate(event.target.value)}
-                    type="date"
-                    value={screen.travelDate}
-                  />
-                  <span />
-                </span>
-              </label>
-
-              <div className="bt-booking__field">
-                <span className="bt-booking__label">Хүний тоо</span>
-                <div className="bt-booking__stepper">
-                  <button
-                    aria-label="Decrease travellers"
-                    disabled={screen.peopleCount <= 1}
-                    onClick={screen.decrementPeople}
-                    type="button"
-                  >
-                    <Minus size={20} />
-                  </button>
-                  <span className="bt-booking__count">
-                    <Users aria-hidden="true" size={17} /> {screen.peopleCount}
-                  </span>
-                  <button
-                    aria-label="Increase travellers"
-                    onClick={screen.incrementPeople}
-                    type="button"
-                  >
-                    <Plus size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {hasTransportChoices ? (
-              <div className="bt-booking__transport">
-                <span className="bt-booking__label">Тээврийн төрөл</span>
-                <div className="bt-booking__transport-list">
-                  {screen.selectedTrip?.transportOptions.map((transport) => (
+          <div className="bt-booking__panel">
+            <form className="bt-booking__form" onSubmit={screen.continueBooking}>
+              <div className="bt-booking__travel">
+                <label className="bt-booking__field">
+                  <span className="bt-booking__label">Аялал сонгох</span>
+                  <span className="bt-booking__search">
+                    <Search aria-hidden="true" color="rgb(0 180 38)" size={24} />
+                    <input
+                      aria-autocomplete="list"
+                      aria-expanded={screen.isDropdownOpen}
+                      onChange={(event) => {
+                        screen.setQuery(event.target.value);
+                        screen.setDropdownOpen(true);
+                      }}
+                      onFocus={() => screen.setDropdownOpen(true)}
+                      placeholder={screen.selectedTrip?.title ?? "Аяллын нэр, улс, төрлөөр хайх"}
+                      role="combobox"
+                      type="search"
+                      value={screen.query}
+                    />
                     <button
-                      aria-pressed={transport.id === screen.selectedTransport?.id}
-                      className="bt-booking__transport-button"
-                      key={transport.id}
-                      onClick={() => screen.setSelectedTransportId(transport.id)}
+                      aria-label="Clear trip search"
+                      className="bt-booking__clear"
+                      onClick={() => {
+                        screen.setQuery("");
+                        screen.setDropdownOpen(false);
+                      }}
                       type="button"
                     >
-                      <span className="bt-booking__transport-name">{transport.label}</span>
-                      <span className="bt-booking__transport-price">
-                        {formatTravelMoney(transport.priceMnt)} / хүн
-                      </span>
+                      <X size={23} />
                     </button>
-                  ))}
+                  </span>
+                </label>
+
+                {screen.isDropdownOpen ? (
+                  <div className="bt-booking__results">
+                    {screen.filteredTripGroups.some((group) => group.trips.length > 0) ? (
+                      screen.filteredTripGroups.map((group) =>
+                        group.trips.length > 0 ? (
+                          <div className="bt-booking__group" key={group.category}>
+                            <span className="bt-booking__group-label">{group.category}</span>
+                            {group.trips.map((trip) => (
+                              <TripResult
+                                isSelected={trip.id === screen.selectedTrip?.id}
+                                key={trip.id}
+                                onSelect={() => screen.selectTrip(trip)}
+                                trip={trip}
+                              />
+                            ))}
+                          </div>
+                        ) : null,
+                      )
+                    ) : (
+                      <p className="bt-booking__empty">Илэрц олдсонгүй.</p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="bt-booking__controls">
+                <label className="bt-booking__field">
+                  <span className="bt-booking__label">Огноо</span>
+                  <span className="bt-booking__search">
+                    <CalendarDays aria-hidden="true" color="rgb(0 180 38)" size={24} />
+                    <input
+                      onChange={(event) => screen.setTravelDate(event.target.value)}
+                      type="date"
+                      value={screen.travelDate}
+                    />
+                    <span />
+                  </span>
+                </label>
+
+                <div className="bt-booking__field">
+                  <span className="bt-booking__label">Хүний тоо</span>
+                  <div className="bt-booking__stepper">
+                    <button
+                      aria-label="Decrease travellers"
+                      disabled={screen.peopleCount <= 1}
+                      onClick={screen.decrementPeople}
+                      type="button"
+                    >
+                      <Minus size={20} />
+                    </button>
+                    <span className="bt-booking__count">
+                      <Users aria-hidden="true" size={17} /> {screen.peopleCount}
+                    </span>
+                    <button
+                      aria-label="Increase travellers"
+                      onClick={screen.incrementPeople}
+                      type="button"
+                    >
+                      <Plus size={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            ) : null}
 
-            <div
-              className={
-                screen.quote && !screen.quote.hasAvailability
-                  ? "bt-booking__status bt-booking__status--warning"
-                  : "bt-booking__status"
-              }
-            >
-              <CircleAlert aria-hidden="true" size={20} />
-              <span>
-                {screen.quote
-                  ? screen.quote.hasAvailability
-                    ? "Суудал баталгаатай байна. Үргэлжлүүлэх боломжтой."
-                    : "Сонгосон хүний тоонд хүрэлцэх суудал одоогоор алга."
-                  : "Үнэ болон суудлын мэдээлэл аялал, огноо, хүний тоо сонгосны дараа гарна."}
-              </span>
-            </div>
+              {hasTransportChoices ? (
+                <div className="bt-booking__transport">
+                  <span className="bt-booking__label">Тээврийн төрөл</span>
+                  <div className="bt-booking__transport-list">
+                    {screen.selectedTrip?.transportOptions.map((transport) => (
+                      <button
+                        aria-pressed={transport.id === screen.selectedTransport?.id}
+                        className="bt-booking__transport-button"
+                        key={transport.id}
+                        onClick={() => screen.setSelectedTransportId(transport.id)}
+                        type="button"
+                      >
+                        <span className="bt-booking__transport-name">{transport.label}</span>
+                        <span className="bt-booking__transport-price">
+                          {formatTravelMoney(transport.priceMnt)} / хүн
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
-            <div className="bt-booking__actions">
-              <p className="bt-booking__note">Сонгосон мэдээлэл дараагийн алхамд хадгалагдана.</p>
-              <button
-                className="bt-booking__button"
-                disabled={!screen.canContinue || screen.isSubmitting}
-                type="submit"
+              <div
+                className={
+                  screen.quote && !screen.quote.hasAvailability
+                    ? "bt-booking__status bt-booking__status--warning"
+                    : "bt-booking__status"
+                }
               >
-                Үргэлжлүүлэх
-              </button>
-            </div>
-          </form>
+                <CircleAlert aria-hidden="true" size={20} />
+                <span>
+                  {screen.quote
+                    ? screen.quote.hasAvailability
+                      ? "Суудал баталгаатай байна. Үргэлжлүүлэх боломжтой."
+                      : "Сонгосон хүний тоонд хүрэлцэх суудал одоогоор алга."
+                    : "Үнэ болон суудлын мэдээлэл аялал, огноо, хүний тоо сонгосны дараа гарна."}
+                </span>
+              </div>
+
+              <div className="bt-booking__actions">
+                <p className="bt-booking__note">Сонгосон мэдээлэл дараагийн алхамд хадгалагдана.</p>
+                <button
+                  className="bt-booking__button"
+                  disabled={!screen.canContinue || screen.isSubmitting}
+                  type="submit"
+                >
+                  Үргэлжлүүлэх
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>

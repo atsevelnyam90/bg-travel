@@ -15,6 +15,16 @@ function quoteIdentifier(value: string) {
   return Prisma.raw(`"${value.replaceAll('"', '""')}"`);
 }
 
+function jsonSafeValue(value: unknown): unknown {
+  if (typeof value !== "bigint") return value;
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : value.toString();
+}
+
+function jsonSafeRow(row: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, jsonSafeValue(value)]));
+}
+
 function createGenericRuntimeRepository(
   client: RuntimePrismaClient,
   transaction: BuilderGenericRuntimeRepository["transaction"],
@@ -93,7 +103,7 @@ function createGenericRuntimeRepository(
 
       return {
         total: Number(countRows[0]?.total ?? 0),
-        rows,
+        rows: rows.map(jsonSafeRow),
       };
     },
 
@@ -106,7 +116,7 @@ function createGenericRuntimeRepository(
       RETURNING ${Prisma.join(args.returningColumns.map((column) => quoteIdentifier(column)))}
     `);
 
-      return row ?? null;
+      return row ? jsonSafeRow(row) : null;
     },
 
     async updateRow(args: UpdateGenericRuntimeRowArgs) {
@@ -134,7 +144,7 @@ function createGenericRuntimeRepository(
       RETURNING ${Prisma.join(args.returningColumns.map((column) => quoteIdentifier(column)))}
     `);
 
-      return row ?? null;
+      return row ? jsonSafeRow(row) : null;
     },
 
     async deleteRow(args: DeleteGenericRuntimeRowArgs) {

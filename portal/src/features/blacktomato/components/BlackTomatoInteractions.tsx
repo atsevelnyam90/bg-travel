@@ -6,6 +6,10 @@ function closestElement(target: EventTarget | null, selector: string) {
   return target instanceof Element ? target.closest(selector) : null;
 }
 
+function getScrollBehavior(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+}
+
 function preventLocalFormSubmit(root: ParentNode) {
   root.querySelectorAll("form").forEach((form) => {
     if (form instanceof HTMLFormElement && form.dataset.allowSubmit === "true") {
@@ -44,15 +48,35 @@ function bindJourneyStart(root: ParentNode) {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      document.querySelector(".blacktomato-shell")?.classList.add("blacktomato-shell--started");
-
-      window.requestAnimationFrame(() => {
-        document.querySelector("#journey-start")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
+      openBookingDrawer();
     });
+  });
+}
+
+function openBookingDrawer() {
+  document
+    .querySelector(".blacktomato-shell")
+    ?.classList.add("blacktomato-shell--started", "blacktomato-shell--booking-open");
+  document.body.classList.add("blacktomato-booking-open");
+}
+
+function closeBookingDrawer() {
+  document.querySelector(".blacktomato-shell")?.classList.remove("blacktomato-shell--booking-open");
+  document.body.classList.remove("blacktomato-booking-open");
+}
+
+function bindBookingDrawer(root: ParentNode) {
+  root.querySelectorAll(".js-close-booking-drawer").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      closeBookingDrawer();
+    });
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeBookingDrawer();
+    }
   });
 }
 
@@ -152,10 +176,10 @@ function bindHorizontalScrollers(root: ParentNode) {
     }
 
     previous?.addEventListener("click", () => {
-      content.scrollBy({ left: -content.clientWidth * 0.85, behavior: "smooth" });
+      content.scrollBy({ left: -content.clientWidth * 0.85, behavior: getScrollBehavior() });
     });
     next.addEventListener("click", () => {
-      content.scrollBy({ left: content.clientWidth * 0.85, behavior: "smooth" });
+      content.scrollBy({ left: content.clientWidth * 0.85, behavior: getScrollBehavior() });
       previous?.classList.remove("disabled");
     });
   });
@@ -168,6 +192,7 @@ export function BlackTomatoInteractions() {
     preventLocalFormSubmit(root);
     bindDismissButtons(root);
     bindJourneyStart(root);
+    bindBookingDrawer(root);
     bindMobileMenu(root);
     bindTabs(root);
     bindAccordions(root);

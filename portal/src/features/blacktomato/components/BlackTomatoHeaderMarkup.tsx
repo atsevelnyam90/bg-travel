@@ -59,7 +59,7 @@ export function BlackTomatoHeaderMarkup() {
         </div>
 
         <div className="header__cta">
-                            <a href="https://www.blacktomato.com/make-an-enquiry/" className="btn btn--3dless btn--pink btn--inverse nav-btn btn--rounded" rel="nofollow">Enquire Now</a>
+                            <a href="#journey-start" className="btn btn--3dless btn--pink btn--inverse nav-btn btn--rounded js-start-journey" rel="nofollow">ЗАХИАЛАХ</a>
                     </div>
 
         <div className="header__toggle js-menu-toggle">
@@ -1214,7 +1214,7 @@ export function BlackTomatoHeaderMarkup() {
               <span className="header__mybt__hover">My BT Login</span>
             </a>
 
-            <a href="https://www.blacktomato.com/make-an-enquiry/" className="d-inline-block btn btn--pink btn--inverse nav-btn btn--3dless btn--rounded btn--smaller" rel="nofollow">Enquire Now</a>
+            <a href="#journey-start" className="d-inline-block btn btn--pink btn--inverse nav-btn btn--3dless btn--rounded btn--smaller js-start-journey" rel="nofollow">ЗАХИАЛАХ</a>
           </div>
         </div>
       </div>

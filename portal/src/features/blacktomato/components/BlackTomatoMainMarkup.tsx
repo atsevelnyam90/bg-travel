@@ -41,6 +41,8 @@ export function BlackTomatoMainMarkup() {
     
 </section>
                     
+<BlackTomatoBookingBudgetSection variant="drawer" />
+                    
 <BlackTomatoBookingBudgetSection />
                     
 <section className="section section--testimonials section--testimonials--manual bg-white text- trustpilot-layout has-logo-underneath" style={{ backgroundImage: 'url()', backgroundSize: 'cover' }} id="">

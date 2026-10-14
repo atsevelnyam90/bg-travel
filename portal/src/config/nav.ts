@@ -1,5 +1,13 @@
 import type { LucideIcon } from "lucide-react";
-import { FileText, Globe, LayoutDashboard, Package, Settings, Users } from "lucide-react";
+import {
+  FileText,
+  Globe,
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingCart,
+  Users,
+} from "lucide-react";
 import type { Permission } from "@/lib/permissions";
 
 // Цэс бол КОД БИШ, ӨГӨГДӨЛ. Эрхээр шүүгдэнэ, клиент бүрт солиход амар.
@@ -31,7 +39,10 @@ export const navSections: NavSection[] = [
   },
   {
     label: "Дэлгүүр",
-    items: [{ label: "Бараа", href: "/admin/products", icon: Package, permission: "product:read" }],
+    items: [
+      { label: "Бараа", href: "/admin/products", icon: Package, permission: "product:read" },
+      { label: "Захиалга", href: "/admin/orders", icon: ShoppingCart, permission: "order:read" },
+    ],
   },
   {
     label: "Website",

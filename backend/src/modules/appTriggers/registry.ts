@@ -3,6 +3,7 @@ import type {
   BuilderTriggerResult,
 } from "@duke333/builder-backend/triggers";
 import { badRequest } from "@/lib/errors";
+import { confirmPaidOrderTrigger, ORDER_CONFIRM_PAID_TRIGGER } from "@/modules/orders/triggers";
 import {
   testUserBeforeDeleteTrigger,
   USER_TEST_BEFORE_DELETE_TRIGGER,
@@ -13,6 +14,7 @@ type AppTriggerHandler = (
 ) => Promise<BuilderTriggerResult | undefined>;
 
 const appTriggerHandlers: Record<string, AppTriggerHandler> = {
+  [ORDER_CONFIRM_PAID_TRIGGER]: confirmPaidOrderTrigger,
   [USER_TEST_BEFORE_DELETE_TRIGGER]: async (context) => {
     await testUserBeforeDeleteTrigger(context);
     return undefined;

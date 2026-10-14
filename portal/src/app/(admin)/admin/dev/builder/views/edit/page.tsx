@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { AdminEditViewPage } from "@/features/builder/builder.config";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdminEditViewRoutePage } from "@/features/builder/builder.config";
 
 export const metadata: Metadata = { title: "Edit Dynamic View" };
 
-export default async function EditBuilderViewPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ id?: string }>;
-}) {
-  const { id } = await searchParams;
-  return <AdminEditViewPage viewId={id} />;
+export default function EditBuilderViewPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
+      <AdminEditViewRoutePage />
+    </Suspense>
+  );
 }

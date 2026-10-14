@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { AdminEditFormPage } from "@/features/builder/builder.config";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdminEditFormRoutePage } from "@/features/builder/builder.config";
 
 export const metadata: Metadata = { title: "Edit Dynamic Form" };
 
-export default async function EditBuilderFormPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ id?: string }>;
-}) {
-  const { id } = await searchParams;
-  return <AdminEditFormPage formId={id} />;
+export default function EditBuilderFormPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
+      <AdminEditFormRoutePage />
+    </Suspense>
+  );
 }

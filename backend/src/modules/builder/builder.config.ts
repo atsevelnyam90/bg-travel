@@ -11,7 +11,15 @@ import {
   createBuilderViewUseCases,
 } from "@duke333/builder-backend/usecases";
 import type { Permission } from "@winu/contracts";
-import type { NextFunction, Request, RequestHandler, Response, Router } from "express";
+import {
+  Router as createExpressRouter,
+  type NextFunction,
+  type Request,
+  type RequestHandler,
+  type Response,
+  type Router,
+} from "express";
+import { runWithRequestContext } from "@/lib/requestContext";
 import { requireAuth, requirePermission } from "@/middlewares/requirePermission";
 import { auditFromRequest } from "@/modules/audit/writeAudit";
 import { starterBuilderRuntimeAdapters } from "./datasources/runtimeEntryDatasources";
@@ -132,21 +140,26 @@ export async function requireBuilderSchemaVersion(
 }
 
 export function createBuilderRouter(deps: BuilderRouterDependencies): Router {
-  return createBuilderPackageRouter({
-    requireAuth: deps.requireAuth,
-    adminGuard: deps.requirePermission(BUILDER_ADMIN_PERMISSION),
-    schemaGuard: deps.schemaGuard,
-    auditFromRequest: deps.auditFromRequest,
-    getPermissions: (req) => req.auth?.permissions ?? [],
-    errors: builderErrors,
-    adminUseCases: {
-      ...builderDatasourceUseCases,
-      ...builderDefinitionUseCases,
-      ...builderViewUseCases,
-    },
-    runtimeUseCases: builderRuntimeUseCases,
-    runtimeAdapters: deps.runtimeAdapters,
-  });
+  const router = createExpressRouter();
+  router.use(runWithRequestContext);
+  router.use(
+    createBuilderPackageRouter({
+      requireAuth: deps.requireAuth,
+      adminGuard: deps.requirePermission(BUILDER_ADMIN_PERMISSION),
+      schemaGuard: deps.schemaGuard,
+      auditFromRequest: deps.auditFromRequest,
+      getPermissions: (req) => req.auth?.permissions ?? [],
+      errors: builderErrors,
+      adminUseCases: {
+        ...builderDatasourceUseCases,
+        ...builderDefinitionUseCases,
+        ...builderViewUseCases,
+      },
+      runtimeUseCases: builderRuntimeUseCases,
+      runtimeAdapters: deps.runtimeAdapters,
+    }),
+  );
+  return router;
 }
 
 export const builderRouter = createBuilderRouter({

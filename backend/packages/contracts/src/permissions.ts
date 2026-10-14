@@ -21,6 +21,10 @@ export const PERMISSIONS = [
   "product:write",
   "product:delete",
 
+  "order:read",
+  "order:write",
+  "order:delete",
+
   "report:read",
   "report:export",
 ] as const;
@@ -38,6 +42,9 @@ export const SYSTEM_ROLES = {
     "product:read",
     "product:write",
     "product:delete",
+    "order:read",
+    "order:write",
+    "order:delete",
     "user:read",
     "user:invite",
     "user:update",
@@ -46,15 +53,11 @@ export const SYSTEM_ROLES = {
     "role:manage",
     "org:read",
     "audit:read",
-
-    "product:read",
-    "product:write",
-    "product:delete",
     "report:read",
     "report:export",
   ],
-  member: ["product:read", "product:write", "user:read", "org:read", "report:read"],
-  viewer: ["product:read", "user:read", "org:read"],
+  member: ["product:read", "product:write", "order:read", "user:read", "org:read", "report:read"],
+  viewer: ["product:read", "order:read", "user:read", "org:read"],
 } as const satisfies Record<string, readonly Permission[]>;
 
 export type SystemRoleName = keyof typeof SYSTEM_ROLES;

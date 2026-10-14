@@ -4,6 +4,7 @@ import { createBuilderAdminPages } from "@duke333/builder-ui/admin";
 import { type BuilderApiContracts, createBuilderApiClient } from "@duke333/builder-ui/api";
 import { createBuilderHooks } from "@duke333/builder-ui/hooks";
 import { createBuilderIntegration } from "@duke333/builder-ui/integration";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
 import { builder as builderContract, PERMISSIONS } from "@/api/generated/contracts";
@@ -170,6 +171,11 @@ export function AdminEditFormPage({ formId }: { formId?: string }) {
   return <Component formId={formId} />;
 }
 
+export function AdminEditFormRoutePage() {
+  const formId = useSearchParams().get("id") ?? undefined;
+  return <AdminEditFormPage formId={formId} />;
+}
+
 export function AdminListsPage() {
   const Component = builderAdmin.AdminListsPage;
   return <Component />;
@@ -185,6 +191,11 @@ export function AdminEditListPage({ listId }: { listId?: string }) {
   return <Component listId={listId} />;
 }
 
+export function AdminEditListRoutePage() {
+  const listId = useSearchParams().get("id") ?? undefined;
+  return <AdminEditListPage listId={listId} />;
+}
+
 export function AdminViewsPage() {
   const Component = builderAdmin.AdminViewsPage;
   return <Component />;
@@ -198,4 +209,9 @@ export function AdminNewViewPage() {
 export function AdminEditViewPage({ viewId }: { viewId?: string }) {
   const Component = builderAdmin.AdminEditViewPage;
   return <Component viewId={viewId} />;
+}
+
+export function AdminEditViewRoutePage() {
+  const viewId = useSearchParams().get("id") ?? undefined;
+  return <AdminEditViewPage viewId={viewId} />;
 }
