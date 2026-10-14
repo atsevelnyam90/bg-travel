@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import { BlackTomatoPage } from "@/features/blacktomato/components/BlackTomatoPage";
+import { WelcomeExperience } from "@/features/welcome/components/WelcomeExperience";
 
 export const metadata: Metadata = {
-  title: "Luxury Travel & Bespoke Holidays | Black Tomato",
+  title: "BG Travel | Тээш дүүрэн дурсамж",
   description:
-    "Award-winning luxury travel planners crafting bespoke holidays worldwide since 2005.",
+    "Тээш дүүрэн дурсамжийг BG Travel-тай хамт. Хамгийн хямд, хамгийн чанартай аяллыг манайхаас.",
 };
 
 export default function HomePage() {
-  return <BlackTomatoPage />;
+  return (
+    <WelcomeExperience>
+      <BlackTomatoPage />
+    </WelcomeExperience>
+  );
 }
