@@ -6,16 +6,16 @@ export function BlackTomatoMainMarkup() {
 <div>
 
                         
-<section className="section section--hero-banner section--hero-banner--single_image section--hero-banner--full section--hero-banner--video section--hero-banner-- js-start-journey" id="">
+<section className="section section--hero-banner section--hero-banner--single_image section--hero-banner--full section--hero-banner--video section--hero-banner--" id="">
             
                 <div className="banner__video hidden-lg">            
-                        <video className="video inline" width="100%" loop={true} muted={true} playsInline={true} poster="https://media.blacktomato.com/cdn-cgi/image/width=1024,height=1024,fit=contain,quality=82,format=auto/https://media.blacktomato.com/2024/04/Website-Homepage-9-Mobil.00_00_00_00000.Still002.jpg" data-object-fit="cover" preload="metadata">
-                <source src="https://media.blacktomato.com/2025/02/black-tomato-mob-home.mp4" type="video/mp4" />
+                        <video className="video inline" width="100%" autoPlay={true} loop={true} muted={true} playsInline={true} poster="/bg-travel/poster.jpg" data-object-fit="cover" preload="metadata">
+                <source src="/bg-travel/background.mp4" type="video/mp4" />
             </video>
                       </div>
           <div className="banner__video visible-lg">            
-                        <video className="video inline" width="100%" loop={true} muted={true} playsInline={true} poster="https://media.blacktomato.com/cdn-cgi/image/quality=82,format=auto/https://media.blacktomato.com/2024/04/Website-Homepage-V9.00_00_00_00.Still002.jpg" data-object-fit="cover" preload="metadata">
-                <source src="https://media.blacktomato.com/2025%2F02%2Fblack-tomato-homepage.mp4" type="video/mp4" />
+                        <video className="video inline" width="100%" autoPlay={true} loop={true} muted={true} playsInline={true} poster="/bg-travel/poster.jpg" data-object-fit="cover" preload="metadata">
+                <source src="/bg-travel/background.mp4" type="video/mp4" />
             </video>
                       </div>
       
@@ -24,16 +24,16 @@ export function BlackTomatoMainMarkup() {
 
   <div className="container container--absolute">
     <div style={{ textAlign: 'center' }}>
-<h1 style={{ color: '#fff' }}>The luxury travel experts</h1>
-<h2><strong><span className="text--white text-white h8">Tailor-made trips, award winning service. Est. 2005.</span></strong></h2>
-<div className="text--white" style={{ justifyContent: 'center', display: 'flex', gap: '16px' }}><a className="btn btn--negative js-start-journey" href="#journey-start">Explore our trips</a></div>
+<h1 style={{ color: '#fff', fontSize: 'clamp(30px, 3.2vw, 56px)', lineHeight: 1.08, letterSpacing: 0, marginInline: 'auto', maxWidth: '980px' }}>Хамгийн хямд, хамгийн чанартай аяллыг манайхаас...</h1>
+<h2><strong><span className="text--white text-white h8">Тээш дүүрэн дурсамжийг BG Travel-тай хамт</span></strong></h2>
+<div className="text--white" style={{ justifyContent: 'center', display: 'flex', gap: '16px' }}><a className="btn btn--negative js-explore-trips" href="#journey-start">Аяллаа төлөвлөх</a></div>
 </div>
 
     
   </div>
 
       <div className="section__scroll section__scroll--white">
-        <a href="#" className="js-scroll-page-down">
+        <a href="#journey-start" className="js-scroll-page-down">
             <span>Scroll</span>
         </a>
         <span className="section__scroll__line"></span>
@@ -840,7 +840,7 @@ export function BlackTomatoMainMarkup() {
               </div> 
                     </div>     </div> </section>
                     
-<div data-vue="" data-v-app=""><section data-v-5ea7fae5="" className="section colour-scheme-custom layout-carousel" style={{ backgroundImage: 'url(https://media.blacktomato.com/2022/09/Itineraries-Home-scaled.jpg)' }} id=""><div data-v-5ea7fae5="" className="pattern-holder"><div data-v-5ea7fae5="" className="intro intro--mobile"><div data-v-5ea7fae5="" className="tile"><div data-v-5ea7fae5="" className="intro__text"><div data-v-5ea7fae5="" className="intro__body"><h2><span className="text--white">Explore our trips</span></h2>
+<div data-vue="" data-v-app=""><section data-v-5ea7fae5="" className="section colour-scheme-custom layout-carousel" style={{ backgroundImage: 'url(https://media.blacktomato.com/2022/09/Itineraries-Home-scaled.jpg)' }} id="explore-trips"><div data-v-5ea7fae5="" className="pattern-holder"><div data-v-5ea7fae5="" className="intro intro--mobile"><div data-v-5ea7fae5="" className="tile"><div data-v-5ea7fae5="" className="intro__text"><div data-v-5ea7fae5="" className="intro__body"><h2><span className="text--white">Explore our trips</span></h2>
 <p><em><span className="text--white">Remarkable experiences to inspire the mind</span></em></p>
 </div></div></div></div><div data-v-5ea7fae5="" className="wrap"><div data-v-5ea7fae5="" className="container"><div data-v-5ea7fae5="" className="scroller"><div data-v-5ea7fae5="" className="wrapper"><div data-v-5ea7fae5="" className="intro intro--desktop"><div data-v-5ea7fae5="" className="tile"><div data-v-5ea7fae5="" className="intro__text"><div data-v-5ea7fae5="" className="intro__body"><h2><span className="text--white">Explore our trips</span></h2>
 <p><em><span className="text--white">Remarkable experiences to inspire the mind</span></em></p>

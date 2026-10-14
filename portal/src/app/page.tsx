@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { BlackTomatoPage } from "@/features/blacktomato/components/BlackTomatoPage";
-import { WelcomeExperience } from "@/features/welcome/components/WelcomeExperience";
 
 export const metadata: Metadata = {
   title: "BG Travel | Тээш дүүрэн дурсамж",
@@ -9,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return (
-    <WelcomeExperience>
-      <BlackTomatoPage />
-    </WelcomeExperience>
-  );
+  return <BlackTomatoPage />;
 }

@@ -10,6 +10,18 @@ function getScrollBehavior(): ScrollBehavior {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
+function startPage() {
+  document.querySelector(".blacktomato-shell")?.classList.add("blacktomato-shell--started");
+}
+
+function getAnchorTarget(trigger: EventTarget | null) {
+  if (!(trigger instanceof HTMLAnchorElement) || !trigger.hash) {
+    return null;
+  }
+
+  return document.getElementById(trigger.hash.slice(1));
+}
+
 function preventLocalFormSubmit(root: ParentNode) {
   root.querySelectorAll("form").forEach((form) => {
     if (form instanceof HTMLFormElement && form.dataset.allowSubmit === "true") {
@@ -23,17 +35,12 @@ function preventLocalFormSubmit(root: ParentNode) {
 }
 
 function bindDismissButtons(root: ParentNode) {
-  root
-    .querySelectorAll(".js-accept-cookies, .js-dismiss-regionalisation-banner")
-    .forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        closestElement(
-          event.currentTarget,
-          ".cookie-acceptance, .header__regionalisation",
-        )?.remove();
-      });
+  root.querySelectorAll(".js-dismiss-regionalisation-banner").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      closestElement(event.currentTarget, ".header__regionalisation")?.remove();
     });
+  });
 
   root.querySelectorAll(".newsletter-popup .close").forEach((button) => {
     button.addEventListener("click", (event) => {
@@ -44,8 +51,12 @@ function bindDismissButtons(root: ParentNode) {
 }
 
 function bindJourneyStart(root: ParentNode) {
-  root.querySelectorAll(".js-start-journey, .js-scroll-page-down").forEach((link) => {
+  root.querySelectorAll(".js-start-journey").forEach((link) => {
     link.addEventListener("click", (event) => {
+      if (closestElement(event.currentTarget, ".section--hero-banner")) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       openBookingDrawer();
@@ -53,7 +64,38 @@ function bindJourneyStart(root: ParentNode) {
   });
 }
 
+function bindPageScroll(root: ParentNode) {
+  root
+    .querySelectorAll(
+      ".js-explore-trips, .js-scroll-page-down, .section--hero-banner .js-start-journey",
+    )
+    .forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const trigger = event.currentTarget;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        startPage();
+
+        window.requestAnimationFrame(() => {
+          const target = closestElement(trigger, ".section--hero-banner .js-start-journey")
+            ? document.getElementById("journey-start")
+            : getAnchorTarget(trigger);
+
+          if (target) {
+            target.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+            return;
+          }
+
+          window.scrollBy({ top: window.innerHeight, behavior: getScrollBehavior() });
+        });
+      });
+    });
+}
+
 function openBookingDrawer() {
+  startPage();
   document
     .querySelector(".blacktomato-shell")
     ?.classList.add("blacktomato-shell--started", "blacktomato-shell--booking-open");
@@ -192,6 +234,7 @@ export function BlackTomatoInteractions() {
     preventLocalFormSubmit(root);
     bindDismissButtons(root);
     bindJourneyStart(root);
+    bindPageScroll(root);
     bindBookingDrawer(root);
     bindMobileMenu(root);
     bindTabs(root);

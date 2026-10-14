@@ -33,8 +33,28 @@ export function BlackTomatoPage() {
           cursor: pointer;
         }
 
+        .blacktomato-shell .section--hero-banner .container--absolute h1 {
+          font-size: clamp(30px, 3.2vw, 56px) !important;
+          letter-spacing: 0 !important;
+          line-height: 1.08 !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          max-width: 980px !important;
+        }
+
         .blacktomato-shell .section--testimonials {
           display: none !important;
+        }
+
+        .blacktomato-shell .newsletter-popup {
+          display: none !important;
+        }
+
+        @media screen and (max-width: 640px) {
+          .blacktomato-shell .section--hero-banner .container--absolute h1 {
+            font-size: 30px !important;
+            max-width: calc(100vw - 32px) !important;
+          }
         }
       `}</style>
 

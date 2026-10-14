@@ -45,10 +45,7 @@ export function BlackTomatoHeaderMarkup() {
         <button className="header__dismiss js-dismiss-regionalisation-banner">×</button>
     </div>
 </div>
-    
-  <div className="cookie-acceptance "><div className="bar bar--cookies bar--grey"><div className="bar__content"><div className="container align-text-center"><p>By using our website you consent to the use of cookies. To find out more information about how we use cookies, visit our <a href="https://www.blacktomato.com/cookie-policy/">cookie policy page</a>.</p><button className="bar__dismiss js-accept-cookies">×</button></div></div></div></div>
-    
-    <div className="header__bar">
+	    <div className="header__bar">
 
         <div className="header__logo">
             <a href="/" aria-label="BG Travel ???? ??????">
@@ -1135,10 +1132,7 @@ export function BlackTomatoHeaderMarkup() {
         <button className="header__dismiss js-dismiss-regionalisation-banner">×</button>
     </div>
 </div>
-
-  <div className="cookie-acceptance "><div className="bar bar--cookies bar--grey"><div className="bar__content"><div className="container align-text-center"><p>By using our website you consent to the use of cookies. To find out more information about how we use cookies, visit our <a href="https://www.blacktomato.com/cookie-policy/">cookie policy page</a>.</p><button className="bar__dismiss js-accept-cookies">×</button></div></div></div></div>
-
-  <div className="header__bar header__bar--top">
+	  <div className="header__bar header__bar--top">
     <div className="container container--new-large">
       <div className="d-flex justify-content-between v-align-center">
         <div className="d-inline-block header__left">
