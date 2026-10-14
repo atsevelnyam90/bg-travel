@@ -27,7 +27,7 @@ export function AcceptInviteForm() {
     try {
       await api.post<void>("/auth/accept-invite", values, { skipAuthRefresh: true });
       toast.success("Бүртгэл идэвхжлээ. Одоо нэвтэрнэ үү.");
-      router.replace("/login");
+      router.replace("/auth/login");
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : "Алдаа гарлаа");
     }

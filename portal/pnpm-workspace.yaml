@@ -1,8 +1,10 @@
 # pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
-packages:
-  - "packages/*"
+packages: []
 
 allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+
+minimumReleaseAgeExclude:
+  - '@duke333/builder-ui@0.1.0 || 0.1.1'

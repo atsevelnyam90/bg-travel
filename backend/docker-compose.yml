@@ -12,9 +12,9 @@ services:
     environment:
       POSTGRES_USER: starter
       POSTGRES_PASSWORD: starter
-      POSTGRES_DB: starter
+      POSTGRES_DB: uizeniveelt
       # Тест DB-г контейнер эхлэхэд үүсгэнэ — dev өгөгдөл хөндөгдөхгүй.
-      POSTGRES_MULTIPLE_DATABASES: starter_test
+      POSTGRES_MULTIPLE_DATABASES: uizeniveelt_test
     ports:
       # Host дээр аль хэдийн Postgres ажиллаж байж болно (winu-гийн dev DB г.м).
       # 5432-ыг булаахгүйн тулд 5433 дээр гаргана.
@@ -24,7 +24,7 @@ services:
       - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh:ro
     healthcheck:
       # Migration/seed-ыг DB бэлэн болохоос өмнө ажиллуулахаас сэргийлнэ.
-      test: ["CMD-SHELL", "pg_isready -U starter -d starter"]
+      test: ["CMD-SHELL", "pg_isready -U starter -d uizeniveelt"]
       interval: 3s
       timeout: 3s
       retries: 20

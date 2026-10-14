@@ -14,15 +14,18 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1113.0
         version: 3.1113.0
+      '@duke333/builder-backend':
+        specifier: ^0.1.0
+        version: 0.1.0(express@5.2.1)
+      '@duke333/builder-contracts':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@prisma/adapter-pg':
         specifier: ^7.9.1
         version: 7.9.1
       '@prisma/client':
         specifier: ^7.9.1
         version: 7.9.1(prisma@7.9.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3)
-      '@winu/builder-backend':
-        specifier: workspace:*
-        version: link:packages/builder-backend
       '@winu/contracts':
         specifier: workspace:*
         version: link:packages/contracts
@@ -113,29 +116,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@22.20.1)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
-
-  packages/builder-backend:
-    dependencies:
-      '@winu/contracts':
-        specifier: workspace:*
-        version: link:../contracts
-      express:
-        specifier: ^5.1.0
-        version: 5.2.1
-    devDependencies:
-      '@types/express':
-        specifier: ^5.0.0
-        version: 5.0.6
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.7.0)(postcss@8.5.26)(tsx@4.23.12)(typescript@5.9.3)
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-      vitest:
-        specifier: ^4.1.10
-        version: 4.1.10(@types/node@22.20.1)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
+        version: 4.1.10(@types/node@22.20.1)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.23.12))
 
   packages/contracts:
     dependencies:
@@ -151,7 +132,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@22.20.1)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.23.12))
+        version: 4.1.10(@types/node@22.20.1)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12))
 
   packages/mn-integrations:
     devDependencies:
@@ -299,6 +280,14 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@duke333/builder-backend@0.1.0':
+    resolution: {integrity: sha512-xri8OqIwEuRIY3nvcZ4vdUq+Pnd6wteeIJpGfLdKNh+vopZu8RXDi9marHRtE39lCQYBSoDPbZMzQGeF7nq2bg==}
+    peerDependencies:
+      express: ^5.1.0
+
+  '@duke333/builder-contracts@0.1.0':
+    resolution: {integrity: sha512-HDD4v5szlOoYrR3UoEHNkTH0tdLmu0AmxaVr6wbTY1PJrHxYLDU/neDJWRLOz20KHh6EjFuHy5r31bAf+LrlCw==}
 
   '@electric-sql/pglite-socket@0.1.3':
     resolution: {integrity: sha512-LAciWM0M1dCL8hlsxu2venbVZcdxema0BtDfpWYVqr+Y468UADw0pFWidhKw1M8sfJ8rdLT71tjMmnirf/IZRQ==}
@@ -2743,6 +2732,15 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.5.9':
     optional: true
+
+  '@duke333/builder-backend@0.1.0(express@5.2.1)':
+    dependencies:
+      '@duke333/builder-contracts': 0.1.0
+      express: 5.2.1
+
+  '@duke333/builder-contracts@0.1.0':
+    dependencies:
+      zod: 4.4.3
 
   '@electric-sql/pglite-socket@0.1.3(@electric-sql/pglite@0.4.3)':
     dependencies:

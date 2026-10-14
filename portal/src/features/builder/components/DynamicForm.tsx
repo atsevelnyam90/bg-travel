@@ -6,8 +6,8 @@ import {
   type DynamicFormFieldsProps,
   type DynamicFormShellProps,
   type DynamicFormSubmitProps,
-} from "@winu/builder-ui/components";
-import type { BuilderRuntimeFormValues } from "@winu/builder-ui/runtime";
+} from "@duke333/builder-ui/components";
+import type { BuilderRuntimeFormValues } from "@duke333/builder-ui/runtime";
 import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
 import { DataForm } from "@/components/data";
@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import type { PortalBuilderApiContracts } from "../api";
-import { useRuntimeBuilderForm, useSaveRuntimeBuilderFormEntry } from "../hooks/useBuilder";
+import type { PortalBuilderApiContracts } from "../builder.config";
+import { useRuntimeBuilderForm, useSaveRuntimeBuilderFormEntry } from "../builder.config";
 
 function FormShell({ title, children }: DynamicFormShellProps) {
   return (

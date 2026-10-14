@@ -2,15 +2,15 @@ import {
   type BuilderTriggerContext,
   type BuilderTriggerHandler,
   createBuilderTriggerRunner,
-} from "@winu/builder-backend/triggers";
-import type { builder as builderContract } from "@winu/contracts";
+} from "@duke333/builder-backend/triggers";
+import type { builder as builderContract } from "@duke333/builder-contracts";
 import { logger } from "@/lib/logger";
 import { getAppTriggerRoute, runAppTrigger } from "@/modules/appTriggers/registry";
 import { builderBadRequest } from "../shared/builderErrors";
 
 const callAppTriggerHandler: BuilderTriggerHandler = async (trigger, context) => {
   const route = getAppTriggerRoute(trigger.config);
-  await runAppTrigger(route, context);
+  return runAppTrigger(route, context);
 };
 
 const appBuilderTriggerRunner = createBuilderTriggerRunner(

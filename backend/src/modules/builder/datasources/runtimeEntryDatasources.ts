@@ -3,12 +3,13 @@ import type {
   BuilderRuntimeTableAdapter,
   RuntimeEntryAudit,
   RuntimeEntryMutationResult,
-} from "@winu/builder-backend/runtime";
+} from "@duke333/builder-backend/runtime";
 import {
   createBuilderRuntimeAdapters,
   createGenericRuntimeAdapters,
-} from "@winu/builder-backend/runtime";
-import { type builder as builderContract, products as productsContract } from "@winu/contracts";
+} from "@duke333/builder-backend/runtime";
+import type { builder as builderContract } from "@duke333/builder-contracts";
+import { products as productsContract } from "@winu/contracts";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { changedFields } from "@/modules/audit/writeAudit";
@@ -363,15 +364,35 @@ export async function deleteUserRuntimeEntry(
   return { resource: "user", resourceId: id, meta: { viewId } };
 }
 
-const genericFallbackRuntimeAdapter: Pick<BuilderRuntimeAdapters, "createEntry" | "listEntries"> = {
-  listEntries({ tableName, list, viewId, query }) {
-    return genericRuntimeAdapters.listGenericRuntimeEntries(tableName, list, viewId, query);
-  },
+function createGenericFallbackRuntimeAdapter(
+  adapters: typeof genericRuntimeAdapters,
+): BuilderRuntimeAdapters {
+  return {
+    transaction(run) {
+      return adapters.transaction((transactionAdapters) =>
+        run(createGenericFallbackRuntimeAdapter(transactionAdapters)),
+      );
+    },
 
-  createEntry({ tableName, form, viewId, values }) {
-    return genericRuntimeAdapters.createGenericRuntimeEntry(tableName, form, viewId, values);
-  },
-};
+    listEntries({ tableName, list, viewId, query }) {
+      return adapters.listGenericRuntimeEntries(tableName, list, viewId, query);
+    },
+
+    createEntry({ tableName, form, viewId, id, values }) {
+      return adapters.createGenericRuntimeEntry(tableName, form, viewId, id, values);
+    },
+
+    updateEntry({ tableName, form, viewId, id, input }) {
+      return adapters.updateGenericRuntimeEntry(tableName, form, viewId, id, input);
+    },
+
+    deleteEntry({ tableName, list, viewId, id }) {
+      return adapters.deleteGenericRuntimeEntry(tableName, list, viewId, id);
+    },
+  };
+}
+
+const genericFallbackRuntimeAdapter = createGenericFallbackRuntimeAdapter(genericRuntimeAdapters);
 
 const productRuntimeAdapter: BuilderRuntimeTableAdapter = {
   listEntries({ viewId, query }) {

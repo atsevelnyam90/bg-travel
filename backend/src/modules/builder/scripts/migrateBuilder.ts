@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { prisma, prismaUnfiltered } from "@/lib/prisma";
-import { runBuilderMigrations } from "../migrations/builderMigrationService";
+import { runBuilderMigrations } from "../builder.config";
 
 try {
   const result = await runBuilderMigrations();

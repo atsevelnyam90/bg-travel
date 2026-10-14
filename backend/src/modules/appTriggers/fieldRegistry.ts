@@ -1,5 +1,5 @@
-import type { BuilderFieldTriggerContext } from "@winu/builder-backend/usecases";
-import type { builder as builderContract } from "@winu/contracts";
+import type { BuilderFieldTriggerContext } from "@duke333/builder-backend/usecases";
+import type { builder as builderContract } from "@duke333/builder-contracts";
 import { badRequest } from "@/lib/errors";
 import {
   PRODUCT_DISCOUNT_FIELD_TRIGGER,

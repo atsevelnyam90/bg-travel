@@ -34,7 +34,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/dashboard">
+              <Link href="/admin/dashboard">
                 <Command />
                 <span className="font-semibold text-base">{brand.name}</span>
               </Link>
@@ -54,7 +54,7 @@ export function AppSidebar() {
                     tooltip="Бараа нэмэх"
                     className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
                   >
-                    <Link href="/products">
+                    <Link href="/admin/products">
                       <PlusCircle />
                       <span>Шинээр нэмэх</span>
                     </Link>

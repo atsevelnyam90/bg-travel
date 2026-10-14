@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { AuditScreen } from "@/features/audit/components/AuditScreen";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Аудит" };
-
-export default function AuditPage() {
-  return <AuditScreen />;
+export default function LegacyAuditPage() {
+  redirect("/admin/audit");
 }

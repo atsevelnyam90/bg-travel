@@ -90,6 +90,17 @@ export const builderSelectOptionsSourceSchema = z.object({
 });
 export type BuilderSelectOptionsSource = z.infer<typeof builderSelectOptionsSourceSchema>;
 
+export const builderFormSubformSchema = z.object({
+  key: z.string().regex(fieldKeyPattern),
+  label: z.string().min(1).max(120),
+  viewId: z.uuid(),
+  parentField: z.string().regex(fieldKeyPattern),
+  childField: z.string().regex(fieldKeyPattern),
+  buttonLabel: z.string().min(1).max(120).optional(),
+  icon: z.string().max(80).optional(),
+});
+export type BuilderFormSubform = z.infer<typeof builderFormSubformSchema>;
+
 export const builderFieldTriggerEventSchema = z.enum(["onChange", "onBlur"]);
 export type BuilderFieldTriggerEvent = z.infer<typeof builderFieldTriggerEventSchema>;
 
@@ -147,6 +158,7 @@ export type BuilderFormLayout = z.infer<typeof builderFormLayoutSchema>;
 export const builderFormSchema = z.object({
   fields: z.array(builderFieldSchema).min(1).max(64),
   layout: builderFormLayoutSchema.optional(),
+  subforms: z.array(builderFormSubformSchema).max(24).default([]),
 });
 export type BuilderFormSchema = z.infer<typeof builderFormSchema>;
 
@@ -335,15 +347,37 @@ export const builderFieldTriggerResponseSchema = z.object({
 });
 export type BuilderFieldTriggerResponse = z.infer<typeof builderFieldTriggerResponseSchema>;
 
-export const listBuilderViewEntriesQuerySchema = paginationQuerySchema;
+export const listBuilderViewEntriesQuerySchema = paginationQuerySchema.extend({
+  filterField: z.string().regex(fieldKeyPattern).optional(),
+  filterValue: z.string().max(240).optional(),
+});
 export type ListBuilderViewEntriesQuery = z.infer<typeof listBuilderViewEntriesQuerySchema>;
 export const listBuilderViewEntriesResponseSchema = paginatedSchema(builderViewEntrySchema);
 export type ListBuilderViewEntriesResponse = z.infer<typeof listBuilderViewEntriesResponseSchema>;
 
 export const createBuilderViewEntrySchema = z.object({
+  id: z.uuid().optional(),
   values: z.record(z.string(), z.unknown()),
 });
 export type CreateBuilderViewEntryInput = z.infer<typeof createBuilderViewEntrySchema>;
+
+export const builderCompositeDataRowSchema = z.record(z.string(), z.unknown());
+export type BuilderCompositeDataRow = z.infer<typeof builderCompositeDataRowSchema>;
+export const builderCompositeDataSchema = z.record(
+  z.string(),
+  z.union([builderCompositeDataRowSchema, z.array(builderCompositeDataRowSchema)]),
+);
+export type BuilderCompositeData = z.infer<typeof builderCompositeDataSchema>;
+export const createCompositeBuilderViewEntrySchema = z.object({
+  data: builderCompositeDataSchema,
+});
+export type CreateCompositeBuilderViewEntryInput = z.infer<
+  typeof createCompositeBuilderViewEntrySchema
+>;
+export const updateCompositeBuilderViewEntrySchema = createCompositeBuilderViewEntrySchema;
+export type UpdateCompositeBuilderViewEntryInput = z.infer<
+  typeof updateCompositeBuilderViewEntrySchema
+>;
 
 export const updateBuilderViewEntrySchema = createBuilderViewEntrySchema.extend({
   version: z.number().int(),

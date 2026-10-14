@@ -13,6 +13,8 @@
       "!**/.next",
       "!**/out",
       "!**/dist",
+      "!public",
+      "!src/features/blacktomato/components/*Markup.tsx",
       "!src/components/ui",
       "!src/app/globals.css",
       "!src/api/generated"

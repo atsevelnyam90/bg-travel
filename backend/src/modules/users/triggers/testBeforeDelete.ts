@@ -1,4 +1,4 @@
-import type { BuilderTriggerContext } from "@winu/builder-backend/triggers";
+import type { BuilderTriggerContext } from "@duke333/builder-backend/triggers";
 import { badRequest } from "@/lib/errors";
 
 export const USER_TEST_BEFORE_DELETE_TRIGGER = "/api/v1/users/triggers/test-before-delete";

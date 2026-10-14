@@ -1,5 +1,5 @@
-import type { BuilderFieldTriggerContext } from "@winu/builder-backend/usecases";
-import { builder as builderContract } from "@winu/contracts";
+import type { BuilderFieldTriggerContext } from "@duke333/builder-backend/usecases";
+import { builder as builderContract } from "@duke333/builder-contracts";
 
 export const PRODUCT_SLUG_FIELD_TRIGGER = "/api/v1/builder-triggers/product-slug";
 export const PRODUCT_DISCOUNT_FIELD_TRIGGER = "/api/v1/products/triggers/discount-from-price";

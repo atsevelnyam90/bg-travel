@@ -8,7 +8,7 @@ import { execSync } from "node:child_process";
 
 const DEV_URL = process.env.DATABASE_URL ?? "";
 const TEST_URL =
-  process.env.TEST_DATABASE_URL ?? DEV_URL.replace(/\/starter(\?|$)/, "/starter_test$1");
+  process.env.TEST_DATABASE_URL ?? DEV_URL.replace(/\/uizeniveelt(\?|$)/, "/uizeniveelt_test$1");
 
 if (!TEST_URL || TEST_URL === DEV_URL) {
   console.error("TEST_DATABASE_URL тохируулаагүй, эсвэл dev DB-тэй ижил байна.");
@@ -33,13 +33,13 @@ const run = (command, env) =>
 try {
   // DB байхгүй бол үүсгэнэ (volume аль хэдийн үүссэн тохиолдолд init script ажиллахгүй).
   const exists = execSync(
-    `psql "${adminUrl}" -tAc "SELECT 1 FROM pg_database WHERE datname='starter_test'"`,
+    `psql "${adminUrl}" -tAc "SELECT 1 FROM pg_database WHERE datname='uizeniveelt_test'"`,
     { env: process.env },
   )
     .toString()
     .trim();
   if (exists !== "1") {
-    run(`psql "${adminUrl}" -v ON_ERROR_STOP=1 -c "CREATE DATABASE starter_test"`);
+    run(`psql "${adminUrl}" -v ON_ERROR_STOP=1 -c "CREATE DATABASE uizeniveelt_test"`);
   }
 } catch {
   console.log("psql олдсонгүй эсвэл DB аль хэдийн бий — үргэлжлүүлнэ");

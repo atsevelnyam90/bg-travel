@@ -1,8 +1,3 @@
-export type { BuilderRuntimeAdapters } from "@winu/builder-backend/runtime";
-export {
-  type BuilderRouterDependencies,
-  builderRouter,
-  createBuilderRouter,
-} from "./builder.routes";
-export * from "./builderService";
+export type { BuilderRuntimeAdapters } from "@duke333/builder-backend/runtime";
+export * from "./builder.config";
 export { starterBuilderRuntimeAdapters } from "./datasources/runtimeEntryDatasources";

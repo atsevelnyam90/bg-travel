@@ -2,7 +2,7 @@ import type {
   BuilderDatasourceColumnRow,
   BuilderDatasourceRepository,
   ListBuilderFieldOptionRowsArgs,
-} from "@winu/builder-backend/datasources";
+} from "@duke333/builder-backend/datasources";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 

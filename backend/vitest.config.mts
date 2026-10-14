@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 
 const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
-  "postgresql://starter:starter@localhost:5433/starter_test?schema=public";
+  "postgresql://starter:starter@localhost:5433/uizeniveelt_test?schema=public";
 
 export default defineConfig({
   test: {

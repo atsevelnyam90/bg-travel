@@ -251,13 +251,15 @@ Done:
 - host backend has a Prisma migration repository adapter for builder schema migrations
 - host backend has `pnpm builder:migrate` for package-owned builder metadata migrations
 - builder router accepts a host `schemaGuard`; starter wires it after auth/permission middleware
-- host builder route now only wires auth, admin guard, permissions, audit, errors, usecases, and runtime adapters
+- host builder package binding is centralized in `backend/src/modules/builder/builder.config.ts`
+- host builder route/usecase/migration wrapper files were removed; auth, admin guard,
+  permissions, audit, errors, usecase factories, router factory, migration service, schema guard,
+  and runtime adapters are wired from the single config file
 - host backend wraps package trigger runner with app `logger` and `badRequest`
 - host metadata repository now hides Prisma query/data shapes behind the package contract
 - host datasource repository now hides Prisma/raw SQL option queries behind the package contract
 - host generic runtime repository now hides Prisma/raw SQL list/create queries behind the package contract
 - host backend centralizes app error helpers in `shared/builderErrors`
-- host backend keeps thin wrappers for metadata and runtime usecases
 - host backend registers `products/users` as starter example table-specific runtime adapters
 
 Still host-bound:

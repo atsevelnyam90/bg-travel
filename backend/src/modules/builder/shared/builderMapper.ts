@@ -1,4 +1,4 @@
-import type { DefinitionRow, ViewRow } from "@winu/builder-backend/metadata";
+import type { DefinitionRow, ViewRow } from "@duke333/builder-backend/metadata";
 import {
   buildOrderBy,
   toDefinitionDto,
@@ -7,19 +7,8 @@ import {
   toIso,
   toListDto,
   toViewDto,
-} from "@winu/builder-backend/metadata";
-import type { Permission } from "@winu/contracts";
+} from "@duke333/builder-backend/metadata";
 import { Prisma } from "@/generated/prisma/client";
-import { builderForbidden } from "./builderErrors";
-
-export const DEFAULT_BUILDER_VIEW_PERMISSION = "org:manage" satisfies Permission;
-
-export function assertPermission(granted: readonly Permission[], permission?: Permission | null) {
-  if (!permission) {
-    throw builderForbidden("Builder view дээр эрх тохируулагдаагүй байна");
-  }
-  if (!granted.includes(permission)) throw builderForbidden();
-}
 
 export const DEFINITION_SELECT = {
   id: true,

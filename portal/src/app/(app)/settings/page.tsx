@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { SettingsScreen } from "@/features/settings/components/SettingsScreen";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Тохиргоо" };
-
-export default function SettingsPage() {
-  return <SettingsScreen />;
+export default function LegacySettingsPage() {
+  redirect("/admin/settings");
 }

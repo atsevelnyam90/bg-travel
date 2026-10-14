@@ -1,0 +1,156 @@
+"use client";
+
+import { useEffect } from "react";
+
+function closestElement(target: EventTarget | null, selector: string) {
+  return target instanceof Element ? target.closest(selector) : null;
+}
+
+function preventLocalFormSubmit(root: ParentNode) {
+  root.querySelectorAll("form").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+    });
+  });
+}
+
+function bindDismissButtons(root: ParentNode) {
+  root
+    .querySelectorAll(".js-accept-cookies, .js-dismiss-regionalisation-banner")
+    .forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        closestElement(
+          event.currentTarget,
+          ".cookie-acceptance, .header__regionalisation",
+        )?.remove();
+      });
+    });
+
+  root.querySelectorAll(".newsletter-popup .close").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      closestElement(event.currentTarget, ".newsletter-popup")?.remove();
+    });
+  });
+}
+
+function bindMobileMenu(root: ParentNode) {
+  root.querySelectorAll(".js-menu-toggle").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      closestElement(event.currentTarget, ".header")?.classList.toggle("menu-open");
+      document.body.classList.toggle("menu-open");
+    });
+  });
+
+  root.querySelectorAll(".header__sidebar .menu-item-has-children > a").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const item = closestElement(event.currentTarget, ".menu-item-has-children");
+      if (!item) {
+        return;
+      }
+
+      event.preventDefault();
+      item.classList.add("is-active");
+    });
+  });
+
+  root.querySelectorAll(".header__sidebar .menu-item-back > a").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      closestElement(event.currentTarget, ".nav__submenu")?.parentElement?.classList.remove(
+        "is-active",
+      );
+    });
+  });
+}
+
+function bindTabs(root: ParentNode) {
+  root.querySelectorAll(".js-toggle-tab").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const trigger = event.currentTarget;
+      if (!(trigger instanceof HTMLElement)) {
+        return;
+      }
+
+      const tabName = trigger.dataset.toggleTab;
+      const section = closestElement(trigger, ".section--filtered_tiles");
+      if (!tabName || !section) {
+        return;
+      }
+
+      section.querySelectorAll(".js-toggle-tab").forEach((item) => {
+        item.classList.remove("is-active");
+      });
+      section.querySelectorAll(".section__tab").forEach((item) => {
+        item.classList.remove("is-active");
+      });
+      trigger.classList.add("is-active");
+      section.querySelector(`[data-tab="${tabName}"]`)?.classList.add("is-active");
+    });
+  });
+}
+
+function bindAccordions(root: ParentNode) {
+  root.querySelectorAll(".accordion__top").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const trigger = event.currentTarget;
+      if (!(trigger instanceof HTMLElement)) {
+        return;
+      }
+
+      const content = trigger.parentElement?.querySelector<HTMLElement>(".accordion__bottom");
+      const symbol = trigger.querySelector(".symbol");
+      const isOpen = trigger.classList.toggle("is-open");
+
+      if (content) {
+        content.style.display = isOpen ? "block" : "none";
+      }
+      if (symbol) {
+        symbol.textContent = isOpen ? "-" : "+";
+      }
+    });
+  });
+}
+
+function bindHorizontalScrollers(root: ParentNode) {
+  root.querySelectorAll(".scroller").forEach((scroller) => {
+    const content = scroller.querySelector<HTMLElement>(".wrap, .grid, .wrapper, .cards");
+    const previous = scroller.querySelector<HTMLElement>(".scroller__arrow--prev");
+    const next = Array.from(scroller.querySelectorAll<HTMLElement>(".scroller__arrow")).find(
+      (arrow) => !arrow.classList.contains("scroller__arrow--prev"),
+    );
+
+    if (!content || !next) {
+      return;
+    }
+
+    previous?.addEventListener("click", () => {
+      content.scrollBy({ left: -content.clientWidth * 0.85, behavior: "smooth" });
+    });
+    next.addEventListener("click", () => {
+      content.scrollBy({ left: content.clientWidth * 0.85, behavior: "smooth" });
+      previous?.classList.remove("disabled");
+    });
+  });
+}
+
+export function BlackTomatoInteractions() {
+  useEffect(() => {
+    const root = document;
+
+    preventLocalFormSubmit(root);
+    bindDismissButtons(root);
+    bindMobileMenu(root);
+    bindTabs(root);
+    bindAccordions(root);
+    bindHorizontalScrollers(root);
+  }, []);
+
+  return null;
+}

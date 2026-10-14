@@ -1,12 +1,12 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   createDynamicListComponent,
   type DynamicListDataGridProps,
   type DynamicListErrorStateProps,
-} from "@winu/builder-ui/components";
-import { formatBuilderRuntimeValue } from "@winu/builder-ui/runtime";
+} from "@duke333/builder-ui/components";
+import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
+import type { ColumnDef } from "@tanstack/react-table";
 import type { builder } from "@/api/generated/contracts";
 import {
   DataGrid,
@@ -16,8 +16,8 @@ import {
   useDataTableState,
 } from "@/components/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { PortalBuilderApiContracts } from "../api";
-import { useRuntimeBuilderList, useRuntimeBuilderListEntries } from "../hooks/useBuilder";
+import type { PortalBuilderApiContracts } from "../builder.config";
+import { useRuntimeBuilderList, useRuntimeBuilderListEntries } from "../builder.config";
 
 function buildColumns(list: builder.BuilderList) {
   // biome-ignore lint/suspicious/noExplicitAny: TanStack v9-ийн feature generic — багана тодорхойлолтод хамаагүй.

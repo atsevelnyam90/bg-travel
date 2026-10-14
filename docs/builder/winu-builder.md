@@ -187,6 +187,9 @@ Field trigger нь энэ lifecycle trigger-ээс тусдаа. Field event (`o
 update хийнэ. MVP дээр `onChange` UI wiring орсон, `onBlur` event schema/endpoint
 бэлэн бөгөөд UI wiring дараагийн pass. Дэлгэрэнгүй: [Builder Field Triggers Plan](./field-triggers-plan.md).
 
+Subform нь parent record дээр child view-г modal-р удирдах generic builder capability.
+Child data нь JSON биш table row байна. Дэлгэрэнгүй: [Builder Subform Plan](./subform-plan.md).
+
 ## Permission
 
 Одоогийн MVP:

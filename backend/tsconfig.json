@@ -11,7 +11,11 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@winu/contracts": ["./packages/contracts/src/index.ts"],
+      "@winu/mn-integrations": ["./packages/mn-integrations/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts", "prisma/**/*.ts"]
 }

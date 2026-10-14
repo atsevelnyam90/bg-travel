@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { LoginForm } from "@/features/auth/components/LoginForm";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Нэвтрэх" };
-
-export default function LoginPage() {
-  return <LoginForm />;
+export default function LegacyLoginPage() {
+  redirect("/auth/login");
 }

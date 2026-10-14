@@ -18,6 +18,12 @@ import {
 const PRODUCT_FORM_ID = "33333333-3333-4333-8333-333333333331";
 const PRODUCT_LIST_ID = "33333333-3333-4333-8333-333333333332";
 const PRODUCT_VIEW_ID = "33333333-3333-4333-8333-333333333333";
+const WEBSITE_PAGE_FORM_ID = "44444444-4444-4444-8444-444444444441";
+const WEBSITE_PAGE_LIST_ID = "44444444-4444-4444-8444-444444444442";
+const WEBSITE_PAGE_VIEW_ID = "44444444-4444-4444-8444-444444444443";
+const WEBSITE_SECTION_FORM_ID = "44444444-4444-4444-8444-444444444451";
+const WEBSITE_SECTION_LIST_ID = "44444444-4444-4444-8444-444444444452";
+const WEBSITE_SECTION_VIEW_ID = "44444444-4444-4444-8444-444444444453";
 
 async function seedProductBuilderView() {
   await prisma.builderDefinition.createMany({
@@ -102,6 +108,125 @@ async function seedProductBuilderView() {
       permissionWrite: "product:write",
       triggers: [],
     },
+  });
+}
+
+async function seedWebsitePageBuilderView() {
+  await prisma.builderDefinition.createMany({
+    data: [
+      {
+        id: WEBSITE_PAGE_FORM_ID,
+        type: "form",
+        title: "Website Page Form",
+        source: { type: "dbTable", tableName: "website_pages" },
+        schema: {
+          fields: [
+            {
+              key: "type",
+              label: "Type",
+              type: "select",
+              required: true,
+              options: [
+                { label: "Нүүр хуудас", value: "home" },
+                { label: "Зээл", value: "loan" },
+                { label: "Итгэлцэл", value: "trust" },
+                { label: "Мөнгөн гуйвуулга", value: "send-money" },
+                { label: "Валют арилжаа", value: "exchange" },
+                { label: "Бидний тухай", value: "about" },
+              ],
+            },
+            { key: "status", label: "Status", type: "text", required: true },
+            { key: "sortOrder", label: "Sort Order", type: "number", required: false },
+          ],
+          subforms: [
+            {
+              key: "sections",
+              label: "Sections",
+              viewId: WEBSITE_SECTION_VIEW_ID,
+              parentField: "id",
+              childField: "pageId",
+              buttonLabel: "Section нэмэх",
+              icon: "plus",
+            },
+          ],
+        },
+      },
+      {
+        id: WEBSITE_PAGE_LIST_ID,
+        type: "list",
+        title: "Website Page List",
+        source: { type: "dbTable", tableName: "website_pages" },
+        schema: {
+          columns: [
+            { key: "type", label: "Type", sortable: true, align: "left" },
+            { key: "status", label: "Status", sortable: true, align: "left" },
+            { key: "sortOrder", label: "Sort Order", sortable: true, align: "right" },
+          ],
+        },
+      },
+      {
+        id: WEBSITE_SECTION_FORM_ID,
+        type: "form",
+        title: "Website Section Form",
+        source: { type: "dbTable", tableName: "website_sections" },
+        schema: {
+          fields: [
+            { key: "pageId", label: "Page ID", type: "text", required: true, hidden: true },
+            {
+              key: "type",
+              label: "Section",
+              type: "select",
+              required: true,
+              options: [
+                { label: "Hero", value: "hero" },
+                { label: "About", value: "about" },
+                { label: "Gallery", value: "gallery" },
+              ],
+            },
+            { key: "title", label: "Title", type: "text", required: true },
+            { key: "description", label: "Description", type: "textarea", required: false },
+            { key: "sortOrder", label: "Sort Order", type: "number", required: false },
+            { key: "isActive", label: "Active", type: "checkbox", required: false },
+          ],
+        },
+      },
+      {
+        id: WEBSITE_SECTION_LIST_ID,
+        type: "list",
+        title: "Website Section List",
+        source: { type: "dbTable", tableName: "website_sections" },
+        schema: {
+          columns: [
+            { key: "type", label: "Section", sortable: true, align: "left" },
+            { key: "title", label: "Title", sortable: true, align: "left" },
+            { key: "sortOrder", label: "Sort Order", sortable: true, align: "right" },
+          ],
+        },
+      },
+    ],
+  });
+
+  await prisma.builderView.createMany({
+    data: [
+      {
+        id: WEBSITE_PAGE_VIEW_ID,
+        title: "Website Pages",
+        formId: WEBSITE_PAGE_FORM_ID,
+        listId: WEBSITE_PAGE_LIST_ID,
+        permissionRead: "org:manage",
+        permissionWrite: "org:manage",
+        triggers: [],
+      },
+      {
+        id: WEBSITE_SECTION_VIEW_ID,
+        title: "Website Sections",
+        formId: WEBSITE_SECTION_FORM_ID,
+        listId: WEBSITE_SECTION_LIST_ID,
+        permissionRead: "org:manage",
+        permissionWrite: "org:manage",
+        triggers: [],
+      },
+    ],
   });
 }
 
@@ -200,6 +325,348 @@ describe("builder runtime view", () => {
       viewId: PRODUCT_VIEW_ID,
       changes: { priceMinor: { from: 89000, to: 99000 } },
     });
+  });
+
+  it("generic dbTable runtime нь website page үүсгээд засаж чадна", async () => {
+    await seedWebsitePageBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({
+        values: {
+          type: "home",
+          status: "draft",
+          sortOrder: 0,
+        },
+      })
+      .expect(201);
+
+    expect(created.body.values.type).toBe("home");
+    expect(created.body.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+
+    const updated = await api()
+      .patch(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries/${created.body.id}`)
+      .set(bearer(token))
+      .send({
+        version: created.body.version,
+        values: {
+          type: "home",
+          status: "published",
+          sortOrder: 1,
+        },
+      })
+      .expect(200);
+
+    expect(updated.body.values.type).toBe("home");
+    expect(updated.body.values.sortOrder).toBe(1);
+    expect(updated.body.version).toBe(created.body.version + 1);
+
+    const section = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_SECTION_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({
+        values: {
+          pageId: created.body.id,
+          type: "hero",
+          title: "Hero",
+          description: "",
+          sortOrder: "",
+          isActive: true,
+        },
+      })
+      .expect(201);
+
+    expect(section.body.values.pageId).toBe(created.body.id);
+    expect(section.body.values.sortOrder).toBe(0);
+  });
+
+  it("composite runtime нь parent page болон child sections-г хамт үүсгэнэ", async () => {
+    await seedWebsitePageBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries`)
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            type: "home",
+            status: "draft",
+            sortOrder: 0,
+          },
+          website_sections: [
+            {
+              pageId: "client-must-not-win",
+              type: "hero",
+              title: "Hero",
+              description: "Hero copy",
+              sortOrder: 1,
+              isActive: true,
+            },
+            {
+              type: "about",
+              title: "About",
+              description: "About copy",
+              sortOrder: 2,
+              isActive: true,
+            },
+          ],
+        },
+      })
+      .expect(201);
+
+    expect(created.body.values.type).toBe("home");
+
+    const sections = await prisma.websiteSection.findMany({
+      where: { pageId: created.body.id },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(sections).toHaveLength(2);
+    expect(sections[0]?.pageId).toBe(created.body.id);
+    expect(sections[0]?.title).toBe("Hero");
+    expect(sections[1]?.title).toBe("About");
+  });
+
+  it("composite runtime нь parent page болон child sections-г хамт засна", async () => {
+    await seedWebsitePageBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries`)
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            type: "home",
+            status: "draft",
+            sortOrder: 0,
+          },
+          website_sections: [
+            {
+              type: "hero",
+              title: "Hero",
+              description: "Hero copy",
+              sortOrder: 1,
+              isActive: true,
+            },
+            {
+              type: "about",
+              title: "About",
+              description: "About copy",
+              sortOrder: 2,
+              isActive: true,
+            },
+          ],
+        },
+      })
+      .expect(201);
+
+    const existingSections = await prisma.websiteSection.findMany({
+      where: { pageId: created.body.id },
+      orderBy: { sortOrder: "asc" },
+    });
+
+    await api()
+      .patch(
+        `${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries/${created.body.id}`,
+      )
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            id: created.body.id,
+            version: created.body.version,
+            type: "home",
+            status: "published",
+            sortOrder: 5,
+          },
+          website_sections: [
+            {
+              id: existingSections[0]?.id,
+              version: existingSections[0]?.version,
+              pageId: "client-must-not-win",
+              type: "hero",
+              title: "Hero updated",
+              description: "Hero copy updated",
+              sortOrder: 1,
+              isActive: true,
+            },
+            {
+              id: existingSections[1]?.id,
+              version: existingSections[1]?.version,
+              _delete: true,
+            },
+            {
+              type: "gallery",
+              title: "Gallery",
+              description: "Gallery copy",
+              sortOrder: 3,
+              isActive: true,
+            },
+          ],
+        },
+      })
+      .expect(200);
+
+    const page = await prisma.websitePage.findUniqueOrThrow({
+      where: { id: created.body.id },
+    });
+    expect(page.status).toBe("published");
+    expect(page.sortOrder).toBe(5);
+
+    const sections = await prisma.websiteSection.findMany({
+      where: { pageId: created.body.id },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(sections).toHaveLength(2);
+    expect(sections[0]?.id).toBe(existingSections[0]?.id);
+    expect(sections[0]?.pageId).toBe(created.body.id);
+    expect(sections[0]?.title).toBe("Hero updated");
+    expect(sections[1]?.title).toBe("Gallery");
+  });
+
+  it("composite update stale parent version үед child mutation хийхгүй", async () => {
+    await seedWebsitePageBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries`)
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            type: "home",
+            status: "draft",
+            sortOrder: 0,
+          },
+          website_sections: [
+            {
+              type: "hero",
+              title: "Hero",
+              description: "Hero copy",
+              sortOrder: 1,
+              isActive: true,
+            },
+          ],
+        },
+      })
+      .expect(201);
+
+    const section = await prisma.websiteSection.findFirstOrThrow({
+      where: { pageId: created.body.id },
+    });
+
+    const staleParentResponse = await api()
+      .patch(
+        `${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries/${created.body.id}`,
+      )
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            id: created.body.id,
+            version: created.body.version + 1,
+            type: "home",
+            status: "published",
+            sortOrder: 5,
+          },
+          website_sections: [
+            {
+              id: section.id,
+              version: section.version,
+              type: "hero",
+              title: "Hero should not update",
+              description: "Hero copy updated",
+              sortOrder: 2,
+              isActive: false,
+            },
+          ],
+        },
+      });
+
+    expect(staleParentResponse.status, JSON.stringify(staleParentResponse.body)).toBe(409);
+
+    const page = await prisma.websitePage.findUniqueOrThrow({ where: { id: created.body.id } });
+    const unchangedSection = await prisma.websiteSection.findUniqueOrThrow({
+      where: { id: section.id },
+    });
+
+    expect(page.status).toBe("draft");
+    expect(page.sortOrder).toBe(0);
+    expect(unchangedSection.title).toBe("Hero");
+    expect(unchangedSection.sortOrder).toBe(1);
+  });
+
+  it("composite update stale child version үед parent update rollback хийнэ", async () => {
+    await seedWebsitePageBuilderView();
+
+    const created = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries`)
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            type: "home",
+            status: "draft",
+            sortOrder: 0,
+          },
+          website_sections: [
+            {
+              type: "hero",
+              title: "Hero",
+              description: "Hero copy",
+              sortOrder: 1,
+              isActive: true,
+            },
+          ],
+        },
+      })
+      .expect(201);
+
+    const section = await prisma.websiteSection.findFirstOrThrow({
+      where: { pageId: created.body.id },
+    });
+
+    const staleChildResponse = await api()
+      .patch(
+        `${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/composite-entries/${created.body.id}`,
+      )
+      .set(bearer(token))
+      .send({
+        data: {
+          website_pages: {
+            id: created.body.id,
+            version: created.body.version,
+            type: "home",
+            status: "published",
+            sortOrder: 5,
+          },
+          website_sections: [
+            {
+              id: section.id,
+              version: section.version + 1,
+              type: "hero",
+              title: "Hero should not update",
+              description: "Hero copy updated",
+              sortOrder: 2,
+              isActive: false,
+            },
+          ],
+        },
+      });
+
+    expect(staleChildResponse.status, JSON.stringify(staleChildResponse.body)).toBe(409);
+
+    const page = await prisma.websitePage.findUniqueOrThrow({ where: { id: created.body.id } });
+    const unchangedSection = await prisma.websiteSection.findUniqueOrThrow({
+      where: { id: section.id },
+    });
+
+    expect(page.status).toBe("draft");
+    expect(page.sortOrder).toBe(0);
+    expect(page.version).toBe(created.body.version);
+    expect(unchangedSection.title).toBe("Hero");
+    expect(unchangedSection.version).toBe(section.version);
   });
 
   it("form/list id-аар lifecycle trigger-гүй үед standalone runtime data ажиллана", async () => {

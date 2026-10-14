@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import {
   useRunRuntimeBuilderFieldTrigger,
   useRuntimeBuilderFormFieldOptions,
-} from "@/features/builder/hooks/useBuilder";
+} from "@/features/builder/builder.config";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 
 type DataFormProps<T extends FieldValues> = {
@@ -31,6 +31,12 @@ type DataFormProps<T extends FieldValues> = {
   viewId?: string;
   schema: builder.BuilderFormSchema;
   namePrefix?: Path<T>;
+  extraItems?: DataFormExtraItem[];
+};
+
+export type DataFormExtraItem = {
+  key: string;
+  render(): ReactNode;
 };
 
 function fieldName<T extends FieldValues>(prefix: string | undefined, key: string): Path<T> {
@@ -72,7 +78,9 @@ const layoutSpanClasses: Record<number, string> = {
 };
 
 type DataFormLayoutField = {
-  field: builder.BuilderField;
+  key: string;
+  field?: builder.BuilderField;
+  extra?: DataFormExtraItem;
   span: number;
 };
 
@@ -88,22 +96,29 @@ function clampLayoutSpan(span: number | undefined, columns: 6 | 8 | 12) {
   return Math.max(1, Math.min(columns, Math.trunc(span)));
 }
 
-function getDataFormLayoutGroups(schema: builder.BuilderFormSchema): DataFormLayoutGroup[] | null {
+function getDataFormLayoutGroups(
+  schema: builder.BuilderFormSchema,
+  extraItems: DataFormExtraItem[] = [],
+): DataFormLayoutGroup[] | null {
   if (!schema.layout?.groups?.length) return null;
 
   const visibleFields = schema.fields.filter((field) => !field.hidden);
-  const fieldsByKey = new Map(visibleFields.map((field) => [field.key, field]));
+  const itemsByKey = new Map<string, { field?: builder.BuilderField; extra?: DataFormExtraItem }>([
+    ...visibleFields.map((field) => [field.key, { field }] as const),
+    ...extraItems.map((extra) => [extra.key, { extra }] as const),
+  ]);
   const usedKeys = new Set<string>();
   const groups = schema.layout.groups
     .map((group, index) => {
       const columns: 6 | 8 | 12 = group.columns === 6 || group.columns === 8 ? group.columns : 12;
       const groupFields = (group.fields ?? [])
         .map((layoutField) => {
-          const field = fieldsByKey.get(layoutField.key);
-          if (!field || usedKeys.has(layoutField.key)) return null;
+          const item = itemsByKey.get(layoutField.key);
+          if (!item || usedKeys.has(layoutField.key)) return null;
           usedKeys.add(layoutField.key);
           return {
-            field,
+            key: layoutField.key,
+            ...item,
             span: clampLayoutSpan(layoutField.span, columns),
           };
         })
@@ -118,13 +133,13 @@ function getDataFormLayoutGroups(schema: builder.BuilderFormSchema): DataFormLay
     })
     .filter((group) => group.fields.length > 0);
 
-  const missingFields = visibleFields.filter((field) => !usedKeys.has(field.key));
-  if (missingFields.length > 0) {
+  const missingItems = Array.from(itemsByKey.entries()).filter(([key]) => !usedKeys.has(key));
+  if (missingItems.length > 0) {
     groups.push({
       id: "ungrouped",
       title: "Бусад",
       columns: 12,
-      fields: missingFields.map((field) => ({ field, span: 12 })),
+      fields: missingItems.map(([key, item]) => ({ key, ...item, span: 12 })),
     });
   }
 
@@ -136,8 +151,9 @@ export function DataForm<T extends FieldValues>({
   viewId,
   schema,
   namePrefix,
+  extraItems = [],
 }: DataFormProps<T>) {
-  const layoutGroups = getDataFormLayoutGroups(schema);
+  const layoutGroups = getDataFormLayoutGroups(schema, extraItems);
 
   if (layoutGroups) {
     return (
@@ -146,17 +162,18 @@ export function DataForm<T extends FieldValues>({
           <section key={group.id} className="space-y-3">
             {group.title ? <h3 className="font-medium text-sm">{group.title}</h3> : null}
             <div className={`grid grid-cols-1 gap-4 ${layoutColumnClasses[group.columns]}`}>
-              {group.fields.map(({ field, span }) => (
-                <div
-                  key={field.key}
-                  className={`min-w-0 ${layoutSpanClasses[span] ?? "md:col-span-12"}`}
-                >
-                  <DataFormField<T>
-                    formId={formId}
-                    viewId={viewId}
-                    field={field}
-                    namePrefix={namePrefix}
-                  />
+              {group.fields.map(({ key, field, extra, span }) => (
+                <div key={key} className={`min-w-0 ${layoutSpanClasses[span] ?? "md:col-span-12"}`}>
+                  {field ? (
+                    <DataFormField<T>
+                      formId={formId}
+                      viewId={viewId}
+                      field={field}
+                      namePrefix={namePrefix}
+                    />
+                  ) : (
+                    extra?.render()
+                  )}
                 </div>
               ))}
             </div>
@@ -168,14 +185,19 @@ export function DataForm<T extends FieldValues>({
 
   return (
     <>
-      {schema.fields.map((field) => (
-        <DataFormField<T>
-          key={field.key}
-          formId={formId}
-          viewId={viewId}
-          field={field}
-          namePrefix={namePrefix}
-        />
+      {schema.fields
+        .filter((field) => !field.hidden)
+        .map((field) => (
+          <DataFormField<T>
+            key={field.key}
+            formId={formId}
+            viewId={viewId}
+            field={field}
+            namePrefix={namePrefix}
+          />
+        ))}
+      {extraItems.map((item) => (
+        <Fragment key={item.key}>{item.render()}</Fragment>
       ))}
     </>
   );

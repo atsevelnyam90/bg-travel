@@ -1,6 +1,5 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   createDynamicViewComponent,
   type DynamicViewAddButtonProps,
@@ -8,8 +7,9 @@ import {
   type DynamicViewDataGridProps,
   type DynamicViewDeleteDialogProps,
   type DynamicViewErrorStateProps,
-} from "@winu/builder-ui/components";
-import { formatBuilderRuntimeValue } from "@winu/builder-ui/runtime";
+} from "@duke333/builder-ui/components";
+import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
+import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
@@ -40,13 +40,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import type { PortalBuilderApiContracts } from "../api";
+import type { PortalBuilderApiContracts } from "../builder.config";
 import {
   useBuilderViewEntries,
   useDeleteBuilderViewEntry,
   useRuntimeBuilderView,
   useSaveBuilderViewEntry,
-} from "../hooks/useBuilder";
+} from "../builder.config";
 import { RuntimeEntryDialog } from "./RuntimeEntryDialog";
 
 function buildColumns(

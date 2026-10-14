@@ -7,7 +7,7 @@ import type {
   ListBuilderViewRowsArgs,
   UpdateBuilderDefinitionRowArgs,
   UpdateBuilderViewRowArgs,
-} from "@winu/builder-backend/metadata";
+} from "@duke333/builder-backend/metadata";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {

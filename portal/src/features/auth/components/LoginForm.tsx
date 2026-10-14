@@ -27,7 +27,7 @@ export function LoginForm() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       await login.mutateAsync(values);
-      router.replace("/dashboard");
+      router.replace("/admin/dashboard");
     } catch (error) {
       // Сервер и-мэйл/нууц үгийн алийг нь буруу болохыг ЗААДАГГҮЙ —
       // тандалтаас сэргийлэх зорилготой. Тэр мессежийг хэвээр харуулна.

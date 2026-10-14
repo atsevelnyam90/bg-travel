@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
-import { DynamicFormRoutePage } from "@/features/builder";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Dynamic Form" };
+type LegacyRuntimePageProps = {
+  searchParams: Promise<{ id?: string | string[] }>;
+};
 
-export default function DynamicFormPage() {
-  return <DynamicFormRoutePage />;
+export default async function LegacyDynamicFormPage({ searchParams }: LegacyRuntimePageProps) {
+  const id = (await searchParams).id;
+  const value = Array.isArray(id) ? id[0] : id;
+  redirect(value ? `/admin/winu/form?id=${encodeURIComponent(value)}` : "/admin/winu/form");
 }

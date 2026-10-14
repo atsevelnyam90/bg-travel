@@ -1,4 +1,4 @@
-import type { BuilderErrors } from "@winu/builder-backend/errors";
+import type { BuilderErrors } from "@duke333/builder-backend/errors";
 import { badRequest, conflict, forbidden, notFound, unauthorized } from "@/lib/errors";
 
 export const builderErrors: BuilderErrors = {

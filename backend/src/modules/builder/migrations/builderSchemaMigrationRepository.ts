@@ -2,7 +2,7 @@ import type {
   BuilderSchemaMigrationDefinition,
   BuilderSchemaMigrationRecord,
   BuilderSchemaMigrationRepository,
-} from "@winu/builder-backend/migrations";
+} from "@duke333/builder-backend/migrations";
 import { prismaUnfiltered } from "@/lib/prisma";
 
 export const builderSchemaMigrationRepository: BuilderSchemaMigrationRepository = {

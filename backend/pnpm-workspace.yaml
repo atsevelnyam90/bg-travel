@@ -1,9 +1,14 @@
 # pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
-# backend нь дотроо packages/* -тэй тул тэднийг энд зарлана.
+# backend нь зөвхөн host-owned package-уудыг workspace-дээ эзэмшинэ.
 packages:
-  - "packages/*"
+  - "packages/contracts"
+  - "packages/mn-integrations"
 
 allowBuilds:
   "@prisma/engines": true
   prisma: true
   esbuild: true
+
+minimumReleaseAgeExclude:
+  - '@duke333/builder-backend@0.1.0'
+  - '@duke333/builder-contracts@0.1.0'
