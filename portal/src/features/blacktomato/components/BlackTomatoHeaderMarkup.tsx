@@ -51,10 +51,10 @@ export function BlackTomatoHeaderMarkup() {
     <div className="header__bar">
 
         <div className="header__logo">
-            <a href="https://www.blacktomato.com">
-              <img src="/wp-content/themes/blacktomato/img/black-tomato.svg" alt="Black Tomato" className="logo logo--light" />
+            <a href="/" aria-label="BG Travel ???? ??????">
+              <img src="/bg-travel/logo.png" alt="BG Travel" width="247" height="266" className="logo logo--light" />
 
-              <img src="/wp-content/themes/blacktomato/img/black-tomato-black.svg" alt="Black Tomato" className="logo logo--dark" />
+              <img src="/bg-travel/logo.png" alt="BG Travel" width="247" height="266" className="logo logo--dark" />
             </a>
         </div>
 
@@ -1142,10 +1142,10 @@ export function BlackTomatoHeaderMarkup() {
     <div className="container container--new-large">
       <div className="d-flex justify-content-between v-align-center">
         <div className="d-inline-block header__left">
-          <a className="d-inline-block float-left" href="https://www.blacktomato.com">
-            <img src="/wp-content/themes/blacktomato/img/black-tomato.svg" alt="Black Tomato" className="logo logo--light" />
+          <a className="d-inline-block float-left" href="/" aria-label="BG Travel ???? ??????">
+            <img src="/bg-travel/logo.png" alt="BG Travel" width="247" height="266" className="logo logo--light" />
 
-            <img src="/wp-content/themes/blacktomato/img/black-tomato-black.svg" alt="Black Tomato" className="logo logo--dark" />
+            <img src="/bg-travel/logo.png" alt="BG Travel" width="247" height="266" className="logo logo--dark" />
           </a>
         </div>
         <div className="d-inline-block header__center">

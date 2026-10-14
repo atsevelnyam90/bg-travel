@@ -1,0 +1,28 @@
+.brand.brand.brand.brand
+  [class~="header"][class~="header--mega-menu"]
+  [class~="header__bar"]
+  img[class~="logo"] {
+  width: calc(64px * 247 / 266);
+  aspect-ratio: 247 / 266;
+  height: 64px;
+  max-width: none;
+  object-fit: contain;
+}
+
+.brand.brand.brand.brand
+  [class~="header"][class~="header--mega-menu"]
+  [class~="header__bar"]
+  [class~="header__logo"]
+  a {
+  display: inline-block;
+}
+
+@media (max-width: 800px) {
+  .brand.brand.brand.brand
+    [class~="header"][class~="header--mega-menu"]
+    [class~="header__bar"]
+    img[class~="logo"] {
+    width: calc(48px * 247 / 266);
+    height: 48px;
+  }
+}

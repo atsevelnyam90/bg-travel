@@ -6,6 +6,7 @@ import {
   BLACK_TOMATO_CSS,
   BLACK_TOMATO_FONTS,
 } from "./blackTomatoConstants";
+import styles from "./brand.module.css";
 
 export function BlackTomatoPage() {
   return (
@@ -37,7 +38,7 @@ export function BlackTomatoPage() {
         }
       `}</style>
 
-      <div className={`${BLACK_TOMATO_BODY_CLASS} blacktomato-shell`}>
+      <div className={`${BLACK_TOMATO_BODY_CLASS} blacktomato-shell ${styles.brand}`}>
         <BlackTomatoHomeMarkup />
       </div>
     </>
