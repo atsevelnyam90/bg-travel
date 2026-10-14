@@ -8,6 +8,10 @@ function closestElement(target: EventTarget | null, selector: string) {
 
 function preventLocalFormSubmit(root: ParentNode) {
   root.querySelectorAll("form").forEach((form) => {
+    if (form instanceof HTMLFormElement && form.dataset.allowSubmit === "true") {
+      return;
+    }
+
     form.addEventListener("submit", (event) => {
       event.preventDefault();
     });
@@ -31,6 +35,23 @@ function bindDismissButtons(root: ParentNode) {
     button.addEventListener("click", (event) => {
       event.preventDefault();
       closestElement(event.currentTarget, ".newsletter-popup")?.remove();
+    });
+  });
+}
+
+function bindJourneyStart(root: ParentNode) {
+  root.querySelectorAll(".js-start-journey, .js-scroll-page-down").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      document.querySelector(".blacktomato-shell")?.classList.add("blacktomato-shell--started");
+
+      window.requestAnimationFrame(() => {
+        document.querySelector("#journey-start")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
     });
   });
 }
@@ -146,6 +167,7 @@ export function BlackTomatoInteractions() {
 
     preventLocalFormSubmit(root);
     bindDismissButtons(root);
+    bindJourneyStart(root);
     bindMobileMenu(root);
     bindTabs(root);
     bindAccordions(root);

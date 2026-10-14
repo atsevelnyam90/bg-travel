@@ -21,7 +21,23 @@ export function BlackTomatoPage() {
         <link key={href} rel="stylesheet" href={href} />
       ))}
 
-      <div className={BLACK_TOMATO_BODY_CLASS}>
+      <style>{`
+        .blacktomato-shell:not(.blacktomato-shell--started) .section--hero-banner ~ .section,
+        .blacktomato-shell:not(.blacktomato-shell--started) > .bar,
+        .blacktomato-shell:not(.blacktomato-shell--started) > footer {
+          display: none !important;
+        }
+
+        .blacktomato-shell:not(.blacktomato-shell--started) .section--hero-banner {
+          cursor: pointer;
+        }
+
+        .blacktomato-shell .section--testimonials {
+          display: none !important;
+        }
+      `}</style>
+
+      <div className={`${BLACK_TOMATO_BODY_CLASS} blacktomato-shell`}>
         <BlackTomatoHomeMarkup />
       </div>
     </>

@@ -1,10 +1,12 @@
+import { BlackTomatoBookingBudgetSection } from "./BlackTomatoBookingBudgetSection";
+
 export function BlackTomatoMainMarkup() {
   return (
     <>
 <div>
 
                         
-<section className="section section--hero-banner section--hero-banner--single_image section--hero-banner--full section--hero-banner--video section--hero-banner--" id="">
+<section className="section section--hero-banner section--hero-banner--single_image section--hero-banner--full section--hero-banner--video section--hero-banner-- js-start-journey" id="">
             
                 <div className="banner__video hidden-lg">            
                         <video className="video inline" width="100%" loop={true} muted={true} playsInline={true} poster="https://media.blacktomato.com/cdn-cgi/image/width=1024,height=1024,fit=contain,quality=82,format=auto/https://media.blacktomato.com/2024/04/Website-Homepage-9-Mobil.00_00_00_00000.Still002.jpg" data-object-fit="cover" preload="metadata">
@@ -24,8 +26,7 @@ export function BlackTomatoMainMarkup() {
     <div style={{ textAlign: 'center' }}>
 <h1 style={{ color: '#fff' }}>The luxury travel experts</h1>
 <h2><strong><span className="text--white text-white h8">Tailor-made trips, award winning service. Est. 2005.</span></strong></h2>
-<div className="text--white" style={{ justifyContent: 'center', display: 'flex', gap: '16px' }}><a className="btn btn--ghost" href="https://www.blacktomato.com/the-trip-finder/results/?feeling=&amp;when=">Explore our trips</a><br />
-<a className="btn btn--negative" href="https://www.blacktomato.com/make-an-enquiry/">Plan my Trip</a></div>
+<div className="text--white" style={{ justifyContent: 'center', display: 'flex', gap: '16px' }}><a className="btn btn--negative js-start-journey" href="#journey-start">Explore our trips</a></div>
 </div>
 
     
@@ -40,27 +41,7 @@ export function BlackTomatoMainMarkup() {
     
 </section>
                     
-<section className="section section--content text-base background-custom py-xl   " style={{ backgroundAttachment: 'scroll', backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/quality=82,format=auto/https://media.blacktomato.com/2022/08/Text-Centered-Home.jpg)' }} id="">
-
-  <div className="container">
-    <div className="row">
-              <div className="col col--lg-8 col--md-8 col--sm-12 col--xs-12 col--lg-offset-2 col--md-offset-2">
-          <h2 style={{ textAlign: 'center' }}><span className="h5">Every journey starts with a feeling</span></h2>
-<p style={{ textAlign: 'center' }}>The world is vast, full of wonders. But information engulfs us. See this, do that, don’t miss this. It seems the more choice there is, the more overwhelmed we feel. What’s more, you’re never asked <em>how you want to feel</em>.</p>
-<p style={{ textAlign: 'center' }}>That’s not us. Black Tomato is a tailor-made luxury travel company that designs fully personalised itineraries – not templates, not off-the-shelf tours. Whether you’re a couple seeking adventure, a multi-generational family exploring together, or a solo traveller chasing something extraordinary, we craft every detail around you.</p>
-<p style={{ textAlign: 'center' }}>For over 20 years, we’ve been recognised as one of the world’s leading luxury travel planners – featured in Modern Luxury’s ‘Best of Luxury Travel’ Awards – and trusted to deliver tailor-made journeys across 100 destinations.</p>
-<p style={{ textAlign: 'center' }}>So let’s begin. Let’s do something remarkable.</p>
-<p style={{ textAlign: 'center' }}><a className="btn btn--negative" href="https://www.blacktomato.com/make-an-enquiry/">Get In Touch</a></p>
-
-          
-        </div>
-          </div>
-
-    
-    
-    
-  </div>
-</section>
+<BlackTomatoBookingBudgetSection />
                     
 <section className="section section--testimonials section--testimonials--manual bg-white text- trustpilot-layout has-logo-underneath" style={{ backgroundImage: 'url()', backgroundSize: 'cover' }} id="">
   <div className="container ">
@@ -351,7 +332,7 @@ export function BlackTomatoMainMarkup() {
     <div className="container">
         <header className="align-text-center">
             <h2 className="">Start your Journey</h2>
-            <ul className="list list--tabs">
+            <ul className="list list--tabs" style={{ display: 'none' }}>
                                                             <li><button className="text-sm-xs text-headings uppercase js-toggle-tab is-active" data-toggle-tab="by-traveller">By Traveller</button></li>
                                                                                 <li><button className="text-sm-xs text-headings uppercase js-toggle-tab" data-toggle-tab="most-popular">Most Popular</button></li>
                                                                                 <li><button className="text-sm-xs text-headings uppercase js-toggle-tab" data-toggle-tab="by-month">By month</button></li>
@@ -362,18 +343,18 @@ export function BlackTomatoMainMarkup() {
         <div className="section__content section__content--row section">
             
             
-              <div className="tab tab--col--5 section__tab is-active" data-tab="by-traveller">
+              <div className="tab tab--col--3 section__tab is-active" data-tab="by-traveller">
                 <div className="section__scroller carousel">
                   
                     <div className="row row--flex section__content__posts">
                       
                   
                                         
-                      <div className="col col--5 panel content__over post-layout-- ">
+                      <div className="col col--3 panel content__over post-layout-- ">
 
                                                                                 
-                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2026/01/Girl-running-in-farm-1.jpg)' }}>
-                              <a href="https://www.blacktomato.com/experience-types/family-holidays/" className="">                                                                      <h5 className="h6 strong">Family</h5>
+                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2025/02/3OxkpiGQ-FeeKbyBI-freepik__upload__60443-resized.jpg)' }}>
+                              <a href="#journey-start" className="js-start-journey">                                                                      <h5 className="h6 strong">Дотоод аялал</h5>
                                                                     <div className="overlay"></div>
                                                                 </a>                            </div>
 
@@ -381,11 +362,11 @@ export function BlackTomatoMainMarkup() {
                       </div> 
                       
                                           
-                      <div className="col col--5 panel content__over post-layout-- ">
+                      <div className="col col--3 panel content__over post-layout-- ">
 
                                                                                 
-                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2026/01/Couple-sitting-by-coast.jpg)' }}>
-                              <a href="https://www.blacktomato.com/experience-types/couples-holidays/" className="">                                                                      <h5 className="h6 strong">Couples</h5>
+                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2023/02/Borana-Lodge-Location-Setting-Pride-Rock.jpg)' }}>
+                              <a href="#journey-start" className="js-start-journey">                                                                      <h5 className="h6 strong">Гадаад аялал</h5>
                                                                     <div className="overlay"></div>
                                                                 </a>                            </div>
 
@@ -393,23 +374,11 @@ export function BlackTomatoMainMarkup() {
                       </div> 
                       
                                           
-                      <div className="col col--5 panel content__over post-layout-- ">
-
-                                                                                
-                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2026/01/Group-canoeing-1.jpg)' }}>
-                              <a href="https://www.blacktomato.com/experience-types/luxury-group-holidays/" className="">                                                                      <h5 className="h6 strong">Groups</h5>
-                                                                    <div className="overlay"></div>
-                                                                </a>                            </div>
-
-                                                      
-                      </div> 
-                      
-                                          
-                      <div className="col col--5 panel content__over post-layout-- ">
+                      <div className="col col--3 panel content__over post-layout-- ">
 
                                                                                 
                             <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2026/01/Couple-Italy-couple-swimming.jpg)' }}>
-                              <a href="https://www.blacktomato.com/experience-types/luxury-honeymoons/" className="">                                                                      <h5 className="h6 strong">Honeymoon</h5>
+                              <a href="#journey-start" className="js-start-journey">                                                                      <h5 className="h6 strong">Хурим</h5>
                                                                     <div className="overlay"></div>
                                                                 </a>                            </div>
 
@@ -417,17 +386,6 @@ export function BlackTomatoMainMarkup() {
                       </div> 
                       
                                           
-                      <div className="col col--5 panel content__over post-layout-- ">
-
-                                                                                
-                            <div className="panel__content panel__content--overlay  panel__content--with-link" style={{ backgroundImage: 'url(https://media.blacktomato.com/cdn-cgi/image/width=978,height=1460,fit=cover,quality=82,format=auto/https://media.blacktomato.com/2026/01/Lady-on-a-horse-1.jpg)' }}>
-                              <a href="https://www.blacktomato.com/experience-types/solo-holidays/" className="">                                                                      <h5 className="h6 strong">Solo</h5>
-                                                                    <div className="overlay"></div>
-                                                                </a>                            </div>
-
-                                                      
-                      </div> 
-                      
                     
                     
                   </div> 
@@ -435,13 +393,6 @@ export function BlackTomatoMainMarkup() {
                 </div>
 
                                   
-                  <div className="align-text-center">
-                    <a className="btn btn--black mt-md" href="https://www.blacktomato.com/experience-types/">View more</a>
-                  </div>
-                
-                
-                
-                
               </div> 
             
             
