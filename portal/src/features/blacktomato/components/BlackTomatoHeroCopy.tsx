@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useHeroTextGlassScreen } from "../hooks/useHeroTextGlassScreen";
 import "./heroCopy.css";
 
@@ -44,16 +45,15 @@ function HeroGlassText({ text, depth }: { text: string; depth: number }) {
 }
 
 export function BlackTomatoHeroCopy() {
-  const title = "Хамгийн хямд, хамгийн чанартай аяллыг манайхаас...";
-  const description = "Тээш дүүрэн дурсамжийг BG Travel-тай хамт";
+  const t = useTranslations("publicHero");
 
   return (
     <>
       <div className="hero-copy__title">
-        <HeroGlassText text={title} depth={16} />
+        <HeroGlassText text={t("title")} depth={16} />
       </div>
       <div className="hero-copy__description">
-        <HeroGlassText text={description} depth={7} />
+        <HeroGlassText text={t("description")} depth={7} />
       </div>
     </>
   );

@@ -5,8 +5,11 @@ export interface EmvcoQrField {
 }
 
 export interface EmvcoQrSummary {
+  merchantAccountGui?: string;
   bankId?: string;
   accountOrId?: string;
+  merchantCategoryCode?: string;
+  transactionType?: string;
   currency?: string;
   amount?: string;
   country?: string;
@@ -20,10 +23,12 @@ export interface EmvcoQrSummary {
 export interface BuildEmvcoQrInput {
   accountNumber: string;
   accountName: string;
+  bankId: string;
+  merchantCategoryCode: string;
+  transactionType: "01" | "02" | "03";
   currency?: string;
   amount?: number | string;
   purpose?: string;
-  bankId?: string;
   country?: string;
   merchantCity?: string;
   postalCode?: string;
@@ -195,18 +200,20 @@ export function parseEmvcoQr(raw: string): EmvcoQrSummary {
       summary.currency = value === "496" ? "MNT" : value;
     }
     if (tag === "54") summary.amount = value;
+    if (tag === "52") summary.merchantCategoryCode = value;
+    if (tag === "80") summary.transactionType = value;
     if (tag === "26") {
       const sub = parseTLV(value);
       const gui = sub.find((e) => e.tag === "00");
       const id01 = sub.find((e) => e.tag === "01");
       const id02 = sub.find((e) => e.tag === "02");
+      if (gui) summary.merchantAccountGui = gui.value;
       if (id01) summary.bankId = id01.value;
       if (id02) summary.accountOrId = id02.value;
-      if (!summary.bankId && gui) summary.bankId = gui.value;
     }
     if (tag === "62" && value.length >= 4) {
       const sub = parseTLV(value);
-      const purpose = sub.find((e) => e.tag === "50");
+      const purpose = sub.find((e) => e.tag === "08") ?? sub.find((e) => e.tag === "50");
       if (purpose) summary.purpose = purpose.value;
     }
   }
@@ -215,39 +222,51 @@ export function parseEmvcoQr(raw: string): EmvcoQrSummary {
 }
 
 export function buildEmvcoQr(input: BuildEmvcoQrInput): string {
-  const accountNumber = (input.accountNumber || "").replace(/\s+/g, "").trim();
-  const accountName = sanitizeEmvcoText((input.accountName || "").trim(), 25);
+  const accountNumber = (input.accountNumber || "").replace(/\s+/g, "").trim().toUpperCase();
+  const accountName = sanitizeEmvcoText((input.accountName || "").trim(), 25).toUpperCase();
+  const bankId = (input.bankId || "").trim().toUpperCase();
+  const merchantCategoryCode = (input.merchantCategoryCode || "").trim();
 
-  if (!accountNumber) {
-    throw new Error("accountNumber is required");
+  if (!/^MN\d{18}$/.test(accountNumber)) {
+    throw new Error("accountNumber must be a 20-character Mongolian IBAN");
   }
   if (!accountName) {
     throw new Error("accountName is required");
   }
+  if (!/^[A-Z0-9]{8}$/.test(bankId)) {
+    throw new Error("bankId must be the receiving bank's 8-character BIC");
+  }
+  if (!/^\d{4}$/.test(merchantCategoryCode)) {
+    throw new Error("merchantCategoryCode must contain 4 digits");
+  }
 
   const amount = normalizeAmount(input.amount);
   const merchantInfo = [
-    toTlv("00", input.bankId?.trim() || "A000000727"),
-    ...(input.bankId ? [toTlv("01", input.bankId.trim())] : []),
+    // Монголбанкны A-1 тушаалын merchant account GUI тогтмол утга.
+    toTlv("00", "A0000008430001"),
+    toTlv("01", bankId),
     toTlv("02", accountNumber),
   ].join("");
 
   const purpose = sanitizeEmvcoText(input.purpose?.trim() || "", 25);
 
-  const additionalData = purpose ? toTlv("62", toTlv("50", purpose)) : "";
+  // ID 62 доторх 08 нь "Мөнгөн хөрөнгийн шилжүүлгийн утга".
+  const additionalData = purpose ? toTlv("62", toTlv("08", purpose)) : "";
 
   const payloadWithoutCrc = [
     toTlv("00", "01"),
     toTlv("01", amount ? "12" : "11"),
     toTlv("26", merchantInfo),
-    toTlv("52", "0000"),
+    toTlv("52", merchantCategoryCode),
     toTlv("53", currencyToNumeric(input.currency)),
     ...(amount ? [toTlv("54", amount)] : []),
     toTlv("58", (input.country || "MN").toUpperCase()),
     toTlv("59", accountName),
-    toTlv("60", sanitizeEmvcoText(input.merchantCity || "Ulaanbaatar", 15)),
+    toTlv("60", sanitizeEmvcoText(input.merchantCity || "ULAANBAATAR", 15).toUpperCase()),
     ...(input.postalCode ? [toTlv("61", input.postalCode.trim())] : []),
     additionalData,
+    // 01 = Purchase, 02 = Transfer, 03 = Payment.
+    toTlv("80", input.transactionType),
     "6304",
   ].join("");
 

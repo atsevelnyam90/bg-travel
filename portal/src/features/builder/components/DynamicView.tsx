@@ -8,9 +8,9 @@ import {
   type DynamicViewDeleteDialogProps,
   type DynamicViewErrorStateProps,
 } from "@duke333/builder-ui/components";
-import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { CircleCheck, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
 import {
@@ -47,7 +47,87 @@ import {
   useRuntimeBuilderView,
   useSaveBuilderViewEntry,
 } from "../builder.config";
+import { formatRuntimeField } from "../formatRuntimeField";
+import { BUILDER_RUNTIME_IDS } from "../runtimeIds";
 import { RuntimeEntryDialog } from "./RuntimeEntryDialog";
+
+function OrderConfirmationCell({ entry }: { entry: builder.BuilderViewEntry }) {
+  const [open, setOpen] = useState(false);
+  const save = useSaveBuilderViewEntry(BUILDER_RUNTIME_IDS.orderView);
+  const isConfirmed = entry.values.status === "PAID";
+  const orderNumber =
+    typeof entry.values.public_order_id === "string"
+      ? entry.values.public_order_id
+      : "Энэ захиалга";
+
+  if (isConfirmed) {
+    return (
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-green-600 text-sm">
+        <CircleCheck className="size-4" />
+        Баталгаажсан
+      </span>
+    );
+  }
+
+  async function confirmOrder() {
+    try {
+      await save.mutateAsync({
+        id: entry.id,
+        input: {
+          values: { ...entry.values, status: "PAID" },
+          version: entry.version,
+        },
+      });
+      setOpen(false);
+      toast.success("Захиалга баталгаажлаа");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Захиалга баталгаажуулахад алдаа гарлаа"));
+    }
+  }
+
+  return (
+    <div>
+      <Button
+        size="sm"
+        variant="outline"
+        className="border-primary/40 bg-primary/15 text-primary hover:bg-primary hover:text-primary-foreground"
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        Баталгаажуулах
+      </Button>
+      <AlertDialog
+        open={open}
+        onOpenChange={(next) => {
+          if (!save.isPending) setOpen(next);
+        }}
+      >
+        <AlertDialogContent onClick={(event) => event.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Захиалгыг баталгаажуулах уу?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {orderNumber} захиалгын төлбөрийг хүлээн авсан гэж тэмдэглэнэ.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={save.isPending}>Болих</AlertDialogCancel>
+            <Button
+              disabled={save.isPending}
+              onClick={(event) => {
+                event.stopPropagation();
+                void confirmOrder();
+              }}
+            >
+              {save.isPending ? "Баталгаажуулж байна..." : "Баталгаажуулах"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
 
 function buildColumns(
   view: builder.BuilderView,
@@ -61,10 +141,25 @@ function buildColumns(
       meta: { sortable: column.sortable, label: column.label, align: column.align },
       cell: ({ row }) => (
         <span className={column.align === "right" ? "tabular-nums" : undefined}>
-          {formatBuilderRuntimeValue(row.original.values[column.key])}
+          {formatRuntimeField(
+            row.original.values[column.key],
+            view.form?.schema.fields.find((field) => field.key === column.key),
+          )}
         </span>
       ),
     })) ?? [];
+
+  if (view.id === BUILDER_RUNTIME_IDS.orderView) {
+    const confirmationColumn: (typeof columns)[number] = {
+      id: "orderConfirmation",
+      header: "Баталгаажуулалт",
+      meta: { label: "Баталгаажуулалт" },
+      enableHiding: false,
+      cell: ({ row }) => <OrderConfirmationCell entry={row.original} />,
+    };
+    const orderNumberIndex = columns.findIndex((column) => column.id === "public_order_id");
+    columns.splice(orderNumberIndex + 1, 0, confirmationColumn);
+  }
 
   columns.push({
     id: "actions",

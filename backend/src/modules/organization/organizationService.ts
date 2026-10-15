@@ -101,6 +101,8 @@ export async function buildProductPaymentQr(productId: string): Promise<orgContr
     // Барааны нэр БИШ — давтагдашгүй лавлагаа. Тулгалт үүн дээр тогтоно.
     purpose: reference,
     bankId: bank.bic,
+    merchantCategoryCode: "5999",
+    transactionType: "03",
   });
 
   return {

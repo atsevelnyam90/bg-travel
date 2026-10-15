@@ -3,6 +3,7 @@ import {
   FileText,
   Globe,
   LayoutDashboard,
+  Map as MapIcon,
   Package,
   Settings,
   ShoppingCart,
@@ -47,6 +48,7 @@ export const navSections: NavSection[] = [
   {
     label: "Website",
     items: [
+      { label: "Аялал", href: "/admin/travels", icon: MapIcon, permission: "org:manage" },
       {
         label: "Website pages",
         href: "/admin/website-pages",

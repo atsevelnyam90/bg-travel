@@ -11,15 +11,15 @@ import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
 import { DataForm } from "@/components/data";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { FieldGroup } from "@/components/ui/field";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 import {
   useCreateCompositeBuilderViewEntry,
@@ -27,7 +27,7 @@ import {
 } from "../builder.config";
 import { RuntimeSubformField } from "./RuntimeSubformField";
 
-function DialogShell({
+function DrawerShell({
   open,
   title,
   description,
@@ -35,15 +35,18 @@ function DialogShell({
   children,
 }: RuntimeEntryDialogShellProps) {
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="flex max-h-[88dvh] flex-col gap-0 overflow-hidden rounded-lg p-0 sm:max-w-3xl lg:max-w-4xl">
-        <DialogHeader className="border-b bg-muted/20 px-5 py-4 pr-12">
-          <DialogTitle className="text-lg">{title}</DialogTitle>
-          <DialogDescription className="truncate">{description}</DialogDescription>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
+      <SheetContent
+        side="right"
+        className="gap-0 overflow-hidden p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-3xl data-[side=right]:lg:max-w-4xl"
+      >
+        <SheetHeader className="border-b bg-muted/20 px-5 py-4 pr-12">
+          <SheetTitle className="text-lg">{title}</SheetTitle>
+          <SheetDescription className="truncate">{description}</SheetDescription>
+        </SheetHeader>
         {children}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -69,14 +72,14 @@ function FormFields({
 
 function Actions({ isSaving, onClose }: RuntimeEntryDialogActionsProps) {
   return (
-    <DialogFooter className="mx-0 mt-0 mb-0 flex-row justify-end rounded-none border-t bg-background px-5 py-3">
+    <SheetFooter className="mx-0 mt-0 mb-0 flex-row justify-end rounded-none border-t bg-background px-5 py-3">
       <Button type="button" variant="outline" className="min-w-24" onClick={onClose}>
         Болих
       </Button>
       <Button type="submit" className="min-w-28" disabled={isSaving}>
         {isSaving ? "Хадгалж байна..." : "Хадгалах"}
       </Button>
-    </DialogFooter>
+    </SheetFooter>
   );
 }
 
@@ -85,7 +88,7 @@ export const RuntimeEntryDialog = createRuntimeEntryDialogComponent<
   builder.BuilderViewEntry,
   builder.UpdateBuilderViewEntryInput
 >({
-  DialogShell,
+  DialogShell: DrawerShell,
   FormFields,
   Actions,
   formClassName: "flex min-h-0 flex-1 flex-col",

@@ -2,6 +2,7 @@
 
 import type { FocusEventHandler } from "react";
 import { Controller, type FieldValues, type Path, useFormContext } from "react-hook-form";
+import { toMajor, toMinor } from "@/api/generated/contracts/money";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useFieldError } from "./useFieldError";
@@ -13,6 +14,7 @@ type CurrencyFieldProps<T extends FieldValues> = {
   disabled?: boolean;
   /** Валютын тэмдэг. Default ₮. */
   symbol?: string;
+  minorUnits?: boolean;
   onBlur?: FocusEventHandler<HTMLInputElement>;
 };
 
@@ -32,6 +34,7 @@ export function CurrencyField<T extends FieldValues>({
   description,
   disabled,
   symbol = "₮",
+  minorUnits = false,
   onBlur,
 }: CurrencyFieldProps<T>) {
   const { control } = useFormContext<T>();
@@ -53,8 +56,17 @@ export function CurrencyField<T extends FieldValues>({
               disabled={disabled}
               aria-invalid={invalid}
               aria-describedby={describedBy}
-              value={format(field.value ?? null)}
-              onChange={(event) => field.onChange(parse(event.target.value))}
+              value={format(
+                field.value == null || field.value === ""
+                  ? null
+                  : minorUnits
+                    ? toMajor(Number(field.value))
+                    : Number(field.value),
+              )}
+              onChange={(event) => {
+                const value = parse(event.target.value);
+                field.onChange(value === null ? null : minorUnits ? toMinor(value) : value);
+              }}
               onBlur={(event) => {
                 field.onBlur();
                 onBlur?.(event);

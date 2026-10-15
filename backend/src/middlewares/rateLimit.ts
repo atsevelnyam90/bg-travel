@@ -42,3 +42,17 @@ export const refreshRateLimit = rateLimit({
     });
   },
 });
+
+/** Public захиалга — bot болон давтан submit-ийн ачааллыг хязгаарлана. */
+export const publicOrderRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: isTest ? 1_000 : 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      message: "Хэт олон захиалгын хүсэлт илгээлээ. Хэсэг хүлээгээд дахин оролдоно уу.",
+      code: "TOO_MANY_REQUESTS",
+    });
+  },
+});

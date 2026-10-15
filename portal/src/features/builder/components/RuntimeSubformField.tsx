@@ -8,7 +8,6 @@ import {
   type RuntimeSubformDialogShellProps,
   type RuntimeSubformShellProps,
 } from "@duke333/builder-ui/components";
-import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { builder } from "@/api/generated/contracts";
@@ -39,6 +38,7 @@ import {
   useRuntimeBuilderView,
   useSaveBuilderViewEntry,
 } from "../builder.config";
+import { formatRuntimeField } from "../formatRuntimeField";
 
 function buildSubformColumns(
   view: builder.BuilderView,
@@ -48,7 +48,11 @@ function buildSubformColumns(
       id: column.key,
       header: column.label,
       meta: { sortable: column.sortable, label: column.label, align: column.align },
-      cell: ({ row }) => formatBuilderRuntimeValue(row.original.values[column.key]),
+      cell: ({ row }) =>
+        formatRuntimeField(
+          row.original.values[column.key],
+          view.form?.schema.fields.find((field) => field.key === column.key),
+        ),
     })) ?? []
   );
 }
@@ -107,8 +111,8 @@ function DataPanel({
       <DataTable
         controller={controller}
         isLoading={isLoading}
-        emptyTitle="Section алга"
-        emptyDescription="Энэ page дээр section нэмэгдээгүй байна."
+        emptyTitle="Мэдээлэл алга"
+        emptyDescription="Нэмэх товчоор шинэ мөр бүртгэнэ үү."
         onRowClick={onRowClick}
       />
       <div className="border-t">

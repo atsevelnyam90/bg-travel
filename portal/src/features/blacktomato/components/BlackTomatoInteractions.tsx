@@ -2,6 +2,17 @@
 
 import { useEffect } from "react";
 
+let bookingDrawerTrigger: HTMLElement | null = null;
+
+const focusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 function closestElement(target: EventTarget | null, selector: string) {
   return target instanceof Element ? target.closest(selector) : null;
 }
@@ -59,7 +70,7 @@ function bindJourneyStart(root: ParentNode) {
 
       event.preventDefault();
       event.stopPropagation();
-      openBookingDrawer();
+      openBookingDrawer(event.currentTarget instanceof HTMLElement ? event.currentTarget : null);
     });
   });
 }
@@ -94,17 +105,52 @@ function bindPageScroll(root: ParentNode) {
     });
 }
 
-function openBookingDrawer() {
+function openBookingDrawer(trigger: HTMLElement | null) {
+  bookingDrawerTrigger = trigger;
   startPage();
   document
     .querySelector(".blacktomato-shell")
     ?.classList.add("blacktomato-shell--started", "blacktomato-shell--booking-open");
   document.body.classList.add("blacktomato-booking-open");
+  window.requestAnimationFrame(() => {
+    document
+      .getElementById("booking-drawer")
+      ?.querySelector<HTMLElement>("[data-booking-initial-focus]")
+      ?.focus({ preventScroll: true });
+  });
 }
 
 function closeBookingDrawer() {
-  document.querySelector(".blacktomato-shell")?.classList.remove("blacktomato-shell--booking-open");
+  const shell = document.querySelector(".blacktomato-shell");
+  if (!shell?.classList.contains("blacktomato-shell--booking-open")) return;
+  shell.classList.remove("blacktomato-shell--booking-open");
   document.body.classList.remove("blacktomato-booking-open");
+  bookingDrawerTrigger?.focus({ preventScroll: true });
+  bookingDrawerTrigger = null;
+}
+
+function trapBookingDrawerFocus(event: KeyboardEvent) {
+  if (event.key !== "Tab") return;
+  const shell = document.querySelector(".blacktomato-shell");
+  const drawer = document.getElementById("booking-drawer");
+  if (!shell?.classList.contains("blacktomato-shell--booking-open") || !drawer) return;
+
+  const focusable = Array.from(drawer.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+    (element) => element.offsetParent !== null && element.tabIndex >= 0,
+  );
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (!first || !last) return;
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+  if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function bindBookingDrawer(root: ParentNode) {
@@ -118,7 +164,9 @@ function bindBookingDrawer(root: ParentNode) {
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeBookingDrawer();
+      return;
     }
+    trapBookingDrawerFocus(event);
   });
 }
 

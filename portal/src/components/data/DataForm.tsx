@@ -282,6 +282,7 @@ function DataFormField<T extends FieldValues>({
     fieldElement = (
       <CurrencyField<T>
         name={name}
+        minorUnits={field.key.endsWith("Minor") || field.key.endsWith("_minor")}
         label={field.label}
         description={field.description}
         disabled={isDisabled}

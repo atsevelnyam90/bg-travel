@@ -1,32 +1,40 @@
 "use client";
 
-import { type FormEvent, useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { orders, type travels } from "@/api/generated/contracts";
+import { formatMinor } from "@/api/generated/contracts/money";
+import { useCreatePublicOrder } from "./useCreatePublicOrder";
+import { usePublicPaymentInfo } from "./usePublicPaymentInfo";
+import { usePublicTravels } from "./usePublicTravels";
 
-export type TransportOption = {
-  id: "ground" | "direct-flight" | "private-transfer" | "domestic-flight";
-  label: string;
-  priceMnt: number;
-};
-
-export type TravelOption = {
-  id: string;
-  title: string;
-  category: "Гадаад аялал" | "Дотоод аялал";
-  region: string;
-  duration: string;
-  availableSeats: number;
-  isInternational: boolean;
-  transportOptions: TransportOption[];
-};
+export type TravelOption = travels.PublicTravel;
+export type TravelSlot = travels.PublicTravelSlot;
 
 export type BookingQuote = {
   selectedTrip: TravelOption;
-  selectedTransport: TransportOption;
-  travelDate: string;
+  selectedSlot: TravelSlot;
   peopleCount: number;
-  totalPriceMnt: number;
+  totalPriceMinor: number;
   hasAvailability: boolean;
 };
+
+export type BookingCustomerInput = Pick<
+  orders.CreatePublicOrderInput,
+  "firstName" | "lastName" | "phone" | "email" | "address"
+>;
+
+export type BookingStep = "selection" | "customer" | "payment";
+export type PaymentCopyField = "bankAccount" | "amount";
+
+const bookingCustomerSchema = orders.createPublicOrderSchema.pick({
+  firstName: true,
+  lastName: true,
+  phone: true,
+  email: true,
+  address: true,
+});
 
 type BookingBudgetScreenOptions = {
   initialTripId?: string;
@@ -34,106 +42,38 @@ type BookingBudgetScreenOptions = {
   onContinue?: (quote: BookingQuote) => void;
 };
 
-export const travelOptions: TravelOption[] = [
-  {
-    availableSeats: 9,
-    category: "Гадаад аялал",
-    duration: "8 өдөр",
-    id: "kenya-private-safari",
-    isInternational: true,
-    region: "Masai Mara, Kenya",
-    title: "Kenya Private Safari",
-    transportOptions: [
-      { id: "ground", label: "Газар", priceMnt: 8_900_000 },
-      { id: "direct-flight", label: "Шууд нислэг", priceMnt: 11_800_000 },
-    ],
-  },
-  {
-    availableSeats: 6,
-    category: "Гадаад аялал",
-    duration: "10 өдөр",
-    id: "japan-ryokan-culture",
-    isInternational: true,
-    region: "Tokyo, Kyoto, Hakone",
-    title: "Japan Ryokan & Culture",
-    transportOptions: [
-      { id: "ground", label: "Газар", priceMnt: 7_600_000 },
-      { id: "direct-flight", label: "Шууд нислэг", priceMnt: 10_400_000 },
-    ],
-  },
-  {
-    availableSeats: 4,
-    category: "Гадаад аялал",
-    duration: "7 өдөр",
-    id: "maldives-blue-water",
-    isInternational: true,
-    region: "Baa Atoll, Maldives",
-    title: "Maldives Blue Water Escape",
-    transportOptions: [
-      { id: "ground", label: "Газар", priceMnt: 9_200_000 },
-      { id: "direct-flight", label: "Шууд нислэг", priceMnt: 13_500_000 },
-    ],
-  },
-  {
-    availableSeats: 14,
-    category: "Дотоод аялал",
-    duration: "5 өдөр",
-    id: "gobi-desert-expedition",
-    isInternational: false,
-    region: "Өмнөговь, Хонгорын элс",
-    title: "Говийн аялал",
-    transportOptions: [{ id: "private-transfer", label: "Аяллын унаа", priceMnt: 1_450_000 }],
-  },
-  {
-    availableSeats: 10,
-    category: "Дотоод аялал",
-    duration: "6 өдөр",
-    id: "khangai-journey",
-    isInternational: false,
-    region: "Архангай, Өвөрхангай",
-    title: "Хангайн аялал",
-    transportOptions: [{ id: "private-transfer", label: "Аяллын унаа", priceMnt: 1_650_000 }],
-  },
-  {
-    availableSeats: 8,
-    category: "Дотоод аялал",
-    duration: "7 өдөр",
-    id: "tavan-bogd-journey",
-    isInternational: false,
-    region: "Баян-Өлгий, Алтай Таван Богд",
-    title: "Таван богд аялал",
-    transportOptions: [{ id: "private-transfer", label: "Аяллын унаа", priceMnt: 2_500_000 }],
-  },
-  {
-    availableSeats: 12,
-    category: "Дотоод аялал",
-    duration: "3 өдөр",
-    id: "terelj-weekend-escape",
-    isInternational: false,
-    region: "Тэрэлж",
-    title: "Тэрэлжийн аялал",
-    transportOptions: [{ id: "private-transfer", label: "Аяллын унаа", priceMnt: 890_000 }],
-  },
-  {
-    availableSeats: 10,
-    category: "Дотоод аялал",
-    duration: "8 өдөр",
-    id: "gobi-khangai-journey",
-    isInternational: false,
-    region: "Өмнөговь, Архангай",
-    title: "Говь хангай хосолсон аялал",
-    transportOptions: [{ id: "private-transfer", label: "Аяллын унаа", priceMnt: 2_200_000 }],
-  },
-];
+const transportLabels: Record<TravelSlot["transportType"], string> = {
+  GROUND: "Газар",
+  DIRECT_FLIGHT: "Шууд нислэг",
+};
 
-const moneyFormatter = new Intl.NumberFormat("mn-MN", {
-  currency: "MNT",
-  maximumFractionDigits: 0,
-  style: "currency",
+const dateFormatter = new Intl.DateTimeFormat("mn-MN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "UTC",
 });
 
-export function formatTravelMoney(priceMnt: number) {
-  return moneyFormatter.format(priceMnt);
+function parseDateOnly(value: string): Date {
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
+function slotDateKey(slot: TravelSlot): string {
+  return `${slot.departureDate}|${slot.returnDate}`;
+}
+
+export function formatTravelDate(departureDate: string, returnDate: string): string {
+  const departure = dateFormatter.format(parseDateOnly(departureDate));
+  const returning = dateFormatter.format(parseDateOnly(returnDate));
+  return departureDate === returnDate ? departure : `${departure} – ${returning}`;
+}
+
+export function formatTravelMoney(priceMinor: number) {
+  return formatMinor(priceMinor);
+}
+
+export function transportLabel(type: TravelSlot["transportType"]): string {
+  return transportLabels[type];
 }
 
 export function useBookingBudgetScreen({
@@ -141,67 +81,123 @@ export function useBookingBudgetScreen({
   mode = "home",
   onContinue,
 }: BookingBudgetScreenOptions = {}) {
-  const initialTrip =
-    travelOptions.find((trip) => trip.id === initialTripId) ??
-    (mode === "detail" ? travelOptions[0] : null);
-
+  const travelsQuery = usePublicTravels();
+  const paymentInfoQuery = usePublicPaymentInfo();
+  const orderMutation = useCreatePublicOrder();
+  const travelOptions = travelsQuery.data ?? [];
+  const [step, setStep] = useState<BookingStep>("selection");
   const [query, setQuery] = useState("");
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedTrip, setSelectedTrip] = useState<TravelOption | null>(initialTrip);
-  const [selectedTransportId, setSelectedTransportId] = useState<string | null>(
-    initialTrip?.transportOptions[0]?.id ?? null,
-  );
-  const [travelDate, setTravelDate] = useState("");
-  const [peopleCount, setPeopleCount] = useState(2);
-  const [isSubmitting, setSubmitting] = useState(false);
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(initialTripId ?? null);
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+  const [peopleCount, setPeopleCount] = useState(1);
+  const [pendingCustomer, setPendingCustomer] = useState<BookingCustomerInput | null>(null);
+  const [orderResult, setOrderResult] = useState<orders.PublicOrder | null>(null);
+  const [copiedPaymentField, setCopiedPaymentField] = useState<PaymentCopyField | null>(null);
+  const idempotencyKey = useRef<string | null>(null);
+  const stepContainerRef = useRef<HTMLElement>(null);
+  const bookingActionsRef = useRef<HTMLDivElement>(null);
+  const hasMountedStep = useRef(false);
+  const customerForm = useForm<BookingCustomerInput>({
+    resolver: zodResolver(bookingCustomerSchema),
+    defaultValues: { firstName: "", lastName: "", phone: "", email: "", address: "" },
+  });
+
+  const selectedTrip =
+    travelOptions.find((trip) => trip.publicId === selectedTripId) ??
+    (mode === "detail" ? (travelOptions[0] ?? null) : null);
 
   const normalizedQuery = query.trim().toLowerCase();
   const filteredTripGroups = useMemo(() => {
     const filteredTrips = normalizedQuery
       ? travelOptions.filter((trip) =>
           [
-            trip.title,
-            trip.category,
-            trip.region,
-            trip.duration,
-            ...trip.transportOptions.map((option) => option.label),
-          ].some((value) => value.toLowerCase().includes(normalizedQuery)),
+            trip.name,
+            trip.description ?? "",
+            ...trip.slots.map((slot) => transportLabel(slot.transportType)),
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalizedQuery),
         )
       : travelOptions;
+    return [{ category: "Аяллууд", trips: filteredTrips }];
+  }, [normalizedQuery, travelOptions]);
 
-    return ["Гадаад аялал", "Дотоод аялал"].map((category) => ({
-      category,
-      trips: filteredTrips.filter((trip) => trip.category === category),
-    }));
-  }, [normalizedQuery]);
+  const dateOptions = useMemo(() => {
+    const unique = new Map<string, { key: string; label: string }>();
+    for (const slot of selectedTrip?.slots ?? []) {
+      const key = slotDateKey(slot);
+      if (!unique.has(key)) {
+        unique.set(key, {
+          key,
+          label: formatTravelDate(slot.departureDate, slot.returnDate),
+        });
+      }
+    }
+    return [...unique.values()];
+  }, [selectedTrip]);
 
-  const selectedTransport =
-    selectedTrip?.transportOptions.find((transport) => transport.id === selectedTransportId) ??
-    selectedTrip?.transportOptions[0] ??
+  const transportOptions = selectedDateKey
+    ? (selectedTrip?.slots.filter((slot) => slotDateKey(slot) === selectedDateKey) ?? [])
+    : [];
+  const selectedSlot =
+    transportOptions.find((slot) => slot.publicId === selectedSlotId) ??
+    transportOptions[0] ??
     null;
 
   const quote = useMemo<BookingQuote | null>(() => {
-    if (!selectedTrip || !selectedTransport || !travelDate) {
-      return null;
-    }
-
+    if (!selectedTrip || !selectedSlot) return null;
     return {
-      hasAvailability: selectedTrip.availableSeats >= peopleCount,
+      hasAvailability: selectedSlot.capacity >= peopleCount,
       peopleCount,
-      selectedTransport,
+      selectedSlot,
       selectedTrip,
-      totalPriceMnt: selectedTransport.priceMnt * peopleCount,
-      travelDate,
+      totalPriceMinor: selectedSlot.unitPriceMinor * peopleCount,
     };
-  }, [peopleCount, selectedTransport, selectedTrip, travelDate]);
+  }, [peopleCount, selectedSlot, selectedTrip]);
 
   const canContinue = Boolean(quote?.hasAvailability);
 
+  useEffect(() => {
+    if (!hasMountedStep.current) {
+      hasMountedStep.current = true;
+      return;
+    }
+    const container = stepContainerRef.current;
+    if (container?.dataset.step === step) {
+      container.focus({ preventScroll: true });
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (!selectedDateKey) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      bookingActionsRef.current?.scrollIntoView?.({
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "nearest",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedDateKey]);
+
   function selectTrip(trip: TravelOption) {
-    setSelectedTrip(trip);
-    setSelectedTransportId(trip.transportOptions[0]?.id ?? null);
+    setSelectedTripId(trip.publicId);
+    setSelectedDateKey(null);
+    setSelectedSlotId(null);
     setQuery("");
     setDropdownOpen(false);
+  }
+
+  function selectDate(dateKey: string) {
+    setSelectedDateKey(dateKey);
+    const firstSlot = selectedTrip?.slots.find((slot) => slotDateKey(slot) === dateKey);
+    setSelectedSlotId(firstSlot?.publicId ?? null);
   }
 
   function incrementPeople() {
@@ -214,33 +210,101 @@ export function useBookingBudgetScreen({
 
   function continueBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!quote || !canContinue) return;
+    onContinue?.(quote);
+    setStep("customer");
+  }
 
-    if (!quote || !canContinue || isSubmitting) {
+  function goBackToSelection() {
+    orderMutation.reset();
+    setPendingCustomer(null);
+    setStep("selection");
+  }
+
+  const continueToPayment = customerForm.handleSubmit((customer) => {
+    setPendingCustomer(customer);
+    orderMutation.reset();
+    setStep("payment");
+  });
+
+  async function confirmPayment() {
+    if (!quote || !pendingCustomer || orderResult || orderMutation.isPending) return;
+    idempotencyKey.current ??= crypto.randomUUID();
+    try {
+      const created = await orderMutation.mutateAsync({
+        ...pendingCustomer,
+        slotPublicId: quote.selectedSlot.publicId,
+        travelerCount: quote.peopleCount,
+        idempotencyKey: idempotencyKey.current,
+      });
+      setOrderResult(created);
+    } catch {
       return;
     }
+  }
 
-    setSubmitting(true);
-    onContinue?.(quote);
+  async function copyPaymentValue(field: PaymentCopyField, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedPaymentField(field);
+    } catch {
+      setCopiedPaymentField(null);
+    }
+  }
+
+  function resetBooking() {
+    setStep("selection");
+    setSelectedTripId(initialTripId ?? null);
+    setSelectedDateKey(null);
+    setSelectedSlotId(null);
+    setPeopleCount(1);
+    setPendingCustomer(null);
+    setOrderResult(null);
+    setCopiedPaymentField(null);
+    idempotencyKey.current = null;
+    customerForm.reset();
+    orderMutation.reset();
   }
 
   return {
+    bookingActionsRef,
     canContinue,
+    confirmPayment,
     continueBooking,
+    continueToPayment,
+    copiedPaymentField,
+    copyPaymentValue,
+    dateOptions,
     decrementPeople,
     filteredTripGroups,
     incrementPeople,
     isDropdownOpen,
-    isSubmitting,
+    isLoading: travelsQuery.isLoading,
+    isSubmitting: orderMutation.isPending,
+    customerForm,
+    goBackToSelection,
+    orderResult,
+    paymentInfo: paymentInfoQuery.data ?? null,
+    paymentInfoError: paymentInfoQuery.isError,
+    paymentInfoLoading: paymentInfoQuery.isLoading,
     peopleCount,
     query,
     quote,
+    selectDate,
     selectTrip,
-    selectedTransport,
+    step,
+    stepContainerRef,
+    submitError: orderMutation.error instanceof Error ? orderMutation.error.message : null,
+    selectedDateKey,
+    selectedSlot,
     selectedTrip,
     setDropdownOpen,
     setQuery,
-    setSelectedTransportId,
-    setTravelDate,
-    travelDate,
+    setSelectedSlotId,
+    transportOptions,
+    travelsError: travelsQuery.isError,
+    resetBooking,
   };
 }
+
+export type BookingBudgetScreen = ReturnType<typeof useBookingBudgetScreen>;

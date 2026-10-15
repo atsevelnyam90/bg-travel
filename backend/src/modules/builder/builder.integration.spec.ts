@@ -263,7 +263,7 @@ async function seedOrderBuilderView() {
             { key: "public_order_id", label: "Дугаар", type: "text", required: true },
             { key: "first_name", label: "Нэр", type: "text", required: true },
             { key: "last_name", label: "Овог", type: "text", required: true },
-            { key: "address", label: "Хаяг", type: "textarea", required: true },
+            { key: "address", label: "Хаяг", type: "textarea", required: false },
             { key: "phone", label: "Утас", type: "text", required: true },
             { key: "email", label: "И-мэйл", type: "text", required: true },
             { key: "service_code", label: "Үйлчилгээ", type: "text", required: true },
@@ -288,8 +288,8 @@ async function seedOrderBuilderView() {
               type: "text",
               required: false,
             },
-            { key: "unit_price_mnt", label: "Нэгж үнэ", type: "money", required: true },
-            { key: "total_price_mnt", label: "Нийт үнэ", type: "money", required: true },
+            { key: "unit_price_minor", label: "Нэгж үнэ", type: "money", required: true },
+            { key: "total_price_minor", label: "Нийт үнэ", type: "money", required: true },
             {
               key: "status",
               label: "Төлөв",
@@ -527,8 +527,8 @@ describe("builder runtime view", () => {
           traveler_count: 2,
           service_name_snapshot: "Test tour",
           transport_name_snapshot: "Газраар",
-          unit_price_mnt: 1000,
-          total_price_mnt: 2000,
+          unit_price_minor: 1000,
+          total_price_minor: 2000,
           status: "PAID",
           idempotency_key: "order-trigger-test",
         },
@@ -537,6 +537,7 @@ describe("builder runtime view", () => {
 
     expect(created.body.values.confirmed_by_user_id).toBe(ownerId);
     expect(created.body.values.confirmed_at).toBeTruthy();
+    expect(created.body.values.address).toBe("Test address");
 
     const order = await prisma.order.findUniqueOrThrow({ where: { id: created.body.id } });
     expect(order.confirmedByUserId).toBe(ownerId);

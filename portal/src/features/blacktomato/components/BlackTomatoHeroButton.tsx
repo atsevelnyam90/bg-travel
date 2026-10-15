@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useHeroGlassScreen } from "../hooks/useHeroGlassScreen";
 import styles from "./heroButton.module.css";
 
 export function BlackTomatoHeroButton() {
+  const t = useTranslations("publicHero");
   const { buttonRef, canvasRef, filterRef, mapRef } = useHeroGlassScreen();
 
   return (
@@ -63,7 +65,7 @@ export function BlackTomatoHeroButton() {
             </filter>
           </defs>
         </svg>
-        <span className={styles.label}>Аяллаа төлөвлөх</span>
+        <span className={styles.label}>{t("planTrip")}</span>
       </a>
     </Button>
   );

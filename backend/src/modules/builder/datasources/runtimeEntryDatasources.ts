@@ -19,6 +19,7 @@ import {
   listProducts,
   updateProduct,
 } from "@/modules/products/productService";
+import { createTravelBuilderRuntimeAdapters } from "@/modules/travels/travelBuilderRuntime";
 import { genericRuntimeRepository } from "../repositories/genericRuntimeRepository";
 import {
   builderBadRequest,
@@ -434,6 +435,7 @@ export const starterBuilderRuntimeAdapters: BuilderRuntimeAdapters = createBuild
   generic: genericFallbackRuntimeAdapter,
   errors: builderErrors,
   tables: {
+    ...createTravelBuilderRuntimeAdapters(genericFallbackRuntimeAdapter),
     products: productRuntimeAdapter,
     users: userRuntimeAdapter,
   },

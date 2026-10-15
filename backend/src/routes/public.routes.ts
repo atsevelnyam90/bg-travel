@@ -1,8 +1,12 @@
-import { products as productsContract } from "@winu/contracts";
+import { orders as ordersContract, products as productsContract } from "@winu/contracts";
 import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "@/lib/asyncHandler";
+import { publicOrderRateLimit } from "@/middlewares/rateLimit";
+import { auditFromRequest } from "@/modules/audit/writeAudit";
+import { createPublicOrder, getPublicPaymentInfo } from "@/modules/orders/publicOrderService";
 import { getPublicProduct, listPublicProducts } from "@/modules/products/productService";
+import { listPublicTravels } from "@/modules/travels/publicTravelService";
 
 /**
  * НЭВТРЭЛТГҮЙ endpoint-ууд.
@@ -18,6 +22,35 @@ import { getPublicProduct, listPublicProducts } from "@/modules/products/product
 const slugParamSchema = z.object({ slug: z.string().min(1).max(200) });
 
 export const publicRouter: Router = Router();
+
+publicRouter.get(
+  "/travels",
+  asyncHandler(async (_req, res) => {
+    res.json(await listPublicTravels());
+  }),
+);
+
+publicRouter.get("/payment-info", (_req, res) => {
+  res.json(getPublicPaymentInfo());
+});
+
+publicRouter.post(
+  "/orders",
+  publicOrderRateLimit,
+  asyncHandler(async (req, res) => {
+    const input = ordersContract.createPublicOrderSchema.parse(req.body);
+    const result = await createPublicOrder(input);
+    if (result.created) {
+      await auditFromRequest(req)({
+        action: "create",
+        resource: "order",
+        resourceId: result.orderId,
+        meta: { publicOrderId: result.order.publicOrderId },
+      });
+    }
+    res.status(result.created ? 201 : 200).json(result.order);
+  }),
+);
 
 publicRouter.get(
   "/products",

@@ -67,9 +67,9 @@ model User {
   roleId String?
   role   Role?   @relation(fields: [roleId], references: [id], onDelete: SetNull)
 
-  sessions      Session[]
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]
+  sessions        Session[]
+  refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
   confirmedOrders Order[]
 
   @@index([status])
@@ -304,6 +304,48 @@ model WebsiteSection {
   @@map("website_sections")
 }
 
+// ─── Аялал ба гаралт ────────────────────────────────────────────────────────
+// Аяллын үндсэн мэдээлэл parent, огноо/тээвэр бүрийн гаралт subform child байна.
+
+model Travel {
+  id          String    @id @default(uuid())
+  publicId    String    @unique @default(dbgenerated("gen_random_uuid()::text"))
+  name        String
+  description String?
+  version     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+
+  departures TravelDeparture[]
+
+  @@index([name])
+  @@map("travels")
+}
+
+model TravelDeparture {
+  id             String        @id @default(uuid())
+  publicId       String        @unique @default(dbgenerated("gen_random_uuid()::text"))
+  travelId       String
+  departureDate  DateTime      @db.Date
+  returnDate     DateTime      @db.Date
+  transportType  TransportType
+  /// MNT-ийн хамгийн жижиг нэгж: 1 төгрөг = 100 мөнгө.
+  unitPriceMinor BigInt
+  capacity       Int
+  isBookingOpen  Boolean       @default(true)
+  version        Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
+  deletedAt      DateTime?
+
+  travel Travel  @relation(fields: [travelId], references: [id], onDelete: Restrict)
+  orders Order[]
+
+  @@index([travelId, departureDate])
+  @@map("travel_departures")
+}
+
 // ─── Захиалга ───────────────────────────────────────────────────────────────
 // Customer account үүсгэхгүй, public form-оос ирсэн мэдээллийг snapshot хэлбэрээр хадгална.
 // Admin талд builder DynamicView-ээр жагсааж, шаардлагатай үед төлбөрийн төлөв баталгаажуулна.
@@ -332,15 +374,16 @@ model Order {
   phone     String @db.VarChar(30)
   email     String @db.VarChar(255)
 
-  serviceCode   String         @map("service_code") @db.VarChar(50)
-  transportType TransportType? @map("transport_type")
-  travelDate    DateTime       @map("travel_date") @db.Date
-  travelerCount Int            @map("traveler_count")
+  serviceCode       String         @map("service_code") @db.VarChar(50)
+  travelDepartureId String?        @map("travel_departure_id")
+  transportType     TransportType? @map("transport_type")
+  travelDate        DateTime       @map("travel_date") @db.Date
+  travelerCount     Int            @map("traveler_count")
 
   serviceNameSnapshot   String  @map("service_name_snapshot") @db.VarChar(255)
   transportNameSnapshot String? @map("transport_name_snapshot") @db.VarChar(100)
-  unitPriceMnt          BigInt  @map("unit_price_mnt")
-  totalPriceMnt         BigInt  @map("total_price_mnt")
+  unitPriceMinor        BigInt  @map("unit_price_minor")
+  totalPriceMinor       BigInt  @map("total_price_minor")
 
   status            OrderStatus @default(AWAITING_PAYMENT)
   confirmedByUserId String?     @map("confirmed_by_user_id")
@@ -353,9 +396,11 @@ model Order {
   updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deletedAt")
 
-  confirmedBy User? @relation(fields: [confirmedByUserId], references: [id], onDelete: SetNull)
+  confirmedBy     User?            @relation(fields: [confirmedByUserId], references: [id], onDelete: SetNull)
+  travelDeparture TravelDeparture? @relation(fields: [travelDepartureId], references: [id], onDelete: Restrict)
 
   @@index([status, createdAt], map: "idx_orders_status_created")
+  @@index([travelDepartureId], map: "idx_orders_travel_departure")
   @@map("orders")
 }
 

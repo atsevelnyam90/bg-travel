@@ -76,18 +76,13 @@ export function SettingsScreen() {
             <CardHeader>
               <CardTitle>Төлбөрийн данс</CardTitle>
               <CardDescription>
-                Барааны төлбөрийн QR үүсгэхэд ашиглагдана. Банкны аппууд уншина.
+                Бараа болон аяллын төлбөрийн QR үүсгэхэд ашиглагдана. Банкны аппууд уншина.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <FieldGroup>
                 <SelectField<Values> name="bankCode" label="Банк" options={bankOptions} />
-                <TextField<Values>
-                  name="bankAccount"
-                  label="Дансны дугаар"
-                  inputMode="numeric"
-                  autoComplete="off"
-                />
+                <TextField<Values> name="bankAccount" label="Данс / IBAN" autoComplete="off" />
                 <TextField<Values>
                   name="bankAccountName"
                   label="Данс эзэмшигчийн нэр"

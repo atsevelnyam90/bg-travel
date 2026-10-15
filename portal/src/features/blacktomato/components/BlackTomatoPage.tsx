@@ -1,3 +1,4 @@
+import { PublicI18nProvider } from "@/lib/i18n/PublicI18nProvider";
 import { BlackTomatoBodyClass } from "./BlackTomatoBodyClass";
 import { BlackTomatoHomeMarkup } from "./BlackTomatoHomeMarkup";
 import { BlackTomatoInteractions } from "./BlackTomatoInteractions";
@@ -11,7 +12,7 @@ import themes from "./travelThemes.module.css";
 
 export function BlackTomatoPage() {
   return (
-    <>
+    <PublicI18nProvider>
       <BlackTomatoBodyClass className={BLACK_TOMATO_BODY_CLASS} />
       <BlackTomatoInteractions />
 
@@ -64,6 +65,6 @@ export function BlackTomatoPage() {
       >
         <BlackTomatoHomeMarkup />
       </div>
-    </>
+    </PublicI18nProvider>
   );
 }
