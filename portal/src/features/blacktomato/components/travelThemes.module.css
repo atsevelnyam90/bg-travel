@@ -1,0 +1,244 @@
+/* Palette values live here so the imported legacy styles and feature modules
+   share one brand language without changing the shadcn foundations. */
+.theme:not([data-travel-theme="original"]) {
+  --travel-bg: #fff8ed;
+  --travel-surface: #fffdf8;
+  --travel-soft: #f4e6d5;
+  --travel-ink: #482339;
+  --travel-muted: #795c69;
+  --travel-primary: #91256b;
+  --travel-secondary: #c24d32;
+  --travel-gold: #ffc56c;
+  --travel-line: #dfc9c6;
+  --travel-dark: #351c30;
+  --travel-on-primary: #ffffff;
+  --travel-on-dark: #fff4e8;
+  --travel-dark-muted: #dfc3d2;
+  --travel-dark-soft: #503147;
+  --color-neutral-50: var(--travel-bg);
+  --color-neutral-100: var(--travel-soft);
+  --color-neutral-200: var(--travel-line);
+  --color-neutral-600: var(--travel-muted);
+  --color-neutral-700: var(--travel-ink);
+  --color-green-50: var(--travel-soft);
+  --color-green-600: var(--travel-primary);
+  --color-green-700: var(--travel-primary);
+  background: var(--travel-bg);
+  color: var(--travel-ink);
+  accent-color: var(--travel-primary);
+}
+
+.theme[data-travel-theme="rose"] {
+  --travel-bg: #fcf0f3;
+  --travel-surface: #fff8fa;
+  --travel-soft: #f1dce5;
+  --travel-ink: #4a193c;
+  --travel-muted: #80586c;
+  --travel-primary: #9b286f;
+  --travel-secondary: #a34732;
+  --travel-gold: #ffbe78;
+  --travel-line: #dfbdce;
+  --travel-dark: #421a38;
+  --travel-dark-soft: #60304f;
+}
+
+.theme[data-travel-theme="midnight"] {
+  --travel-bg: #211526;
+  --travel-surface: #301d32;
+  --travel-soft: #432940;
+  --travel-ink: #fff2e3;
+  --travel-muted: #d5b8c9;
+  --travel-primary: #ffc56c;
+  --travel-secondary: #ff9687;
+  --travel-line: #624154;
+  --travel-dark: #190f1f;
+  --travel-on-primary: #351c30;
+  --travel-dark-soft: #432940;
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="bg-white"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="bg-light"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="bg-base-bg"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="section--content"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="section--why"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="section--filtered"],
+.theme.theme.theme:not([data-travel-theme="original"]) [id="journey-start"] {
+  background-color: var(--travel-bg);
+  color: var(--travel-ink);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="section--text-media"] {
+  background-color: var(--travel-soft);
+  color: var(--travel-ink);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"])
+  [class~="section"]:not([class~="section--hero-banner"])
+  :is(h2, h3, h4),
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="text-headings"] {
+  color: var(--travel-primary);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="btn--pink"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="btn--negative"] {
+  background: var(--travel-primary);
+  border-color: var(--travel-primary);
+  color: var(--travel-on-primary);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="btn--pink"]:hover,
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="btn--negative"]:hover {
+  background: var(--travel-secondary);
+  border-color: var(--travel-secondary);
+  color: var(--travel-on-primary);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="header__bar"] {
+  background: color-mix(in srgb, var(--travel-surface) 96%, transparent);
+  border-bottom-color: var(--travel-line);
+  color: var(--travel-ink);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="header__sidebar"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="nav__panel"],
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="nav__submenu"] {
+  background-color: var(--travel-surface);
+  color: var(--travel-ink);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="header__sidebar"] a:not(:has(img)),
+.theme.theme.theme:not([data-travel-theme="original"])
+  [class~="header__bar"]
+  a:not([class~="btn"]) {
+  color: var(--travel-ink);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="header__toggle"] span {
+  background-color: var(--travel-primary);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="header__cta"] {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) footer,
+.theme.theme.theme:not([data-travel-theme="original"]) [class~="bar"] {
+  background-color: var(--travel-dark);
+  color: var(--travel-on-dark);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) footer :is(a, p, h2, h3, h4, h5) {
+  color: var(--travel-on-dark);
+}
+
+.theme.theme.theme:not([data-travel-theme="original"]) footer a:hover {
+  color: var(--travel-gold);
+}
+
+.trigger.trigger.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  background: var(--travel-surface, var(--color-white));
+  border: 1px solid var(--travel-line, var(--color-neutral-200));
+  color: var(--travel-primary, var(--color-neutral-950));
+  height: 40px;
+  padding: 0 12px;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.trigger.trigger.trigger:hover {
+  background: var(--travel-soft, var(--color-neutral-100));
+  color: var(--travel-ink, var(--color-neutral-950));
+}
+
+.menu.menu {
+  --popover: #fff8f0;
+  --popover-foreground: #482339;
+  --accent: #f1dce5;
+  --accent-foreground: #482339;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--accent);
+  min-width: 276px;
+  z-index: 11000;
+  padding: 8px;
+}
+
+.option.option {
+  gap: 12px;
+  min-height: 64px;
+  cursor: pointer;
+}
+
+.option.option[data-highlighted] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.option strong,
+.option small {
+  display: block;
+}
+
+.option small {
+  color: #795c69;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.swatches {
+  --swatch-one: #fff8ed;
+  --swatch-two: #c24d32;
+  --swatch-three: #91256b;
+  display: flex;
+}
+
+.swatches[data-palette="rose"] {
+  --swatch-one: #f1dce5;
+  --swatch-two: #9b286f;
+  --swatch-three: #ffbe78;
+}
+
+.swatches[data-palette="original"] {
+  --swatch-one: #ffffff;
+  --swatch-two: #222222;
+  --swatch-three: #e7247a;
+}
+
+.swatches[data-palette="midnight"] {
+  --swatch-one: #301d32;
+  --swatch-two: #ffc56c;
+  --swatch-three: #ff9687;
+}
+
+.swatches i {
+  width: 16px;
+  height: 28px;
+  background: var(--swatch-one);
+  border: 1px solid color-mix(in srgb, var(--swatch-three) 25%, transparent);
+}
+
+.swatches i:first-child {
+  border-radius: 14px 0 0 14px;
+}
+
+.swatches i:nth-child(2) {
+  background: var(--swatch-two);
+}
+
+.swatches i:last-child {
+  background: var(--swatch-three);
+  border-radius: 0 14px 14px 0;
+}
+
+@media (max-width: 640px) {
+  .trigger.trigger.trigger {
+    height: 36px;
+    padding: 0 10px;
+  }
+}

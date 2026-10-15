@@ -118,7 +118,7 @@
 }
 
 .tripPanel::before {
-  background: var(--color-white);
+  background: var(--travel-surface, var(--color-white));
   border: 1px solid var(--color-neutral-200);
   content: "";
   inset: 0;
@@ -175,7 +175,7 @@
   background: var(--color-neutral-100);
   border: 0;
   border-radius: 50%;
-  color: var(--color-neutral-950);
+  color: var(--travel-ink, var(--color-neutral-950));
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
@@ -206,7 +206,7 @@
 }
 
 .panelTitle.panelTitle {
-  color: var(--color-neutral-950);
+  color: var(--travel-ink, var(--color-neutral-950));
   font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
   font-size: clamp(24px, 2.2vw, 36px);
   font-weight: 700;
