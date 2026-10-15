@@ -23,6 +23,10 @@
   position: relative;
 }
 
+.explorer.explorerDetail {
+  min-height: 1940px;
+}
+
 .categoryCards {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
@@ -146,6 +150,12 @@
   visibility: visible;
 }
 
+.explorerDetail .tripPanel {
+  bottom: auto;
+  min-height: calc(100% - 26px);
+  overflow: visible;
+}
+
 .explorerOpen .tripPanel::before {
   opacity: 1;
   transition-delay: 600ms;
@@ -232,6 +242,406 @@
   position: relative;
 }
 
+.tripCard {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.tripCard:focus-visible {
+  outline: 3px solid var(--color-green-700);
+  outline-offset: 3px;
+}
+
+.tripDetail {
+  border-top: 1px solid var(--color-neutral-200);
+  margin-top: 34px;
+  padding-top: 30px;
+  scroll-margin-top: 110px;
+  animation: detail-arrive 480ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@keyframes detail-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailHeading {
+  align-items: end;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.detailEyebrow {
+  color: var(--color-green-700);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin: 0 0 9px;
+}
+
+.detailHeading h2 {
+  color: var(--color-neutral-950);
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-size: clamp(30px, 4vw, 52px);
+  letter-spacing: 0;
+  line-height: 0.98;
+  margin: 0;
+  text-transform: none;
+}
+
+.detailHeading > div > p:last-child {
+  color: var(--color-neutral-600);
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 12px 0 0;
+  max-width: 700px;
+}
+
+.detailClose {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-neutral-400);
+  color: var(--color-neutral-700);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.detailClose:hover,
+.detailClose:focus-visible {
+  border-color: var(--color-green-700);
+  color: var(--color-green-700);
+}
+
+.detailHero {
+  height: clamp(270px, 34vw, 430px);
+  overflow: hidden;
+  position: relative;
+}
+
+.detailHero::after {
+  background: linear-gradient(90deg, rgb(0 0 0 / 58%), transparent 75%),
+    linear-gradient(0deg, rgb(0 0 0 / 48%), transparent 65%);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.detailHero img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.detailHeroCaption {
+  bottom: 28px;
+  color: white;
+  left: 32px;
+  position: absolute;
+  z-index: 1;
+}
+
+.detailHeroCaption span {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.detailHeroCaption h3 {
+  color: white;
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1;
+  margin: 7px 0;
+  text-transform: none;
+}
+
+.detailHeroCaption p {
+  font-size: 12px;
+  margin: 0;
+}
+
+.tripMedia {
+  margin: 42px 0 48px;
+}
+
+.mediaHeading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.mediaHeading h3 {
+  color: var(--color-neutral-950);
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-size: clamp(25px, 3vw, 38px);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.mediaHeading > span {
+  color: var(--color-neutral-500);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mediaGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, 0.85fr);
+}
+
+.videoFrame,
+.galleryImage {
+  background: var(--color-neutral-100);
+  height: clamp(230px, 30vw, 380px);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.videoFrame iframe,
+.galleryImage img {
+  border: 0;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.videoLabel {
+  background: color-mix(in srgb, var(--color-black) 65%, transparent);
+  bottom: 14px;
+  color: var(--color-white);
+  font-size: 9px;
+  left: 14px;
+  letter-spacing: 0.14em;
+  padding: 8px 10px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.galleryImage {
+  display: block;
+}
+
+.galleryImage img {
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.galleryImage:hover img,
+.galleryImage:focus-visible img {
+  transform: scale(1.04);
+}
+
+.galleryImage:focus-visible {
+  outline: 3px solid var(--color-green-700);
+  outline-offset: 3px;
+}
+
+.galleryImage > span {
+  align-items: center;
+  background: linear-gradient(0deg, rgb(0 0 0 / 70%), transparent);
+  bottom: 0;
+  color: var(--color-white);
+  display: flex;
+  font-size: 11px;
+  gap: 8px;
+  justify-content: space-between;
+  left: 0;
+  padding: 32px 15px 14px;
+  position: absolute;
+  right: 0;
+}
+
+.detailMeta {
+  border-bottom: 1px solid var(--color-neutral-200);
+  border-top: 1px solid var(--color-neutral-200);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 48px;
+}
+
+.detailMeta > div {
+  display: grid;
+  gap: 7px;
+  padding: 18px 20px;
+}
+
+.detailMeta > div + div {
+  border-left: 1px solid var(--color-neutral-200);
+}
+
+.detailMeta span {
+  color: var(--color-neutral-500);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.detailMeta strong {
+  color: var(--color-neutral-950);
+  font-size: 14px;
+}
+
+.detailBody {
+  display: grid;
+  gap: clamp(32px, 6vw, 84px);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  padding: 0 clamp(4px, 4vw, 54px);
+}
+
+.detailStory h3,
+.detailItinerary h3 {
+  color: var(--color-neutral-950);
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-size: clamp(24px, 2.5vw, 34px);
+  letter-spacing: 0;
+  line-height: 1.1;
+  margin: 0 0 14px;
+  text-transform: none;
+}
+
+.detailStory > p:not(.detailEyebrow) {
+  color: var(--color-neutral-600);
+  font-size: 14px;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.highlightGrid {
+  border-top: 1px solid var(--color-neutral-200);
+  display: grid;
+  margin-top: 26px;
+}
+
+.highlight {
+  align-items: center;
+  border-bottom: 1px solid var(--color-neutral-200);
+  display: flex;
+  gap: 14px;
+  padding: 15px 0;
+}
+
+.highlight span {
+  color: var(--color-green-700);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.highlight strong {
+  color: var(--color-neutral-900);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.itineraryList {
+  border-top: 1px solid var(--color-neutral-200);
+  margin-top: 20px;
+}
+
+.itineraryDay {
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.itineraryDay summary {
+  align-items: center;
+  cursor: pointer;
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 34px minmax(0, 1fr) 20px;
+  list-style: none;
+  padding: 16px 2px;
+}
+
+.itineraryDay summary::-webkit-details-marker {
+  display: none;
+}
+
+.itineraryDay summary > span {
+  color: var(--color-green-700);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.itineraryDay summary strong {
+  color: var(--color-neutral-900);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.itineraryDay summary svg {
+  color: var(--color-neutral-500);
+  transition: transform 180ms ease;
+}
+
+.itineraryDay[open] summary svg {
+  transform: rotate(90deg);
+}
+
+.itineraryDay > p {
+  color: var(--color-neutral-600);
+  font-size: 12px;
+  line-height: 1.65;
+  margin: -3px 34px 16px 51px;
+}
+
+.detailFooter {
+  align-items: center;
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-top: 50px;
+  padding: 18px 22px;
+}
+
+.detailFooter p {
+  color: var(--color-neutral-600);
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.detailFooter p strong {
+  color: var(--color-neutral-900);
+}
+
+.detailFooter button {
+  align-items: center;
+  background: var(--color-neutral-950);
+  border: 0;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 10px;
+  padding: 13px 16px;
+}
+
+.detailFooter button:hover,
+.detailFooter button:focus-visible {
+  background: var(--color-green-700);
+}
+
 .tripViewport {
   min-width: 0;
   overflow-x: auto;
@@ -282,6 +692,7 @@
 .tripTitle.tripTitle {
   color: var(--color-white);
   overflow-wrap: anywhere;
+  text-transform: none;
 }
 
 .tripNavigation {
@@ -362,6 +773,10 @@
     min-height: 540px;
   }
 
+  .explorer.explorerDetail {
+    min-height: 2360px;
+  }
+
   .categoryCards {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -422,6 +837,69 @@
     flex-basis: 100%;
     height: 350px;
   }
+
+  .detailHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detailHero {
+    height: 290px;
+  }
+
+  .detailHeroCaption {
+    bottom: 18px;
+    left: 18px;
+    right: 18px;
+  }
+
+  .tripMedia {
+    margin: 30px 0 36px;
+  }
+
+  .mediaHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mediaGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .videoFrame,
+  .galleryImage {
+    height: 240px;
+  }
+
+  .detailMeta {
+    margin-bottom: 34px;
+  }
+
+  .detailMeta > div {
+    padding: 12px 9px;
+  }
+
+  .detailMeta strong {
+    font-size: 11px;
+  }
+
+  .detailBody {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    padding: 0;
+  }
+
+  .detailFooter {
+    align-items: stretch;
+    flex-direction: column;
+    margin-top: 34px;
+  }
+
+  .detailFooter button {
+    justify-content: space-between;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -437,5 +915,9 @@
 
   .tripPanel::before {
     transition: none;
+  }
+
+  .tripDetail {
+    animation: none;
   }
 }

@@ -9,6 +9,7 @@ export function useJourneyExplorerScreen() {
   const isMobile = useIsMobile();
   const [isCategoryOpen, setCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(null);
+  const [selectedTripTitle, setSelectedTripTitle] = useState<string | null>(null);
   const [canScrollTripsBack, setCanScrollTripsBack] = useState(false);
   const [canScrollTripsForward, setCanScrollTripsForward] = useState(false);
   const openingFrameRef = useRef<number | null>(null);
@@ -47,6 +48,21 @@ export function useJourneyExplorerScreen() {
     return () => cancelAnimationFrame(frame);
   }, [isMobile, selectedCategoryId]);
 
+  useEffect(() => {
+    if (!selectedTripTitle) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      document.getElementById("trip-detail")?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [selectedTripTitle]);
+
   const syncTripNavigation = () => {
     const viewport = tripViewportRef.current;
     if (!viewport) {
@@ -63,12 +79,15 @@ export function useJourneyExplorerScreen() {
     closeCategory: () => {
       cancelPendingOpen();
       setCategoryOpen(false);
+      setSelectedTripTitle(null);
     },
+    closeTrip: () => setSelectedTripTitle(null),
     isCategoryOpen,
     isMobile,
     openCategory: (categoryId: JourneyCategoryId, tripCount: number) => {
       cancelPendingOpen();
       setCategoryOpen(false);
+      setSelectedTripTitle(null);
       selectedTripCountRef.current = tripCount;
       setSelectedCategoryId(categoryId);
       openingFrameRef.current = requestAnimationFrame(() => {
@@ -89,7 +108,9 @@ export function useJourneyExplorerScreen() {
         left: direction * viewport.clientWidth,
       });
     },
+    openTrip: (title: string) => setSelectedTripTitle(title),
     selectedCategoryId,
+    selectedTripTitle,
     syncTripNavigation,
     tripViewportRef,
   };
