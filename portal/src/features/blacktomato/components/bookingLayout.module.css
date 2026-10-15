@@ -5,12 +5,12 @@
 }
 
 .section {
-  background: var(--color-neutral-950);
+  background: var(--travel-dark, var(--color-neutral-950));
   padding: calc(var(--spacing) * 6);
 }
 
 .card {
-  background: var(--color-neutral-950);
+  background: var(--travel-dark, var(--color-neutral-950));
   border-radius: var(--radius-lg);
   position: relative;
 }
@@ -57,7 +57,7 @@ body[class~="blacktomato-booking-open"]:has(.drawer) {
 }
 
 .drawer .drawerPanel {
-  background: var(--color-neutral-950);
+  background: var(--travel-dark, var(--color-neutral-950));
   border-radius: var(--radius-lg);
   left: 50%;
   max-height: calc(100dvh - 48px);

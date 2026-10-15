@@ -1,9 +1,9 @@
 .panel {
   min-width: 0;
   height: 100%;
-  background: rgb(16 16 16);
+  background: var(--travel-dark, rgb(16 16 16));
   border-radius: 8px;
-  color: white;
+  color: var(--travel-on-dark, white);
   padding: calc(var(--spacing) * 5);
 }
 
@@ -18,7 +18,7 @@
 
 .search {
   align-items: center;
-  border: 1px solid rgb(0 141 31);
+  border: 1px solid var(--travel-primary, rgb(0 141 31));
   border-radius: 8px;
   display: grid;
   gap: calc(var(--spacing) * 2);
@@ -30,7 +30,7 @@
 .search input {
   background: transparent;
   border: 0;
-  color: white;
+  color: var(--travel-on-dark, white);
   font-size: 14px;
   font-weight: 600;
   min-width: 0;
@@ -39,15 +39,15 @@
 }
 
 .search input::placeholder {
-  color: rgb(156 163 175);
+  color: var(--travel-dark-muted, rgb(156 163 175));
 }
 
 .clear {
   align-items: center;
-  background: rgb(86 86 86);
+  background: var(--travel-dark-soft, rgb(86 86 86));
   border: 0;
   border-radius: 999px;
-  color: white;
+  color: var(--travel-on-dark, white);
   cursor: pointer;
   display: inline-flex;
   height: 32px;
@@ -56,8 +56,8 @@
 }
 
 .results {
-  background: rgb(18 18 18);
-  border: 1px solid rgb(32 32 32);
+  background: var(--travel-dark, rgb(18 18 18));
+  border: 1px solid var(--travel-dark-soft, rgb(32 32 32));
   border-radius: 0 0 8px 8px;
   box-shadow: 0 22px 55px rgb(0 0 0 / 22%);
   display: grid;
@@ -79,7 +79,7 @@
 }
 
 .groupLabel {
-  color: rgb(143 149 157);
+  color: var(--travel-dark-muted, rgb(143 149 157));
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.2px;
@@ -88,7 +88,7 @@
 }
 
 .empty {
-  color: rgb(203 203 203);
+  color: var(--travel-dark-muted, rgb(203 203 203));
   font-size: 14px;
   margin: 0;
   padding: 18px 14px;
@@ -98,7 +98,7 @@
   align-items: center;
   background: transparent;
   border: 0;
-  color: white;
+  color: var(--travel-on-dark, white);
   cursor: pointer;
   display: grid;
   gap: calc(var(--spacing) * 4);
@@ -111,12 +111,12 @@
 
 .tripResult:hover,
 .tripResult:focus-visible {
-  background: rgb(18 48 14);
+  background: var(--travel-dark-soft, rgb(18 48 14));
   outline: none;
 }
 
 .tripIcon {
-  color: rgb(48 185 53);
+  color: var(--travel-gold, rgb(48 185 53));
   display: inline-flex;
   justify-content: center;
 }
@@ -128,7 +128,7 @@
 }
 
 .tripTitle {
-  color: white;
+  color: var(--travel-on-dark, white);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.24;
@@ -136,7 +136,7 @@
 }
 
 .tripMeta {
-  color: rgb(217 217 217);
+  color: var(--travel-dark-muted, rgb(217 217 217));
   font-size: 12px;
   line-height: 1.35;
 }
@@ -147,9 +147,9 @@
 
 .tripAdd {
   align-items: center;
-  background: rgb(37 37 37);
+  background: var(--travel-dark-soft, rgb(37 37 37));
   border-radius: 7px;
-  color: rgb(178 178 178);
+  color: var(--travel-dark-muted, rgb(178 178 178));
   display: inline-flex;
   height: 24px;
   justify-content: center;
@@ -170,7 +170,7 @@
 }
 
 .label {
-  color: rgb(190 194 201);
+  color: var(--travel-dark-muted, rgb(190 194 201));
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -180,7 +180,7 @@
 
 .stepper {
   align-items: center;
-  background: white;
+  background: var(--travel-surface, white);
   border-radius: 4px;
   display: grid;
   grid-template-columns: 48px 1fr 48px;
@@ -190,9 +190,9 @@
 
 .stepper button {
   align-items: center;
-  background: white;
+  background: var(--travel-surface, white);
   border: 0;
-  color: black;
+  color: var(--travel-ink, black);
   cursor: pointer;
   display: inline-flex;
   height: 48px;
@@ -206,7 +206,7 @@
 
 .count {
   align-items: center;
-  color: black;
+  color: var(--travel-ink, black);
   display: inline-flex;
   gap: 7px;
   justify-content: center;
@@ -221,7 +221,7 @@
 }
 
 .transportList {
-  background: rgb(32 32 32);
+  background: var(--travel-dark-soft, rgb(32 32 32));
   border-radius: 8px;
   display: grid;
   gap: 8px;
@@ -233,7 +233,7 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 5px;
-  color: rgb(216 216 216);
+  color: var(--travel-dark-muted, rgb(216 216 216));
   cursor: pointer;
   display: grid;
   gap: 3px;
@@ -243,9 +243,9 @@
 }
 
 .transportButton[aria-pressed="true"] {
-  background: white;
-  border-color: white;
-  color: black;
+  background: var(--travel-surface, white);
+  border-color: var(--travel-on-dark, white);
+  color: var(--travel-ink, black);
 }
 
 .transportName {
@@ -261,9 +261,9 @@
 
 .status {
   align-items: center;
-  background: rgb(27 27 27);
+  background: var(--travel-dark-soft, rgb(27 27 27));
   border-radius: 8px;
-  color: rgb(214 214 214);
+  color: var(--travel-dark-muted, rgb(214 214 214));
   display: flex;
   gap: 10px;
   min-height: 54px;
@@ -273,7 +273,7 @@
 }
 
 .status svg {
-  color: rgb(0 180 38);
+  color: var(--travel-gold, rgb(0 180 38));
   flex: 0 0 auto;
 }
 
@@ -291,17 +291,18 @@
 }
 
 .note {
-  color: rgb(184 184 184);
+  color: var(--travel-dark-muted, rgb(184 184 184));
   font-size: 13px;
   line-height: 1.45;
   margin: 0;
 }
 
 .button {
-  background: rgb(0 141 31);
-  border: 1px solid rgb(0 141 31);
+  --travel-on-dark: var(--travel-on-primary);
+  background: var(--travel-primary, rgb(0 141 31));
+  border: 1px solid var(--travel-primary, rgb(0 141 31));
   border-radius: 4px;
-  color: white;
+  color: var(--travel-on-dark, white);
   cursor: pointer;
   flex: 0 0 auto;
   font-size: 13px;
@@ -317,8 +318,8 @@
 }
 
 .button:hover:not(:disabled) {
-  background: white;
-  color: black;
+  background: var(--travel-surface, white);
+  color: var(--travel-ink, black);
 }
 
 .button:disabled {
@@ -327,7 +328,7 @@
 }
 
 .selectedTrip {
-  color: var(--color-white);
+  color: var(--travel-on-dark, var(--color-white));
   font-size: 13px;
   line-height: 1.4;
   margin: calc(var(--spacing) * 2) 0 0;
@@ -337,7 +338,7 @@
 .total {
   align-items: baseline;
   border-top: 1px solid var(--color-neutral-700);
-  color: var(--color-white);
+  color: var(--travel-on-dark, var(--color-white));
   display: flex;
   flex-wrap: wrap;
   gap: calc(var(--spacing) * 2);
@@ -359,10 +360,10 @@
 }
 
 .panelLight {
-  background: var(--color-white);
+  background: var(--travel-surface, var(--color-white));
   border: 1px solid var(--color-neutral-200);
   box-shadow: 0 14px 38px color-mix(in srgb, var(--color-black) 10%, transparent);
-  color: var(--color-neutral-950);
+  color: var(--travel-ink, var(--color-neutral-950));
 }
 
 .panelLight .search {
@@ -374,7 +375,7 @@
 .panelLight .tripTitle,
 .panelLight .selectedTrip,
 .panelLight .total {
-  color: var(--color-neutral-950);
+  color: var(--travel-ink, var(--color-neutral-950));
 }
 
 .panelLight .search input::placeholder,
@@ -392,7 +393,7 @@
 }
 
 .panelLight .results {
-  background: var(--color-white);
+  background: var(--travel-surface, var(--color-white));
   border-color: var(--color-neutral-200);
 }
 
@@ -432,6 +433,11 @@
 }
 
 .panelLight .button:hover:not(:disabled) {
-  background: var(--color-neutral-950);
-  color: var(--color-white);
+  background: var(--travel-secondary, var(--color-neutral-950));
+  color: var(--travel-on-primary, var(--color-white));
+}
+
+.panelLight .tripIcon,
+.panelLight .status svg {
+  color: var(--travel-primary, var(--color-green-600));
 }

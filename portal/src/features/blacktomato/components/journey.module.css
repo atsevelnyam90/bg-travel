@@ -24,7 +24,7 @@
 }
 
 .explorer.explorerDetail {
-  min-height: 1940px;
+  min-height: 0;
 }
 
 .categoryCards {
@@ -122,7 +122,7 @@
 }
 
 .tripPanel::before {
-  background: var(--color-white);
+  background: var(--travel-surface, var(--color-white));
   border: 1px solid var(--color-neutral-200);
   content: "";
   inset: 0;
@@ -151,9 +151,11 @@
 }
 
 .explorerDetail .tripPanel {
-  bottom: auto;
-  min-height: calc(100% - 26px);
+  inset: auto;
+  margin: 0 15px 26px;
+  min-height: 0;
   overflow: visible;
+  position: relative;
 }
 
 .explorerOpen .tripPanel::before {
@@ -185,7 +187,7 @@
   background: var(--color-neutral-100);
   border: 0;
   border-radius: 50%;
-  color: var(--color-neutral-950);
+  color: var(--travel-ink, var(--color-neutral-950));
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
@@ -216,8 +218,8 @@
 }
 
 .panelTitle.panelTitle {
-  color: var(--color-neutral-950);
-  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  color: var(--travel-ink, var(--color-neutral-950));
+  font-family: "Brandon Grotesque", Arial, sans-serif;
   font-size: clamp(24px, 2.2vw, 36px);
   font-weight: 700;
   letter-spacing: 0;
@@ -258,8 +260,8 @@
 
 .tripDetail {
   border-top: 1px solid var(--color-neutral-200);
-  margin-top: 34px;
-  padding-top: 30px;
+  margin-top: 42px;
+  padding: 42px clamp(4px, 3.4vw, 46px) 34px;
   scroll-margin-top: 110px;
   animation: detail-arrive 480ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
@@ -277,11 +279,12 @@
 }
 
 .detailHeading {
-  align-items: end;
+  align-items: flex-end;
   display: flex;
-  gap: 24px;
+  gap: 32px;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin: 0 auto 30px;
+  max-width: 1050px;
 }
 
 .detailEyebrow {
@@ -294,20 +297,21 @@
 
 .detailHeading h2 {
   color: var(--color-neutral-950);
-  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
-  font-size: clamp(30px, 4vw, 52px);
+  font-family: "Chronicle Display", Georgia, serif;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: 400;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 0.96;
   margin: 0;
   text-transform: none;
 }
 
 .detailHeading > div > p:last-child {
   color: var(--color-neutral-600);
-  font-size: 14px;
-  line-height: 1.65;
-  margin: 12px 0 0;
-  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 16px 0 0;
+  max-width: 760px;
 }
 
 .detailClose {
@@ -317,8 +321,10 @@
   color: var(--color-neutral-700);
   cursor: pointer;
   flex: 0 0 auto;
-  font-size: 12px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
   padding: 8px 0;
+  white-space: nowrap;
 }
 
 .detailClose:hover,
@@ -328,7 +334,7 @@
 }
 
 .detailHero {
-  height: clamp(270px, 34vw, 430px);
+  height: clamp(340px, 48vw, 620px);
   overflow: hidden;
   position: relative;
 }
@@ -362,12 +368,7 @@
 }
 
 .detailHeroCaption h3 {
-  color: white;
-  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
-  font-size: clamp(28px, 4vw, 48px);
-  line-height: 1;
-  margin: 7px 0;
-  text-transform: none;
+  display: none;
 }
 
 .detailHeroCaption p {
@@ -388,7 +389,7 @@
 
 .mediaHeading h3 {
   color: var(--color-neutral-950);
-  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-family: "Brandon Grotesque", Arial, sans-serif;
   font-size: clamp(25px, 3vw, 38px);
   line-height: 1.05;
   margin: 0;
@@ -474,13 +475,14 @@
   border-top: 1px solid var(--color-neutral-200);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0 0 48px;
+  margin: 0 auto 34px;
+  max-width: 1050px;
 }
 
 .detailMeta > div {
   display: grid;
   gap: 7px;
-  padding: 18px 20px;
+  padding: 20px 22px;
 }
 
 .detailMeta > div + div {
@@ -489,28 +491,32 @@
 
 .detailMeta span {
   color: var(--color-neutral-500);
-  font-size: 10px;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .detailMeta strong {
   color: var(--color-neutral-950);
   font-size: 14px;
+  font-weight: 600;
 }
 
 .detailBody {
   display: grid;
-  gap: clamp(32px, 6vw, 84px);
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(52px, 8vw, 108px);
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 auto;
+  max-width: 1050px;
   padding: 0 clamp(4px, 4vw, 54px);
 }
 
 .detailStory h3,
 .detailItinerary h3 {
   color: var(--color-neutral-950);
-  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
-  font-size: clamp(24px, 2.5vw, 34px);
+  font-family: "Chronicle Display", Georgia, serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 400;
   letter-spacing: 0;
   line-height: 1.1;
   margin: 0 0 14px;
@@ -519,23 +525,40 @@
 
 .detailStory > p:not(.detailEyebrow) {
   color: var(--color-neutral-600);
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 15px;
+  line-height: 1.85;
   margin: 0;
+  max-width: 790px;
+}
+
+.detailStory {
+  margin-inline: auto;
+  max-width: 850px;
+  width: 100%;
 }
 
 .highlightGrid {
   border-top: 1px solid var(--color-neutral-200);
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 26px;
 }
 
 .highlight {
   align-items: center;
   border-bottom: 1px solid var(--color-neutral-200);
+  border-right: 1px solid var(--color-neutral-200);
   display: flex;
   gap: 14px;
-  padding: 15px 0;
+  padding: 17px 14px;
+}
+
+.highlight:first-child {
+  padding-left: 0;
+}
+
+.highlight:last-child {
+  border-right: 0;
 }
 
 .highlight span {
@@ -552,70 +575,62 @@
 
 .itineraryList {
   border-top: 1px solid var(--color-neutral-200);
-  margin-top: 20px;
+  margin-top: 26px;
 }
 
 .itineraryDay {
   border-bottom: 1px solid var(--color-neutral-200);
-}
-
-.itineraryDay summary {
-  align-items: center;
-  cursor: pointer;
   display: grid;
-  gap: 15px;
-  grid-template-columns: 34px minmax(0, 1fr) 20px;
-  list-style: none;
-  padding: 16px 2px;
+  gap: 36px;
+  grid-template-columns: minmax(110px, 0.34fr) minmax(0, 1fr);
+  padding: 27px 0 31px;
 }
 
-.itineraryDay summary::-webkit-details-marker {
-  display: none;
+.itineraryDayHeading {
+  align-content: start;
+  display: grid;
+  gap: 9px;
 }
 
-.itineraryDay summary > span {
+.itineraryDayHeading > span {
   color: var(--color-green-700);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
-.itineraryDay summary strong {
+.itineraryDayHeading strong {
   color: var(--color-neutral-900);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.itineraryDay summary svg {
-  color: var(--color-neutral-500);
-  transition: transform 180ms ease;
-}
-
-.itineraryDay[open] summary svg {
-  transform: rotate(90deg);
+  font-family: "Chronicle Display", Georgia, serif;
+  font-size: clamp(22px, 2.5vw, 30px);
+  font-weight: 400;
+  line-height: 1.12;
 }
 
 .itineraryDay > p {
   color: var(--color-neutral-600);
-  font-size: 12px;
-  line-height: 1.65;
-  margin: -3px 34px 16px 51px;
+  font-size: 14px;
+  line-height: 1.85;
+  margin: 0;
+  max-width: 760px;
 }
 
 .detailFooter {
   align-items: center;
-  background: var(--color-neutral-50);
+  background: var(--travel-surface, var(--color-neutral-50));
   border: 1px solid var(--color-neutral-200);
   display: flex;
   gap: 20px;
   justify-content: space-between;
-  margin-top: 50px;
-  padding: 18px 22px;
+  margin: 72px auto 0;
+  max-width: 1050px;
+  padding: 26px 28px;
 }
 
 .detailFooter p {
   color: var(--color-neutral-600);
-  font-size: 11px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.7;
   margin: 0;
 }
 
@@ -774,7 +789,7 @@
   }
 
   .explorer.explorerDetail {
-    min-height: 2360px;
+    min-height: 0;
   }
 
   .categoryCards {
@@ -841,7 +856,17 @@
   .detailHeading {
     align-items: flex-start;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .tripDetail {
+    margin-top: 26px;
+    padding: 28px 15px 24px;
+  }
+
+  .detailHeading h2 {
+    font-size: clamp(38px, 12vw, 56px);
   }
 
   .detailHero {
@@ -874,27 +899,57 @@
   }
 
   .detailMeta {
-    margin-bottom: 34px;
+    margin-bottom: 24px;
   }
 
   .detailMeta > div {
-    padding: 12px 9px;
+    padding: 12px 8px;
   }
 
   .detailMeta strong {
-    font-size: 11px;
+    font-size: 10px;
+  }
+
+  .detailMeta span {
+    font-size: 8px;
+    letter-spacing: 0.06em;
   }
 
   .detailBody {
     grid-template-columns: minmax(0, 1fr);
-    gap: 36px;
+    gap: 48px;
     padding: 0;
+  }
+
+  .highlightGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .highlight,
+  .highlight:first-child {
+    border-right: 0;
+    padding: 13px 0;
+  }
+
+  .itineraryDay {
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 22px 0 25px;
+  }
+
+  .itineraryDayHeading {
+    gap: 5px;
+  }
+
+  .itineraryDay > p {
+    font-size: 13px;
   }
 
   .detailFooter {
     align-items: stretch;
     flex-direction: column;
-    margin-top: 34px;
+    margin-top: 46px;
+    padding: 19px;
   }
 
   .detailFooter button {
@@ -919,5 +974,183 @@
 
   .tripDetail {
     animation: none;
+  }
+}
+
+/* Editorial detail layout adapted from the downloaded Black Tomato trip page. */
+.tripDetail {
+  animation: detail-arrive 480ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  border-top: 1px solid var(--color-neutral-200);
+  color: #444;
+  font-family: var(--font-handwriting), cursive;
+  font-size: 17px;
+  letter-spacing: .85px;
+  line-height: 1.5;
+  margin-top: 42px;
+  padding: 0 0 34px;
+  scroll-margin-top: 90px;
+}
+
+.tripDetail.tripDetail :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, button) {
+  font-family: var(--font-handwriting), cursive;
+}
+
+.btDetailNav { align-items: center; background: var(--travel-surface, #fff); border-bottom: 1px solid var(--color-neutral-200); display: flex; gap: clamp(18px, 4vw, 52px); justify-content: center; margin: 0 auto; padding: 15px 20px; position: sticky; top: 0; z-index: 5; }
+.btDetailNav a,
+.btDetailNav button { background: none; border: 0; color: var(--color-neutral-800); cursor: pointer; font-family: var(--font-sans), sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+.btDetailNav a:hover,
+.btDetailNav a:focus-visible,
+.btDetailNav button:hover,
+.btDetailNav button:focus-visible { color: var(--color-green-700); }
+.btDetailNav button { align-items: center; display: inline-flex; gap: 6px; }
+
+.btOverview { margin: 0 auto; max-width: 780px; padding: clamp(56px, 8vw, 100px) 24px 52px; text-align: center; }
+.btEyebrow { color: var(--color-green-700); font-family: var(--font-sans), sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .16em; margin: 0 0 12px; text-transform: uppercase; }
+.btOverview h3,
+.btRouteHeading h3,
+.btGallery h3,
+.btDetailFooter h3 { color: var(--color-neutral-950); font-family: var(--font-sans), sans-serif; font-size: clamp(36px, 5vw, 60px); font-weight: 500; letter-spacing: .01em; line-height: 1.02; margin: 0 0 20px; text-transform: none; }
+.btOverview > p:last-child,
+.btRouteHeading > p:last-child { color: var(--color-neutral-600); font-size: 15px; line-height: 1.9; margin: 0 auto; max-width: 720px; }
+
+.btFacts { border-bottom: 1px solid var(--color-neutral-200); border-top: 1px solid var(--color-neutral-200); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto; max-width: 1050px; }
+.btFacts > div { display: grid; gap: 8px; padding: 22px 28px; }
+.btFacts > div + div { border-left: 1px solid var(--color-neutral-200); }
+.btFacts span { color: var(--color-neutral-500); font-family: var(--font-sans), sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.btFacts strong { color: var(--color-neutral-950); font-size: 14px; font-weight: 600; }
+
+.btRoute { background: var(--travel-surface, #f4f4f2); margin-inline: calc(clamp(4px, 3.4vw, 46px) * -1); padding: clamp(28px, 4vw, 48px) clamp(20px, 6vw, 86px) clamp(55px, 8vw, 100px); }
+.btRouteHeading { margin: 0 auto 42px; max-width: 780px; text-align: center; }
+.btHighlights { border-bottom: 1px solid var(--color-neutral-300); border-top: 1px solid var(--color-neutral-300); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto 60px; max-width: 1050px; }
+.btHighlights > span { align-items: center; color: var(--color-neutral-800); display: flex; gap: 12px; padding: 18px 12px; }
+.btHighlights small { color: var(--color-green-700); font-family: var(--font-sans), sans-serif; font-size: 10px; letter-spacing: .1em; }
+.btDayList { display: grid; gap: 60px; margin: 0 auto; max-width: 1100px; padding-left: 64px; position: relative; }
+.btDayList::before { border-left: 1px dashed #1e6e9f; content: ""; inset: 8px auto 8px 8px; position: absolute; }
+.btDay { align-items: stretch; background: #fff; border-radius: 15px; box-shadow: 0 5px 8px rgb(0 0 0 / 16%); display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1fr); min-height: 480px; overflow: visible; position: relative; }
+.btDay::before { background: #1e6e9f; border: 2px solid var(--travel-surface, #f4f4f2); border-radius: 50%; content: ""; height: 20px; left: -65px; position: absolute; top: 0; width: 20px; z-index: 2; }
+.btDayReverse { grid-template-columns: minmax(0, 1fr) minmax(300px, .8fr); }
+.btDayReverse .btDayMedia { grid-column: 2; grid-row: 1; }
+.btDayReverse .btDayCopy { grid-column: 1; grid-row: 1; }
+.btDayMedia { background: var(--color-neutral-200); min-height: 480px; overflow: hidden; position: relative; }
+.btDayReverse .btDayMedia { border-radius: 0 15px 15px 0; }
+.btDay:not(.btDayReverse) .btDayMedia { border-radius: 15px 0 0 15px; }
+.btDay .btDayMedia > img,
+.btDay .btDayMedia > iframe { border: 0; height: 100% !important; inset: 0; max-width: none; object-fit: cover; position: absolute; width: 100% !important; }
+.btDayMedia > span { background: rgb(0 0 0 / 48%); bottom: 14px; color: #fff; font-family: var(--font-sans), sans-serif; font-size: 10px; left: 14px; letter-spacing: .1em; padding: 8px 10px; position: absolute; text-transform: uppercase; }
+.btDayCopy { align-content: start; padding: 40px 42px; }
+.btDayCopy .btEyebrow { color: #1e6e9f; font-size: 14px; letter-spacing: .04em; margin-bottom: 10px; }
+.btDayCopy h4 { color: #111; font-family: var(--font-sans), sans-serif; font-size: 22px; font-weight: 700; letter-spacing: .02em; line-height: 1.35; margin: 0 0 18px; text-transform: uppercase; }
+.btDayCopy > p:last-child { color: #273847; font-family: var(--font-handwriting), cursive; font-size: 17px; letter-spacing: .04em; line-height: 1.55; margin: 0; }
+
+.btGallery { height: clamp(280px, 46vw, 540px); margin: 80px auto 0; max-width: 1100px; overflow: hidden; position: relative; }
+.btGallery::after { background: linear-gradient(0deg, rgb(0 0 0 / 62%), transparent 58%); content: ""; inset: 0; position: absolute; }
+.btGallery img { height: 100%; object-fit: cover; width: 100%; }
+.btGallery > div { bottom: 28px; left: 32px; position: absolute; z-index: 1; }
+.btGallery .btEyebrow,
+.btGallery h3 { color: #fff; }
+.btGallery h3 { font-size: clamp(30px, 4vw, 50px); margin: 0; }
+.btDetailFooter { align-items: center; background: var(--travel-surface, #f4f4f2); display: flex; gap: 24px; justify-content: space-between; margin: 70px auto 0; max-width: 1100px; padding: 30px clamp(20px, 4vw, 48px); }
+.btDetailFooter h3 { font-size: clamp(30px, 4vw, 46px); margin: 0; }
+.btDetailFooter button { align-items: center; background: var(--color-neutral-950); border: 0; color: #fff; cursor: pointer; display: inline-flex; flex: 0 0 auto; font-family: var(--font-sans), sans-serif; font-size: 11px; font-weight: 700; gap: 10px; letter-spacing: .06em; padding: 15px 20px; text-transform: uppercase; }
+.btDetailFooter button:hover,
+.btDetailFooter button:focus-visible { background: var(--color-green-700); }
+
+@media (max-width: 760px) {
+  .btDetailNav { gap: 16px; justify-content: flex-start; margin-inline: -15px; overflow-x: auto; padding: 14px 18px; }
+  .btDetailNav a,
+  .btDetailNav button { flex: 0 0 auto; font-size: 10px; }
+  .btOverview { padding: 54px 12px 40px; }
+  .btOverview h3,
+  .btRouteHeading h3 { font-size: 42px; }
+  .btFacts { margin-bottom: 50px; }
+  .btFacts > div { gap: 6px; padding: 14px 9px; }
+  .btFacts span { font-size: 8px; letter-spacing: .06em; }
+  .btFacts strong { font-size: 11px; }
+  .btRoute { margin-inline: -15px; padding: 52px 15px; }
+  .btRouteHeading { margin-bottom: 30px; }
+  .btHighlights { grid-template-columns: minmax(0, 1fr); margin-bottom: 38px; }
+  .btHighlights > span { padding: 12px 4px; }
+  .btDayList { gap: 24px; }
+  .btDay,
+  .btDayReverse { grid-template-columns: minmax(0, 1fr); }
+  .btDayReverse .btDayMedia,
+  .btDayReverse .btDayCopy { grid-column: 1; grid-row: auto; }
+  .btDayList { gap: 30px; padding-left: 30px; }
+  .btDayList::before { left: 4px; }
+  .btDay,
+  .btDayReverse { grid-template-columns: minmax(0, 1fr); min-height: 0; overflow: hidden; }
+  .btDay::before { left: -35px; }
+  .btDayReverse .btDayMedia,
+  .btDayReverse .btDayCopy { grid-column: 1; grid-row: auto; }
+  .btDayMedia,
+  .btDayReverse .btDayMedia,
+  .btDay:not(.btDayReverse) .btDayMedia { border-radius: 0; min-height: 250px; }
+  .btDayCopy { padding: 28px 24px 32px; }
+  .btDayCopy h4 { font-size: 21px; }
+  .btDayCopy > p:last-child { font-size: 16px; }
+  .btGallery { margin-top: 46px; }
+  .btGallery > div { bottom: 20px; left: 20px; right: 20px; }
+  .btDetailFooter { align-items: stretch; flex-direction: column; margin-top: 46px; padding: 24px 20px; }
+  .btDetailFooter button { justify-content: space-between; }
+}
+
+.explorerDetail .tripGrid {
+  gap: 0;
+  transition: gap 620ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.explorerDetail .tripGrid .tripCard.tripCard {
+  flex-basis: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.82);
+  transition:
+    flex-basis 620ms cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 260ms ease,
+    transform 620ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.explorerDetail .tripGrid .tripCard.tripCard[aria-expanded="true"] {
+  flex-basis: 100%;
+  height: clamp(450px, 50vw, 600px);
+  opacity: 1;
+  pointer-events: none;
+  transform: scale(1);
+  transition-delay: 0s, 0s, 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explorerDetail .tripGrid .tripCard.tripCard,
+  .explorerDetail .tripGrid .tripCard.tripCard[aria-expanded="true"] {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .explorerDetail .tripGrid .tripCard.tripCard[aria-expanded="true"] {
+    height: clamp(350px, 58vh, 480px);
+  }
+}
+
+.tripDetailClosing {
+  animation: detail-depart 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+
+@keyframes detail-depart {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tripDetailClosing {
+    animation-duration: 1ms;
   }
 }

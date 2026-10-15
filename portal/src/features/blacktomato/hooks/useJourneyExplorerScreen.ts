@@ -10,9 +10,11 @@ export function useJourneyExplorerScreen() {
   const [isCategoryOpen, setCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(null);
   const [selectedTripTitle, setSelectedTripTitle] = useState<string | null>(null);
+  const [closingTripTitle, setClosingTripTitle] = useState<string | null>(null);
   const [canScrollTripsBack, setCanScrollTripsBack] = useState(false);
   const [canScrollTripsForward, setCanScrollTripsForward] = useState(false);
   const openingFrameRef = useRef<number | null>(null);
+  const tripCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedTripCountRef = useRef(0);
   const tripViewportRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +29,9 @@ export function useJourneyExplorerScreen() {
     () => () => {
       if (openingFrameRef.current !== null) {
         cancelAnimationFrame(openingFrameRef.current);
+      }
+      if (tripCloseTimerRef.current !== null) {
+        clearTimeout(tripCloseTimerRef.current);
       }
     },
     [],
@@ -48,21 +53,6 @@ export function useJourneyExplorerScreen() {
     return () => cancelAnimationFrame(frame);
   }, [isMobile, selectedCategoryId]);
 
-  useEffect(() => {
-    if (!selectedTripTitle) {
-      return;
-    }
-
-    const frame = requestAnimationFrame(() => {
-      document.getElementById("trip-detail")?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start",
-      });
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [selectedTripTitle]);
-
   const syncTripNavigation = () => {
     const viewport = tripViewportRef.current;
     if (!viewport) {
@@ -78,12 +68,35 @@ export function useJourneyExplorerScreen() {
     canScrollTripsForward,
     closeCategory: () => {
       cancelPendingOpen();
+      if (tripCloseTimerRef.current !== null) {
+        clearTimeout(tripCloseTimerRef.current);
+        tripCloseTimerRef.current = null;
+      }
       setCategoryOpen(false);
       setSelectedTripTitle(null);
+      setClosingTripTitle(null);
     },
-    closeTrip: () => setSelectedTripTitle(null),
+    closeTrip: () => {
+      if (!selectedTripTitle || closingTripTitle) {
+        return;
+      }
+
+      setClosingTripTitle(selectedTripTitle);
+      setSelectedTripTitle(null);
+      tripCloseTimerRef.current = setTimeout(() => {
+        tripCloseTimerRef.current = null;
+        setClosingTripTitle(null);
+        requestAnimationFrame(() => {
+          const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth";
+          document.getElementById("trip-list")?.scrollIntoView({ behavior, block: "start" });
+        });
+      }, 480);
+    },
     isCategoryOpen,
     isMobile,
+    isTripClosing: closingTripTitle !== null,
     openCategory: (categoryId: JourneyCategoryId, tripCount: number) => {
       cancelPendingOpen();
       setCategoryOpen(false);
@@ -108,7 +121,15 @@ export function useJourneyExplorerScreen() {
         left: direction * viewport.clientWidth,
       });
     },
-    openTrip: (title: string) => setSelectedTripTitle(title),
+    openTrip: (title: string) => {
+      if (tripCloseTimerRef.current !== null) {
+        clearTimeout(tripCloseTimerRef.current);
+        tripCloseTimerRef.current = null;
+      }
+      setClosingTripTitle(null);
+      setSelectedTripTitle(title);
+    },
+    closingTripTitle,
     selectedCategoryId,
     selectedTripTitle,
     syncTripNavigation,
