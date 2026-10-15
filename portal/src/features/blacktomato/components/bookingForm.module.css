@@ -1,0 +1,437 @@
+.panel {
+  min-width: 0;
+  height: 100%;
+  background: rgb(16 16 16);
+  border-radius: 8px;
+  color: white;
+  padding: calc(var(--spacing) * 5);
+}
+
+.form {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+.travel {
+  position: relative;
+}
+
+.search {
+  align-items: center;
+  border: 1px solid rgb(0 141 31);
+  border-radius: 8px;
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 48px;
+  padding: 0 calc(var(--spacing) * 3);
+}
+
+.search input {
+  background: transparent;
+  border: 0;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+  outline: none;
+  width: 100%;
+}
+
+.search input::placeholder {
+  color: rgb(156 163 175);
+}
+
+.clear {
+  align-items: center;
+  background: rgb(86 86 86);
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.results {
+  background: rgb(18 18 18);
+  border: 1px solid rgb(32 32 32);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 22px 55px rgb(0 0 0 / 22%);
+  display: grid;
+  gap: 8px;
+  left: 0;
+  margin-top: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 6;
+}
+
+.group {
+  display: grid;
+  gap: 4px;
+}
+
+.groupLabel {
+  color: rgb(143 149 157);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  padding: 10px 14px 4px;
+  text-transform: uppercase;
+}
+
+.empty {
+  color: rgb(203 203 203);
+  font-size: 14px;
+  margin: 0;
+  padding: 18px 14px;
+}
+
+.tripResult {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  min-height: 86px;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 2);
+  text-align: left;
+  width: 100%;
+}
+
+.tripResult:hover,
+.tripResult:focus-visible {
+  background: rgb(18 48 14);
+  outline: none;
+}
+
+.tripIcon {
+  color: rgb(48 185 53);
+  display: inline-flex;
+  justify-content: center;
+}
+
+.tripBody {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tripTitle {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+}
+
+.tripMeta {
+  color: rgb(217 217 217);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.tripTag {
+  display: none;
+}
+
+.tripAdd {
+  align-items: center;
+  background: rgb(37 37 37);
+  border-radius: 7px;
+  color: rgb(178 178 178);
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.controls {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  color: rgb(190 194 201);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.stepper {
+  align-items: center;
+  background: white;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  min-height: 48px;
+  overflow: hidden;
+}
+
+.stepper button {
+  align-items: center;
+  background: white;
+  border: 0;
+  color: black;
+  cursor: pointer;
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+}
+
+.stepper button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.count {
+  align-items: center;
+  color: black;
+  display: inline-flex;
+  gap: 7px;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.transport {
+  display: grid;
+  gap: 10px;
+}
+
+.transportList {
+  background: rgb(32 32 32);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 6px;
+}
+
+.transportButton {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: rgb(216 216 216);
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  min-height: 48px;
+  padding: 9px 12px;
+  text-align: left;
+}
+
+.transportButton[aria-pressed="true"] {
+  background: white;
+  border-color: white;
+  color: black;
+}
+
+.transportName {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.transportPrice {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.72;
+}
+
+.status {
+  align-items: center;
+  background: rgb(27 27 27);
+  border-radius: 8px;
+  color: rgb(214 214 214);
+  display: flex;
+  gap: 10px;
+  min-height: 54px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.status svg {
+  color: rgb(0 180 38);
+  flex: 0 0 auto;
+}
+
+.statusWarning svg {
+  color: rgb(255 179 64);
+}
+
+.actions {
+  align-items: stretch;
+  flex-direction: column;
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.note {
+  color: rgb(184 184 184);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.button {
+  background: rgb(0 141 31);
+  border: 1px solid rgb(0 141 31);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  min-height: 50px;
+  padding: 0 30px;
+  text-transform: uppercase;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.button:hover:not(:disabled) {
+  background: white;
+  color: black;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.selectedTrip {
+  color: var(--color-white);
+  font-size: 13px;
+  line-height: 1.4;
+  margin: calc(var(--spacing) * 2) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.total {
+  align-items: baseline;
+  border-top: 1px solid var(--color-neutral-700);
+  color: var(--color-white);
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  justify-content: space-between;
+  padding-top: calc(var(--spacing) * 4);
+}
+
+.total strong {
+  font-size: 22px;
+}
+
+.search:focus-within {
+  outline: 2px solid var(--color-green-600);
+  outline-offset: 2px;
+}
+
+.search > svg {
+  color: var(--color-green-600);
+}
+
+.panelLight {
+  background: var(--color-white);
+  border: 1px solid var(--color-neutral-200);
+  box-shadow: 0 14px 38px color-mix(in srgb, var(--color-black) 10%, transparent);
+  color: var(--color-neutral-950);
+}
+
+.panelLight .search {
+  background: var(--color-neutral-50);
+}
+
+.panelLight .search input,
+.panelLight .tripResult,
+.panelLight .tripTitle,
+.panelLight .selectedTrip,
+.panelLight .total {
+  color: var(--color-neutral-950);
+}
+
+.panelLight .search input::placeholder,
+.panelLight .groupLabel,
+.panelLight .tripMeta,
+.panelLight .label,
+.panelLight .note {
+  color: var(--color-neutral-600);
+}
+
+.panelLight .clear,
+.panelLight .tripAdd {
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-700);
+}
+
+.panelLight .results {
+  background: var(--color-white);
+  border-color: var(--color-neutral-200);
+}
+
+.panelLight .empty {
+  color: var(--color-neutral-700);
+}
+
+.panelLight .tripResult:hover,
+.panelLight .tripResult:focus-visible {
+  background: var(--color-green-50);
+}
+
+.panelLight .stepper,
+.panelLight .stepper button {
+  background: var(--color-neutral-100);
+}
+
+.panelLight .transportList,
+.panelLight .status {
+  background: var(--color-neutral-100);
+}
+
+.panelLight .transportButton {
+  color: var(--color-neutral-700);
+}
+
+.panelLight .transportButton[aria-pressed="true"] {
+  border-color: var(--color-green-600);
+}
+
+.panelLight .status {
+  color: var(--color-neutral-700);
+}
+
+.panelLight .total {
+  border-color: var(--color-neutral-200);
+}
+
+.panelLight .button:hover:not(:disabled) {
+  background: var(--color-neutral-950);
+  color: var(--color-white);
+}

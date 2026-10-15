@@ -1,0 +1,441 @@
+.journey {
+  min-height: 100dvh;
+  scroll-margin-top: 100px;
+}
+
+.blocks {
+  align-items: start;
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(0, 3fr);
+}
+
+.bookingColumn {
+  box-sizing: border-box;
+  margin-right: calc(var(--spacing) * 12);
+  padding-left: 15px;
+  padding-right: 15px;
+  width: calc(100% - var(--spacing) * 6);
+}
+
+.explorer {
+  min-height: 626px;
+  min-width: 0;
+  position: relative;
+}
+
+.categoryCards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  inset: 0;
+  position: absolute;
+  transition:
+    grid-template-columns 620ms cubic-bezier(0.76, 0, 0.24, 1),
+    visibility 0s;
+}
+
+.categoryCard {
+  min-width: 0;
+  overflow: hidden;
+  transition:
+    filter 420ms ease,
+    opacity 360ms ease,
+    transform 620ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.categoryButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--color-white);
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: calc(var(--spacing) * 6);
+  position: relative;
+  text-align: center;
+  width: 100%;
+  z-index: 2;
+}
+
+.categoryButton h5 {
+  color: inherit;
+  margin: 0;
+}
+
+.categoryButton:focus-visible {
+  outline: 2px solid var(--color-white);
+  outline-offset: -6px;
+}
+
+.explorerOpen .categoryCards {
+  pointer-events: none;
+  transition-delay: 0s, 820ms;
+  visibility: hidden;
+}
+
+.explorerOpen .categoryCard:not(.categoryCardSelected) {
+  filter: saturate(0.55);
+  opacity: 0;
+  transform: scale(0.82);
+}
+
+.explorerOpen .categoryCardSelected {
+  transform: scale(1.015);
+}
+
+.explorerOpen[data-selected-category="domestic"] .categoryCards {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0fr) minmax(0, 0fr);
+}
+
+.explorerOpen[data-selected-category="international"] .categoryCards {
+  grid-template-columns: minmax(0, 0fr) minmax(0, 1fr) minmax(0, 0fr);
+}
+
+.explorerOpen[data-selected-category="wedding"] .categoryCards {
+  grid-template-columns: minmax(0, 0fr) minmax(0, 0fr) minmax(0, 1fr);
+}
+
+.tripPanel {
+  --reveal-bottom: 0%;
+  --reveal-left: 0%;
+  --reveal-right: 66.666%;
+  --reveal-top: 0%;
+
+  clip-path: inset(var(--reveal-top) var(--reveal-right) var(--reveal-bottom) var(--reveal-left));
+  inset: 0 15px 26px;
+  isolation: isolate;
+  opacity: 0.01;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 6);
+  pointer-events: none;
+  position: absolute;
+  transition:
+    clip-path 720ms cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 180ms ease,
+    visibility 0s linear 720ms;
+  visibility: hidden;
+}
+
+.tripPanel::before {
+  background: var(--color-white);
+  border: 1px solid var(--color-neutral-200);
+  content: "";
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transition: opacity 0s;
+  z-index: -1;
+}
+
+.explorer[data-selected-category="international"] .tripPanel {
+  --reveal-left: 33.333%;
+  --reveal-right: 33.333%;
+}
+
+.explorer[data-selected-category="wedding"] .tripPanel {
+  --reveal-left: 66.666%;
+  --reveal-right: 0%;
+}
+
+.explorerOpen .tripPanel {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 110ms, 90ms, 0s;
+  visibility: visible;
+}
+
+.explorerOpen .tripPanel::before {
+  opacity: 1;
+  transition-delay: 600ms;
+  transition-duration: 140ms;
+}
+
+.tripPanelHeader {
+  align-items: flex-start;
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+  margin-bottom: calc(var(--spacing) * 5);
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 320ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.explorerOpen .tripPanelHeader {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 480ms;
+}
+
+.backButton {
+  align-items: center;
+  background: var(--color-neutral-100);
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-neutral-950);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 42px;
+  justify-content: center;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+  width: 42px;
+}
+
+.backButton:hover,
+.backButton:focus-visible {
+  background: var(--color-neutral-950);
+  color: var(--color-white);
+  outline: none;
+  transform: translateX(-2px);
+}
+
+.panelEyebrow {
+  color: var(--color-green-700);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin: 0 0 calc(var(--spacing) * 1);
+  text-transform: uppercase;
+}
+
+.panelTitle.panelTitle {
+  color: var(--color-neutral-950);
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  font-size: clamp(24px, 2.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.panelSubtitle {
+  color: var(--color-neutral-600);
+  font-size: 13px;
+  margin: calc(var(--spacing) * 1) 0 0;
+}
+
+.tripGrid {
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+  min-width: 0;
+}
+
+.tripCarousel {
+  min-width: 0;
+  position: relative;
+}
+
+.tripViewport {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.tripViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.tripGrid .tripCard.tripCard {
+  flex: 0 0 calc((100% - var(--spacing) * 8) / 3);
+  height: 450px;
+  min-width: 0;
+  opacity: 0;
+  scroll-snap-align: start;
+  transform: translateY(32px) scale(0.96);
+  transition:
+    box-shadow 200ms ease,
+    opacity 360ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.explorerOpen .tripGrid .tripCard.tripCard {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.explorerOpen .tripGrid .tripCard:nth-child(1) {
+  transition-delay: 280ms;
+}
+
+.explorerOpen .tripGrid .tripCard:nth-child(2) {
+  transition-delay: 340ms;
+}
+
+.explorerOpen .tripGrid .tripCard:nth-child(3) {
+  transition-delay: 400ms;
+}
+
+.explorerOpen .tripCard:hover {
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-black) 13%, transparent);
+  transform: translateY(-4px);
+}
+
+.tripTitle.tripTitle {
+  color: var(--color-white);
+  overflow-wrap: anywhere;
+}
+
+.tripNavigation {
+  align-items: center;
+  display: flex;
+  inset: 0 calc(var(--spacing) * -2);
+  justify-content: space-between;
+  pointer-events: none;
+  position: absolute;
+}
+
+.tripNavigationButton {
+  align-items: center;
+  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--color-black) 56%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-white) 30%, transparent);
+  border-radius: 50%;
+  color: var(--color-white);
+  cursor: pointer;
+  display: inline-flex;
+  height: 42px;
+  justify-content: center;
+  pointer-events: auto;
+  transition:
+    background-color 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+  width: 42px;
+}
+
+.tripNavigationButton:hover,
+.tripNavigationButton:focus-visible {
+  background: color-mix(in srgb, var(--color-black) 78%, transparent);
+  outline: none;
+  transform: scale(1.06);
+}
+
+.tripNavigationButton:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .blocks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bookingColumn {
+    margin-bottom: calc(var(--spacing) * 10);
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .explorer {
+    min-height: 526px;
+  }
+
+  .tripPanel {
+    bottom: 0;
+  }
+
+  .tripGrid .tripCard.tripCard {
+    height: 390px;
+  }
+}
+
+@media (max-width: 767px) {
+  .bookingColumn {
+    margin-bottom: calc(var(--spacing) * 12);
+  }
+
+  .explorer {
+    min-height: 1247px;
+    transition: min-height 620ms cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  .explorerOpen {
+    min-height: 540px;
+  }
+
+  .categoryCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .categoryCards {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    transition:
+      grid-template-rows 620ms cubic-bezier(0.76, 0, 0.24, 1),
+      visibility 0s;
+  }
+
+  .explorerOpen[data-selected-category] .categoryCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .explorerOpen[data-selected-category="domestic"] .categoryCards {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 0fr) minmax(0, 0fr);
+  }
+
+  .explorerOpen[data-selected-category="international"] .categoryCards {
+    grid-template-rows: minmax(0, 0fr) minmax(0, 1fr) minmax(0, 0fr);
+  }
+
+  .explorerOpen[data-selected-category="wedding"] .categoryCards {
+    grid-template-rows: minmax(0, 0fr) minmax(0, 0fr) minmax(0, 1fr);
+  }
+
+  .tripPanel {
+    --reveal-bottom: 66.666%;
+    --reveal-left: 0%;
+    --reveal-right: 0%;
+    --reveal-top: 0%;
+
+    inset: 0 15px;
+    overflow: hidden;
+    padding: calc(var(--spacing) * 5);
+  }
+
+  .explorer[data-selected-category="international"] .tripPanel {
+    --reveal-bottom: 33.333%;
+    --reveal-left: 0%;
+    --reveal-right: 0%;
+    --reveal-top: 33.333%;
+  }
+
+  .explorer[data-selected-category="wedding"] .tripPanel {
+    --reveal-bottom: 0%;
+    --reveal-left: 0%;
+    --reveal-right: 0%;
+    --reveal-top: 66.666%;
+  }
+
+  .tripPanelHeader {
+    margin-bottom: calc(var(--spacing) * 5);
+  }
+
+  .tripGrid .tripCard.tripCard {
+    flex-basis: 100%;
+    height: 350px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categoryCards,
+  .categoryCard,
+  .tripPanel,
+  .tripPanelHeader,
+  .tripCard,
+  .tripNavigationButton,
+  .backButton {
+    transition: none;
+  }
+
+  .tripPanel::before {
+    transition: none;
+  }
+}

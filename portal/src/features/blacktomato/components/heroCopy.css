@@ -1,0 +1,159 @@
+:root {
+  --ink: currentColor;
+  --ink-2: #ff4fd8;
+  --ink-3: #4ff8ff;
+}
+
+.fx-glass {
+  position: relative;
+  font:
+    600 34px / 1.1 "JetBrains Mono",
+    monospace;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
+  -webkit-text-stroke: 0.35px color-mix(in srgb, var(--ink) 42%, transparent);
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--color-black) 16%, transparent));
+}
+
+.hero-copy__text {
+  position: relative;
+  display: block;
+}
+
+.hero-copy__glass {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--color-black) 20%, transparent));
+  pointer-events: none;
+}
+
+.hero-copy__refraction {
+  position: absolute;
+  /* Matches TEXT_GLASS_PADDING so displacement can sample beyond each glyph. */
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  max-width: none;
+  opacity: 0.84;
+  filter: saturate(1.25) contrast(1.06);
+}
+
+.hero-copy__frost,
+.hero-copy__sheen,
+.hero-copy__edge {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-copy__frost {
+  background: color-mix(in srgb, var(--color-white) 38%, transparent);
+}
+
+.hero-copy__sheen {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-white) 74%, transparent) 0%,
+    color-mix(in srgb, var(--color-white) 36%, transparent) 25%,
+    transparent 48%,
+    color-mix(in srgb, var(--color-white) 10%, transparent) 70%,
+    color-mix(in srgb, var(--color-white) 52%, transparent) 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.hero-copy__edge {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-white) 90%, transparent),
+    color-mix(in srgb, var(--color-white) 48%, transparent) 45%,
+    color-mix(in srgb, var(--color-white) 68%, transparent)
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.hero-copy__filters {
+  position: absolute;
+  pointer-events: none;
+}
+
+.fx-glass[data-glass-ready] .hero-copy__glass {
+  opacity: 1;
+}
+
+.fx-glass[data-glass-ready] .hero-copy__text {
+  color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+.hero-copy__description .fx-glass[data-glass-ready] .hero-copy__text {
+  color: transparent;
+}
+
+.hero-copy__title,
+.hero-copy__description {
+  color: var(--color-white);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.hero-copy__title {
+  width: min(100%, 980px);
+  margin-inline: auto;
+}
+
+.hero-copy__title > .fx-glass {
+  font-family: inherit;
+  font-size: clamp(30px, 3.2vw, 56px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.hero-copy__description {
+  margin: calc(var(--spacing) * 9) auto calc(var(--spacing) * 6);
+}
+
+.hero-copy__description > .fx-glass {
+  font-family: inherit;
+  font-size: clamp(14px, 1.1vw, 18px);
+  line-height: 1.6;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.blacktomato-shell .section--hero-banner .js-explore-trips {
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .hero-copy__title {
+    max-width: calc(100vw - 32px);
+  }
+
+  .hero-copy__description {
+    margin-top: calc(var(--spacing) * 7);
+  }
+
+  .hero-copy__description > .fx-glass {
+    letter-spacing: 0.08em;
+  }
+
+  .blacktomato-shell .section--hero-banner .js-explore-trips {
+    min-height: 38px;
+    padding: 7px 16px;
+    font-size: 11.5px;
+  }
+}

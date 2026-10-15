@@ -1,0 +1,108 @@
+.booking {
+  color: var(--color-white);
+  font-family: BrandonGrotesque, BrandonGrotesqueWeb, Arial, sans-serif;
+  min-width: 0;
+}
+
+.section {
+  background: var(--color-neutral-950);
+  padding: calc(var(--spacing) * 6);
+}
+
+.card {
+  background: var(--color-neutral-950);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+.wrap {
+  margin: 0 auto;
+  max-width: 540px;
+}
+
+.card .drawerPanel,
+.card .wrap {
+  height: 100%;
+}
+
+body[class~="blacktomato-booking-open"]:has(.drawer) {
+  overflow: hidden;
+}
+
+.drawer {
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  visibility: hidden;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
+  z-index: 10050;
+}
+
+[class~="blacktomato-shell--booking-open"] .drawer {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.backdrop {
+  background: color-mix(in srgb, var(--color-black) 62%, transparent);
+  border: 0;
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.drawer .drawerPanel {
+  background: var(--color-neutral-950);
+  border-radius: var(--radius-lg);
+  left: 50%;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  padding: calc(var(--spacing) * 14) calc(var(--spacing) * 3) calc(var(--spacing) * 3);
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(540px, calc(100% - 32px));
+}
+
+.close {
+  align-items: center;
+  background: var(--color-neutral-800);
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-white);
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  position: absolute;
+  right: calc(var(--spacing) * 4);
+  top: calc(var(--spacing) * 4);
+  width: 36px;
+}
+
+.close:hover,
+.close:focus-visible {
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+@media (max-width: 767px) {
+  .drawer .drawerPanel {
+    border-radius: 0;
+    inset: 0;
+    max-height: none;
+    transform: none;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+}
