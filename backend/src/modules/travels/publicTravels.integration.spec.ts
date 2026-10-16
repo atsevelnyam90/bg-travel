@@ -49,6 +49,38 @@ describe("public travels", () => {
       ],
     });
 
+    const confirmed = await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({
+        slotPublicId: openSlot.publicId,
+        travelerCount: 3,
+        firstName: "Бат",
+        lastName: "Болд",
+        phone: "99112233",
+        email: "confirmed@example.mn",
+        idempotencyKey: "af3ed29a-10fe-4dfc-8161-23e97f5d7f8c",
+      })
+      .expect(201);
+    const confirmer = await prisma.user.create({
+      data: { email: "travel-confirmer@example.mn", name: "Баталгаажуулагч", status: "ACTIVE" },
+    });
+    await prisma.order.update({
+      where: { publicOrderId: confirmed.body.publicOrderId },
+      data: { status: "PAID", confirmedByUserId: confirmer.id, confirmedAt: new Date() },
+    });
+    await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({
+        slotPublicId: openSlot.publicId,
+        travelerCount: 2,
+        firstName: "Сараа",
+        lastName: "Дорж",
+        phone: "88112233",
+        email: "pending@example.mn",
+        idempotencyKey: "3ead4a11-4dbf-46ed-868d-a572ea667d75",
+      })
+      .expect(201);
+
     const response = await api().get(`${PREFIX}/public/travels`).expect(200);
     expect(travelsContract.listPublicTravelsResponseSchema.parse(response.body)).toEqual([
       {
@@ -63,6 +95,7 @@ describe("public travels", () => {
             transportType: "GROUND",
             unitPriceMinor: 890000000,
             capacity: 12,
+            remainingSeats: 9,
           },
         ],
       },
@@ -111,6 +144,7 @@ describe("public travels", () => {
     expect(response.body[0].publicId).toBe(visible.publicId);
     expect(response.body[0].slots).toHaveLength(1);
     expect(response.body[0].slots[0].publicId).toBe(visibleSlot.publicId);
+    expect(response.body[0].slots[0].remainingSeats).toBe(12);
     for (const forbidden of ["id", "version", "createdAt", "updatedAt", "deletedAt"]) {
       expect(response.body[0]).not.toHaveProperty(forbidden);
       expect(response.body[0].slots[0]).not.toHaveProperty(forbidden);

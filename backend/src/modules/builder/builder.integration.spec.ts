@@ -554,6 +554,70 @@ describe("builder runtime view", () => {
     expect(order.confirmedAt).toBeInstanceOf(Date);
   });
 
+  it("үлдсэн суудлаас хэтэрсэн order-ийг PAID болгож баталгаажуулахгүй", async () => {
+    await seedOrderBuilderView();
+    const travel = await prisma.travel.create({ data: { name: "Capacity test" } });
+    const slot = await prisma.travelDeparture.create({
+      data: {
+        travelId: travel.id,
+        departureDate: new Date("2026-11-05T00:00:00.000Z"),
+        returnDate: new Date("2026-11-12T00:00:00.000Z"),
+        transportType: "GROUND",
+        unitPriceMinor: 100_000_000n,
+        capacity: 2,
+      },
+    });
+    const baseOrder = {
+      slotPublicId: slot.publicId,
+      firstName: "Бат",
+      lastName: "Болд",
+      phone: "99112233",
+      email: "capacity@example.mn",
+    };
+    const occupyingOrder = await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({
+        ...baseOrder,
+        travelerCount: 2,
+        idempotencyKey: "9a621d08-0f09-4bcf-91c5-2b43e106b206",
+      })
+      .expect(201);
+    const pendingOrder = await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({
+        ...baseOrder,
+        email: "pending-capacity@example.mn",
+        travelerCount: 1,
+        idempotencyKey: "5e729b82-d938-49a1-854a-e62f69e3d256",
+      })
+      .expect(201);
+    await prisma.order.update({
+      where: { publicOrderId: occupyingOrder.body.publicOrderId },
+      data: { status: "PAID", confirmedByUserId: ownerId, confirmedAt: new Date() },
+    });
+
+    const listed = await api()
+      .get(`${PREFIX}/builder/runtime/views/${ORDER_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .expect(200);
+    const pendingEntry = listed.body.items.find(
+      (entry: { values: { public_order_id?: string } }) =>
+        entry.values.public_order_id === pendingOrder.body.publicOrderId,
+    );
+    expect(pendingEntry).toBeTruthy();
+
+    const rejected = await api()
+      .patch(`${PREFIX}/builder/runtime/views/${ORDER_VIEW_ID}/entries/${pendingEntry.id}`)
+      .set(bearer(token))
+      .send({
+        version: pendingEntry.version,
+        values: { ...pendingEntry.values, status: "PAID" },
+      })
+      .expect(409);
+
+    expect(rejected.body.code).toBe("CONFLICT");
+  });
+
   it("composite runtime нь parent page болон child sections-г хамт үүсгэнэ", async () => {
     await seedWebsitePageBuilderView();
 

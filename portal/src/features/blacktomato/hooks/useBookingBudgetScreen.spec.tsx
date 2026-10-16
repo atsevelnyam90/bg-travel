@@ -1,10 +1,21 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
-import type { FormEvent } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import type { FormEvent, ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import mn from "@/lib/i18n/messages/mn.json";
 import { useBookingBudgetScreen } from "./useBookingBudgetScreen";
 import { useCreatePublicOrder } from "./useCreatePublicOrder";
 import { usePublicPaymentInfo } from "./usePublicPaymentInfo";
 import { usePublicTravels } from "./usePublicTravels";
+
+const { toastError, toastSuccess } = vi.hoisted(() => ({
+  toastError: vi.fn(),
+  toastSuccess: vi.fn(),
+}));
+
+vi.mock("sonner", () => ({
+  toast: { error: toastError, success: toastSuccess },
+}));
 
 vi.mock("./usePublicTravels", () => ({
   usePublicTravels: vi.fn(),
@@ -20,6 +31,18 @@ vi.mock("./usePublicPaymentInfo", () => ({
 
 const mutateAsync = vi.fn();
 
+function IntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="mn" messages={mn} timeZone="Asia/Ulaanbaatar">
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+
+function renderBookingScreen() {
+  return renderHook(() => useBookingBudgetScreen(), { wrapper: IntlWrapper });
+}
+
 const travel = {
   publicId: "6cc7df59-93bf-4499-a9d5-4c90834618eb",
   name: "Kenya Private Safari",
@@ -32,6 +55,7 @@ const travel = {
       transportType: "GROUND" as const,
       unitPriceMinor: 100_000_000,
       capacity: 10,
+      remainingSeats: 7,
     },
     {
       publicId: "77e8e98f-3c2f-4fa6-bbbf-a1f19655dd59",
@@ -40,6 +64,7 @@ const travel = {
       transportType: "DIRECT_FLIGHT" as const,
       unitPriceMinor: 150_000_000,
       capacity: 1,
+      remainingSeats: 1,
     },
   ],
 };
@@ -88,7 +113,7 @@ afterEach(() => {
 
 describe("useBookingBudgetScreen", () => {
   it("groups slots by date and calculates the selected transport total", () => {
-    const { result } = renderHook(() => useBookingBudgetScreen());
+    const { result } = renderBookingScreen();
 
     act(() => result.current.selectTrip(travel));
 
@@ -114,7 +139,7 @@ describe("useBookingBudgetScreen", () => {
   });
 
   it("creates the order only after the customer confirms payment", async () => {
-    const { result } = renderHook(() => useBookingBudgetScreen());
+    const { result } = renderBookingScreen();
     act(() => result.current.selectTrip(travel));
     act(() => result.current.selectDate(result.current.dateOptions[0].key));
     act(() =>
@@ -136,6 +161,12 @@ describe("useBookingBudgetScreen", () => {
     expect(result.current.step).toBe("payment");
     expect(mutateAsync).not.toHaveBeenCalled();
 
+    act(() => result.current.goBackToCustomer());
+    expect(result.current.step).toBe("customer");
+    expect(result.current.customerForm.getValues("email")).toBe("bat@example.mn");
+    await act(async () => result.current.continueToPayment());
+    expect(result.current.step).toBe("payment");
+
     await act(async () => result.current.confirmPayment());
 
     expect(mutateAsync).toHaveBeenCalledWith(
@@ -148,5 +179,30 @@ describe("useBookingBudgetScreen", () => {
       }),
     );
     expect(result.current.orderResult?.publicOrderId).toBe("ORD-2026-000001");
+    expect(toastSuccess).toHaveBeenCalledWith("Захиалга амжилттай бүртгэгдлээ");
+  });
+
+  it("shows an error toast when order creation fails", async () => {
+    mutateAsync.mockRejectedValueOnce(new Error("Сүлжээний алдаа"));
+    const { result } = renderBookingScreen();
+    act(() => result.current.selectTrip(travel));
+    act(() => result.current.selectDate(result.current.dateOptions[0].key));
+    act(() =>
+      result.current.continueBooking({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>),
+    );
+    act(() => {
+      result.current.customerForm.setValue("firstName", "Бат");
+      result.current.customerForm.setValue("lastName", "Болд");
+      result.current.customerForm.setValue("phone", "99112233");
+      result.current.customerForm.setValue("email", "bat@example.mn");
+      result.current.customerForm.setValue("address", "Улаанбаатар");
+    });
+    await act(async () => result.current.continueToPayment());
+    await act(async () => result.current.confirmPayment());
+
+    expect(result.current.orderResult).toBeNull();
+    expect(toastError).toHaveBeenCalledWith("Сүлжээний алдаа");
   });
 });

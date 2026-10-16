@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -25,12 +26,14 @@ export function BookingDateSelect({
   options,
   value,
 }: BookingDateSelectProps) {
+  const t = useTranslations("publicBooking");
+
   return (
     <div className={styles.dateSelect}>
       <CalendarDays aria-hidden="true" size={24} />
       <Select disabled={disabled} onValueChange={onChange} value={value ?? ""}>
-        <SelectTrigger aria-label="Аяллын гаралт" className={styles.dateTrigger}>
-          <SelectValue placeholder="Гаралт сонгох" />
+        <SelectTrigger aria-label={t("departure")} className={styles.dateTrigger}>
+          <SelectValue placeholder={t("selectDeparture")} />
         </SelectTrigger>
         <SelectContent
           align="start"

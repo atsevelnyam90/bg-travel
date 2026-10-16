@@ -46,14 +46,16 @@ function HeroGlassText({ text, depth }: { text: string; depth: number }) {
 
 export function BlackTomatoHeroCopy() {
   const t = useTranslations("publicHero");
+  const title = t("title");
+  const description = t("description");
 
   return (
     <>
       <div className="hero-copy__title">
-        <HeroGlassText text={t("title")} depth={16} />
+        <HeroGlassText key={title} text={title} depth={16} />
       </div>
       <div className="hero-copy__description">
-        <HeroGlassText text={t("description")} depth={7} />
+        <HeroGlassText key={description} text={description} depth={7} />
       </div>
     </>
   );

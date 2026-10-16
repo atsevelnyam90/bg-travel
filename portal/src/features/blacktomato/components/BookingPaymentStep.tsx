@@ -1,8 +1,10 @@
 "use client";
 
-import { Check, CircleAlert, Copy } from "lucide-react";
+import { ArrowLeft, Check, CircleAlert, Copy, LoaderCircle } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { toMajor } from "@/api/generated/contracts/money";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   type BookingBudgetScreen,
   formatTravelMoney,
@@ -10,7 +12,10 @@ import {
 } from "../hooks/useBookingBudgetScreen";
 import styles from "./bookingForm.module.css";
 
-const QRCode = dynamic(() => import("react-qr-code"), { ssr: false });
+const QRCode = dynamic(() => import("react-qr-code"), {
+  loading: () => <Skeleton aria-label="QR" className={styles.qrSkeleton} role="status" />,
+  ssr: false,
+});
 const TEMPORARY_PAYMENT_QR = "BG-TRAVEL-PAYMENT-QR-COMING-SOON";
 
 function formatBankAccount(value: string): string {
@@ -27,6 +32,8 @@ type CopyRowProps = {
 };
 
 function CopyRow({ copied, copyValue, field, label, onCopy, value }: CopyRowProps) {
+  const t = useTranslations("publicBooking.payment");
+
   return (
     <div className={styles.paymentRow}>
       <span>
@@ -34,19 +41,20 @@ function CopyRow({ copied, copyValue, field, label, onCopy, value }: CopyRowProp
         <strong>{value}</strong>
       </span>
       <button
-        aria-label={`${label} хуулах`}
+        aria-label={t("copyLabel", { label })}
         className={styles.copyButton}
         onClick={() => onCopy(field, copyValue)}
         type="button"
       >
         {copied ? <Check aria-hidden="true" size={17} /> : <Copy aria-hidden="true" size={17} />}
-        {copied ? "Хуулсан" : "Хуулах"}
+        {copied ? t("copied") : t("copy")}
       </button>
     </div>
   );
 }
 
 export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) {
+  const t = useTranslations("publicBooking.payment");
   const payment = screen.paymentInfo;
   const quote = screen.quote;
   if (!quote) return null;
@@ -55,13 +63,22 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
   return (
     <div className={styles.paymentStep} aria-live="polite">
       <div className={styles.paymentHeader}>
-        <h3 className={styles.stepTitle}>Дансны мэдээлэл</h3>
+        <button
+          aria-label={t("back")}
+          className={styles.stepBackButton}
+          disabled={screen.isSubmitting || !!screen.orderResult}
+          onClick={screen.goBackToCustomer}
+          type="button"
+        >
+          <ArrowLeft aria-hidden="true" size={20} />
+        </button>
+        <h3 className={styles.stepTitle}>{t("title")}</h3>
       </div>
 
       <div className={styles.paymentContent}>
         <div className={styles.qrCard}>
           <div className={styles.qrCode}>
-            <QRCode aria-label="Түр төлбөрийн QR код" size={180} value={TEMPORARY_PAYMENT_QR} />
+            <QRCode aria-label={t("temporaryQr")} size={180} value={TEMPORARY_PAYMENT_QR} />
           </div>
         </div>
 
@@ -69,7 +86,7 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
           <div className={styles.paymentDetails}>
             <div className={styles.paymentRow}>
               <span>
-                <small>Банк</small>
+                <small>{t("bank")}</small>
                 <strong>{payment.bankName}</strong>
               </span>
             </div>
@@ -77,13 +94,13 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
               copied={screen.copiedPaymentField === "bankAccount"}
               copyValue={payment.bankAccount}
               field="bankAccount"
-              label="Данс / IBAN"
+              label={t("account")}
               onCopy={screen.copyPaymentValue}
               value={formatBankAccount(payment.bankAccount)}
             />
             <div className={styles.paymentRow}>
               <span>
-                <small>Данс эзэмшигч</small>
+                <small>{t("accountHolder")}</small>
                 <strong>{payment.bankAccountName}</strong>
               </span>
             </div>
@@ -91,7 +108,7 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
               copied={screen.copiedPaymentField === "amount"}
               copyValue={amountToCopy}
               field="amount"
-              label="Төлөх дүн"
+              label={t("amount")}
               onCopy={screen.copyPaymentValue}
               value={formatTravelMoney(quote.totalPriceMinor)}
             />
@@ -99,16 +116,15 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
         ) : null}
       </div>
 
-      {screen.paymentInfoError || screen.submitError ? (
+      {screen.paymentInfoError ? (
         <div className={`${styles.status} ${styles.statusWarning}`} role="alert">
           <CircleAlert aria-hidden="true" size={20} />
-          <span>
-            {screen.submitError ?? "Дансны мэдээлэл авахад алдаа гарлаа. Дахин оролдоно уу."}
-          </span>
+          <span>{t("error")}</span>
         </div>
       ) : null}
 
       <button
+        aria-busy={screen.isSubmitting}
         className={styles.button}
         disabled={
           screen.paymentInfoLoading || !payment || screen.isSubmitting || !!screen.orderResult
@@ -116,7 +132,19 @@ export function BookingPaymentStep({ screen }: { screen: BookingBudgetScreen }) 
         onClick={() => void screen.confirmPayment()}
         type="button"
       >
-        {screen.isSubmitting ? "Бүртгэж байна…" : "Төлсөн"}
+        {screen.isSubmitting ? (
+          <>
+            <LoaderCircle aria-hidden="true" className={styles.buttonSpinner} size={18} />
+            {t("submitting")}
+          </>
+        ) : screen.orderResult ? (
+          <>
+            <Check aria-hidden="true" size={18} />
+            {t("submitted")}
+          </>
+        ) : (
+          t("paid")
+        )}
       </button>
     </div>
   );

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { BlackTomatoJourneyBlocks } from "./BlackTomatoJourneyBlocks";
 import { BlackTomatoPopularDestinationsTabMarkup } from "./BlackTomatoPopularDestinationsTabMarkup";
 import { BlackTomatoSpotlightTabMarkup } from "./BlackTomatoSpotlightTabMarkup";
@@ -5,6 +8,8 @@ import { BlackTomatoTravelMonthsTabMarkup } from "./BlackTomatoTravelMonthsTabMa
 import journeyStyles from "./journey.module.css";
 
 export function BlackTomatoJourneySection() {
+  const t = useTranslations("publicJourney.ui");
+
   return (
     <section
       className={`section section--filtered_tiles pt-xl sm:pt-xl pb-lg bg-light ${journeyStyles.journey}`}
@@ -12,7 +17,7 @@ export function BlackTomatoJourneySection() {
     >
       <div className="container">
         <header className="align-text-center">
-          <h2>Start your Journey</h2>
+          <h2>{t("sectionTitle")}</h2>
           <ul className="list list--tabs" style={{ display: "none" }}>
             <li>
               <button

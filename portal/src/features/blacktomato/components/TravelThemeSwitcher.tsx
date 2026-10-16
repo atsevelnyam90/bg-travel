@@ -1,6 +1,7 @@
 "use client";
 
 import { Palette } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,18 +15,19 @@ import { travelThemes, useTravelThemeScreen } from "../hooks/useTravelThemeScree
 import styles from "./travelThemes.module.css";
 
 export function TravelThemeSwitcher() {
+  const t = useTranslations("publicThemes");
   const { theme, selectTheme } = useTravelThemeScreen();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className={styles.trigger} variant="outline" aria-label="Change color theme">
+        <Button className={styles.trigger} variant="outline" aria-label={t("changeTheme")}>
           <Palette size={18} />
-          <span>Themes</span>
+          <span>{t("trigger")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className={styles.menu}>
-        <DropdownMenuLabel>BG Travel · Color themes</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("label")}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={theme} onValueChange={selectTheme}>
           {travelThemes.map((item) => (
             <DropdownMenuRadioItem key={item.id} value={item.id} className={styles.option}>
@@ -35,8 +37,8 @@ export function TravelThemeSwitcher() {
                 <i />
               </span>
               <span>
-                <strong>{item.name}</strong>
-                <small>{item.description}</small>
+                <strong>{t(`items.${item.id}.name`)}</strong>
+                <small>{t(`items.${item.id}.description`)}</small>
               </span>
             </DropdownMenuRadioItem>
           ))}

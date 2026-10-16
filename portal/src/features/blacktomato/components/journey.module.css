@@ -1,6 +1,6 @@
-.journey {
+.journey:global(#journey-start) {
   min-height: 100dvh;
-  scroll-margin-top: 100px;
+  overflow: visible;
 }
 
 .blocks {
@@ -10,11 +10,38 @@
 }
 
 .bookingColumn {
+  align-self: start;
   box-sizing: border-box;
   margin-right: calc(var(--spacing) * 12);
+  max-height: calc(100dvh - 84px - var(--spacing) * 8);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding-left: 15px;
   padding-right: 15px;
+  position: sticky;
+  scrollbar-color: var(--color-neutral-300) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  top: calc(84px + var(--spacing) * 4);
   width: calc(100% - var(--spacing) * 6);
+  z-index: 4;
+}
+
+.bookingColumn::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookingColumn::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bookingColumn::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 999px;
+}
+
+.bookingColumn::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
 }
 
 .explorer {
@@ -758,7 +785,16 @@
   .bookingColumn {
     margin-bottom: calc(var(--spacing) * 10);
     margin-right: 0;
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
+    position: static;
+    scrollbar-color: auto;
+    scrollbar-gutter: auto;
+    scrollbar-width: auto;
+    top: auto;
     width: 100%;
+    z-index: auto;
   }
 
   .explorer {

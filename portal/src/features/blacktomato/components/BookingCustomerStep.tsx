@@ -1,16 +1,13 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
-import {
-  type BookingBudgetScreen,
-  formatTravelDate,
-  formatTravelMoney,
-  transportLabel,
-} from "../hooks/useBookingBudgetScreen";
+import { type BookingBudgetScreen, formatTravelMoney } from "../hooks/useBookingBudgetScreen";
 import styles from "./bookingForm.module.css";
 
 export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen }) {
+  const t = useTranslations("publicBooking.customer");
   const fieldId = useId();
   const quote = screen.quote;
   if (!quote) return null;
@@ -21,30 +18,32 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
     <form className={styles.form} onSubmit={screen.continueToPayment}>
       <div className={styles.stepHeaderRow}>
         <button
-          aria-label="Аялал сонгох хэсэг рүү буцах"
+          aria-label={t("back")}
           className={styles.stepBackButton}
           onClick={screen.goBackToSelection}
           type="button"
         >
           <ArrowLeft aria-hidden="true" size={20} />
         </button>
-        <h3 className={styles.stepTitle}>Захиалагчийн мэдээлэл</h3>
+        <h3 className={styles.stepTitle}>{t("title")}</h3>
       </div>
 
       <div className={styles.summary}>
         <strong>{quote.selectedTrip.name}</strong>
         <span>
-          · {formatTravelDate(quote.selectedSlot.departureDate, quote.selectedSlot.departureDate)}
+          ·{" "}
+          {screen.formatTravelDate(quote.selectedSlot.departureDate, quote.selectedSlot.returnDate)}
         </span>
         <span>
-          · {transportLabel(quote.selectedSlot.transportType)} · {quote.peopleCount} хүн
+          · {screen.transportLabel(quote.selectedSlot.transportType)} ·{" "}
+          {t("people", { count: quote.peopleCount })}
         </span>
         <b>· {formatTravelMoney(quote.totalPriceMinor)}</b>
       </div>
 
       <div className={styles.customerGrid}>
         <label className={styles.field} htmlFor={id("lastName")}>
-          <span className={styles.label}>Овог</span>
+          <span className={styles.label}>{t("lastName")}</span>
           <input
             {...screen.customerForm.register("lastName")}
             aria-invalid={Boolean(errors.lastName)}
@@ -52,10 +51,12 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
             className={styles.customerInput}
             id={id("lastName")}
           />
-          {errors.lastName ? <small className={styles.fieldError}>Овгоо оруулна уу.</small> : null}
+          {errors.lastName ? (
+            <small className={styles.fieldError}>{t("lastNameError")}</small>
+          ) : null}
         </label>
         <label className={styles.field} htmlFor={id("firstName")}>
-          <span className={styles.label}>Нэр</span>
+          <span className={styles.label}>{t("firstName")}</span>
           <input
             {...screen.customerForm.register("firstName")}
             aria-invalid={Boolean(errors.firstName)}
@@ -63,10 +64,12 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
             className={styles.customerInput}
             id={id("firstName")}
           />
-          {errors.firstName ? <small className={styles.fieldError}>Нэрээ оруулна уу.</small> : null}
+          {errors.firstName ? (
+            <small className={styles.fieldError}>{t("firstNameError")}</small>
+          ) : null}
         </label>
         <label className={styles.field} htmlFor={id("phone")}>
-          <span className={styles.label}>Утас</span>
+          <span className={styles.label}>{t("phone")}</span>
           <input
             {...screen.customerForm.register("phone")}
             aria-invalid={Boolean(errors.phone)}
@@ -75,12 +78,10 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
             id={id("phone")}
             inputMode="tel"
           />
-          {errors.phone ? (
-            <small className={styles.fieldError}>Утасны дугаараа зөв оруулна уу.</small>
-          ) : null}
+          {errors.phone ? <small className={styles.fieldError}>{t("phoneError")}</small> : null}
         </label>
         <label className={styles.field} htmlFor={id("email")}>
-          <span className={styles.label}>И-мэйл</span>
+          <span className={styles.label}>{t("email")}</span>
           <input
             {...screen.customerForm.register("email")}
             aria-invalid={Boolean(errors.email)}
@@ -90,12 +91,10 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
             inputMode="email"
             type="email"
           />
-          {errors.email ? (
-            <small className={styles.fieldError}>И-мэйл хаягаа зөв оруулна уу.</small>
-          ) : null}
+          {errors.email ? <small className={styles.fieldError}>{t("emailError")}</small> : null}
         </label>
         <label className={styles.field} htmlFor={id("address")}>
-          <span className={styles.label}>Хаяг (заавал биш)</span>
+          <span className={styles.label}>{t("address")}</span>
           <input
             {...screen.customerForm.register("address")}
             aria-invalid={Boolean(errors.address)}
@@ -103,15 +102,13 @@ export function BookingCustomerStep({ screen }: { screen: BookingBudgetScreen })
             className={styles.customerInput}
             id={id("address")}
           />
-          {errors.address ? (
-            <small className={styles.fieldError}>Хаяг 500 тэмдэгтээс хэтрэхгүй байна.</small>
-          ) : null}
+          {errors.address ? <small className={styles.fieldError}>{t("addressError")}</small> : null}
         </label>
       </div>
 
       <div className={styles.customerActions}>
         <button className={styles.button} disabled={screen.isSubmitting} type="submit">
-          Үргэлжлүүлэх
+          {t("continue")}
         </button>
       </div>
     </form>

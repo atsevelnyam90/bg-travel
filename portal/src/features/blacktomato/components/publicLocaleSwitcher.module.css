@@ -1,0 +1,49 @@
+.trigger.trigger.trigger {
+  align-items: center;
+  background: var(--travel-surface, var(--color-white));
+  border: 1px solid var(--travel-line, var(--color-neutral-200));
+  color: var(--travel-primary, var(--color-neutral-950));
+  display: inline-flex;
+  flex-direction: row;
+  font-family: inherit;
+  gap: 7px;
+  height: 40px;
+  justify-content: center;
+  min-width: 72px;
+  padding: 0 12px;
+}
+
+.trigger.trigger.trigger:hover {
+  background: var(--travel-soft, var(--color-neutral-100));
+  color: var(--travel-ink, var(--color-neutral-950));
+}
+
+.menu.menu {
+  --accent: #f1dce5;
+  --accent-foreground: #482339;
+  --popover: #fff8f0;
+  --popover-foreground: #482339;
+  background: var(--popover);
+  border: 1px solid var(--accent);
+  color: var(--popover-foreground);
+  min-width: 190px;
+  padding: 8px;
+  z-index: 11000;
+}
+
+.option.option {
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.option.option[data-highlighted] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+@media (max-width: 640px) {
+  .trigger.trigger.trigger {
+    min-width: 58px;
+    padding: 0 9px;
+  }
+}

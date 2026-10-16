@@ -2,6 +2,370 @@
   "publicHero": {
     "title": "Quality journeys at the best prices...",
     "description": "A suitcase full of memories with BG Travel",
-    "planTrip": "Plan your trip"
+    "planTrip": "Plan your trip",
+    "startJourney": "Start your journey"
+  },
+  "publicHeader": {
+    "home": "BG Travel home",
+    "mainNavigation": "Main navigation",
+    "myAccount": "My account",
+    "book": "BOOK NOW"
+  },
+  "publicLanguage": {
+    "changeLanguage": "Change language",
+    "label": "Choose language",
+    "short": { "mn": "MN", "en": "EN", "zh": "中", "ko": "한" },
+    "names": { "mn": "Монгол", "en": "English", "zh": "中文", "ko": "한국어" }
+  },
+  "publicThemes": {
+    "changeTheme": "Change color theme",
+    "trigger": "Themes",
+    "label": "BG Travel · Color themes",
+    "items": {
+      "original": { "name": "Original", "description": "White · charcoal · pink" },
+      "sunrise": { "name": "Gobi Sunrise", "description": "Ivory · coral · berry" },
+      "rose": { "name": "Rose Caravan", "description": "Blush · plum · amber" },
+      "midnight": { "name": "Midnight Oasis", "description": "Deep plum · gold · rose" }
+    }
+  },
+  "publicJourney": {
+    "ui": {
+      "sectionTitle": "START YOUR JOURNEY",
+      "exploreTrips": "EXPLORE OUR TRIPS",
+      "backToTrips": "Back to the trip list",
+      "backToCategories": "Back to categories",
+      "previousTrips": "Previous trips",
+      "nextTrips": "Next trips",
+      "detailNavigation": "Trip information",
+      "overview": "Overview",
+      "itinerary": "Itinerary",
+      "media": "Photos & video",
+      "book": "Book now",
+      "fallbackIntro": "A special journey through the landscapes and local culture of {region}.",
+      "factsLabel": "Trip facts",
+      "when": "When",
+      "seasonComingSoon": "Season details coming soon",
+      "price": "Price",
+      "duration": "Duration",
+      "itineraryLabel": "Trip itinerary",
+      "videoTitle": "Video of {title}",
+      "day": "DAY {day}",
+      "galleryLabel": "Additional trip photo",
+      "travelNotes": "TRAVEL NOTES",
+      "journeyStartsHere": "YOUR JOURNEY STARTS HERE",
+      "goToBooking": "Go to booking"
+    },
+    "categories": {
+      "domestic": { "title": "Mongolia", "subtitle": "Extraordinary routes across Mongolia" },
+      "international": {
+        "title": "International",
+        "subtitle": "Outstanding destinations around the world"
+      },
+      "wedding": { "title": "Weddings", "subtitle": "Wedding and honeymoon journeys" }
+    },
+    "trips": {
+      "gobi": {
+        "duration": "5 days",
+        "region": "South Gobi",
+        "title": "Gobi Journey",
+        "mediaCaption": "Golden dunes · Gobi",
+        "intro": "A slow journey across the vast South Gobi, following dunes, rocky canyons and the traces of dinosaurs.",
+        "season": "May–Sep",
+        "highlights": {
+          "one": "Yolyn Am canyon",
+          "two": "Khongoryn Els dunes",
+          "three": "Bayanzag flaming cliffs"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "Into the Gobi",
+            "description": "Leave Ulaanbaatar for Dalanzadgad across the open steppe, pausing at scenic viewpoints before meeting the expedition team in the evening."
+          },
+          "day02": {
+            "title": "Yolyn Am",
+            "description": "Walk with a guide through the cool, narrow Yolyn Am canyon in the Gurvan Saikhan mountains, with time for photographs and rest."
+          },
+          "day03": {
+            "title": "Khongoryn Els",
+            "description": "Experience the shifting patterns and immense views of the Khongoryn Els dunes, with an optional camel ride at sunset."
+          },
+          "day04": {
+            "title": "Bayanzag",
+            "description": "Explore the red cliffs of Bayanzag and hear stories of the region's geology and famous dinosaur discoveries."
+          },
+          "day05": {
+            "title": "Return to the city",
+            "description": "Stop at one final Gobi viewpoint before returning to Ulaanbaatar and completing the journey in the evening."
+          }
+        }
+      },
+      "khangai": {
+        "duration": "6 days",
+        "region": "Arkhangai · Ovorkhangai",
+        "title": "Khangai Journey",
+        "mediaCaption": "Terkhiin Tsagaan Lake · Khangai",
+        "intro": "A Khangai escape filled with clear mountain air, quiet lakeshores and encounters with local life.",
+        "season": "Jun–Sep",
+        "highlights": {
+          "one": "Terkhiin Tsagaan Lake",
+          "two": "Khorgo crater",
+          "three": "Green Khangai valleys"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "Toward Khangai",
+            "description": "Travel from Ulaanbaatar toward Arkhangai and watch the landscape change from steppe to mountain country."
+          },
+          "day02": {
+            "title": "Khorgo Crater",
+            "description": "Take a guided walk around the volcanic crater and the surrounding lava formations."
+          },
+          "day03": {
+            "title": "Terkhiin Tsagaan Lake",
+            "description": "Walk along the lakeshore and enjoy changing views of water, forest and mountains."
+          },
+          "day04": {
+            "title": "Local life",
+            "description": "Visit a herder family to learn about seasonal work and nomadic traditions over local tea and food."
+          },
+          "day05": {
+            "title": "Across Khangai",
+            "description": "Follow river valleys and mountain foothills toward Ovorkhangai, stopping at natural landmarks along the way."
+          },
+          "day06": {
+            "title": "The road home",
+            "description": "Visit a final scenic stop in Khangai before returning to Ulaanbaatar."
+          }
+        }
+      },
+      "tavanBogd": {
+        "duration": "7 days",
+        "region": "Bayan-Olgii · Altai Tavan Bogd",
+        "title": "Tavan Bogd Adventure",
+        "mediaCaption": "Altai glacier · Tavan Bogd",
+        "intro": "An adventure combining the high Mongolian Altai, glaciers and the generous hospitality of Kazakh communities.",
+        "season": "Jul–Sep",
+        "highlights": {
+          "one": "Altai Tavan Bogd peaks",
+          "two": "Potanin Glacier",
+          "three": "Kazakh culture of Bayan-Olgii"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "Olgii town",
+            "description": "Arrive in Bayan-Olgii, meet your guide and review the route, weather and high-altitude equipment."
+          },
+          "day02": {
+            "title": "Altai Valley",
+            "description": "Drive into the Altai foothills through rivers and high pastures, with a possible visit to an eagle hunter family."
+          },
+          "day03": {
+            "title": "The highland road",
+            "description": "Travel toward Altai Tavan Bogd National Park through vast high valleys and mountain scenery."
+          },
+          "day04": {
+            "title": "Glacier views",
+            "description": "Hike toward Potanin Glacier, adapting the route to weather, trail safety and the group's condition."
+          },
+          "day05": {
+            "title": "A day in the mountains",
+            "description": "Explore the foothills and nearby valleys at a gentler pace, with time for photography and nature watching."
+          },
+          "day06": {
+            "title": "Return to Olgii",
+            "description": "Descend from the mountains to Bayan-Olgii, stopping at scenic points and enjoying local food."
+          },
+          "day07": {
+            "title": "Journey's end",
+            "description": "Transfer to the airport or onward transport point and conclude the expedition."
+          }
+        }
+      },
+      "terelj": {
+        "duration": "3 days",
+        "region": "Terelj",
+        "title": "Terelj Escape",
+        "mediaCaption": "Turtle Rock · Terelj",
+        "intro": "A short escape from the city to relax among forests, rock formations and a peaceful river valley.",
+        "season": "May–Oct",
+        "highlights": {
+          "one": "Turtle Rock",
+          "two": "Aryabal monastery",
+          "three": "Terelj river valley"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "Arrive in Terelj",
+            "description": "Leave Ulaanbaatar, stop at Turtle Rock and spend a relaxed afternoon in the river valley."
+          },
+          "day02": {
+            "title": "Valley and monastery",
+            "description": "Walk the trail to Aryabal monastery through forest, rocky mountains and wide valley views."
+          },
+          "day03": {
+            "title": "Morning horse ride",
+            "description": "Choose an optional guided horse ride before returning to Ulaanbaatar after lunch."
+          }
+        }
+      },
+      "gobiKhangai": {
+        "duration": "8 days",
+        "region": "South Gobi · Arkhangai",
+        "title": "Gobi & Khangai Journey",
+        "mediaCaption": "Open Gobi · Green Khangai valley",
+        "intro": "A long route joining two natural worlds, from the red rocks and golden sands of the Gobi to the green valleys of Khangai.",
+        "season": "Jun–Sep",
+        "highlights": {
+          "one": "Yolyn Am and Bayanzag",
+          "two": "Khongoryn Els",
+          "three": "Khangai mountain valleys"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "South to the Gobi",
+            "description": "Leave Ulaanbaatar for the Gobi and meet your guide for an introduction to the route."
+          },
+          "day02": {
+            "title": "Yolyn Am",
+            "description": "Walk through Yolyn Am and discover its rocky mountains, narrow canyon and cool microclimate."
+          },
+          "day03": {
+            "title": "Khongoryn Els",
+            "description": "Explore the great dunes and open valley, with an optional camel ride."
+          },
+          "day04": {
+            "title": "Bayanzag",
+            "description": "Walk among the flaming cliffs and learn about dinosaur discoveries and local geology."
+          },
+          "day05": {
+            "title": "Transition to Khangai",
+            "description": "Travel north as the golden desert gradually gives way to mountains and river valleys."
+          },
+          "day06": {
+            "title": "Khangai Valley",
+            "description": "Walk through green pastures and along the river while learning about local life."
+          },
+          "day07": {
+            "title": "Mountain rest",
+            "description": "Enjoy a gentle foothill walk and free time for photography or rest by the valley."
+          },
+          "day08": {
+            "title": "Back to Ulaanbaatar",
+            "description": "Return to Ulaanbaatar after breakfast and conclude the journey."
+          }
+        }
+      },
+      "japan": {
+        "duration": "10 days",
+        "region": "Japan",
+        "title": "Japan Ryokan & Culture",
+        "mediaCaption": "",
+        "intro": "A journey combining traditional ryokan stays, cuisine, cities and Japanese culture.",
+        "season": "Season details coming soon"
+      },
+      "kenya": {
+        "duration": "8 days",
+        "region": "Kenya",
+        "title": "Kenya Private Safari",
+        "mediaCaption": "",
+        "intro": "A private guided safari through Kenya's wildlife and spectacular landscapes.",
+        "season": "Season details coming soon"
+      },
+      "morocco": {
+        "duration": "7 days",
+        "region": "Morocco",
+        "title": "Morocco Atlas Journey",
+        "mediaCaption": "",
+        "intro": "Discover the Atlas Mountains, ancient settlements and Moroccan culture.",
+        "season": "Season details coming soon"
+      },
+      "italyWedding": {
+        "duration": "9 days",
+        "region": "Italy",
+        "title": "Italy Wedding Journey",
+        "mediaCaption": "",
+        "intro": "A special wedding journey through Italy's beautiful cities and coastlines.",
+        "season": "Season details coming soon"
+      },
+      "greekHoneymoon": {
+        "duration": "11 days",
+        "region": "Greece",
+        "title": "Greek Island Honeymoon",
+        "mediaCaption": "",
+        "intro": "A romantic honeymoon moving at an easy pace through the Greek islands.",
+        "season": "Season details coming soon"
+      },
+      "rainforest": {
+        "duration": "8 days",
+        "region": "Brazil",
+        "title": "Rainforest Couple Retreat",
+        "mediaCaption": "",
+        "intro": "A nature-rich retreat for two in Brazil's rainforest.",
+        "season": "Season details coming soon"
+      }
+    }
+  },
+  "publicBooking": {
+    "sectionLabel": "Booking",
+    "close": "Close",
+    "selectTrip": "Choose a trip",
+    "searchTrip": "Search trips",
+    "clearSearch": "Clear trip search",
+    "loadingTrips": "Loading trips…",
+    "tripsError": "We couldn't load the trips.",
+    "noResults": "No results found.",
+    "tripsGroup": "Trips",
+    "departures": "{count, plural, one {# departure} other {# departures}}",
+    "date": "Date",
+    "departure": "Trip departure",
+    "selectDeparture": "Choose a departure",
+    "travellers": "Travellers",
+    "decreaseTravellers": "Decrease travellers",
+    "increaseTravellers": "Increase travellers",
+    "transportType": "Transport",
+    "transport": { "GROUND": "Ground", "DIRECT_FLIGHT": "Direct flight" },
+    "perPerson": "{price} / person",
+    "totalPrice": "Total price",
+    "notEnoughSeats": "There are not enough seats for the selected group size.",
+    "quoteHint": "Price and availability will appear after you choose a trip, departure and group size.",
+    "remainingSeats": "{count, plural, one {# seat left.} other {# seats left.}}",
+    "remainingSeatsHint": "Remaining seats will appear after you make your selections.",
+    "continue": "Continue",
+    "toast": {
+      "success": "Your booking was registered successfully",
+      "error": "We couldn't register your booking"
+    },
+    "customer": {
+      "back": "Back to trip selection",
+      "title": "Guest details",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "lastName": "Last name",
+      "lastNameError": "Enter your last name.",
+      "firstName": "First name",
+      "firstNameError": "Enter your first name.",
+      "phone": "Phone",
+      "phoneError": "Enter a valid phone number.",
+      "email": "Email",
+      "emailError": "Enter a valid email address.",
+      "address": "Address (optional)",
+      "addressError": "The address must be 500 characters or fewer.",
+      "continue": "Continue"
+    },
+    "payment": {
+      "back": "Back to guest details",
+      "title": "Bank details",
+      "temporaryQr": "Temporary payment QR code",
+      "bank": "Bank",
+      "account": "Account / IBAN",
+      "accountHolder": "Account holder",
+      "amount": "Amount due",
+      "copyLabel": "Copy {label}",
+      "copy": "Copy",
+      "copied": "Copied",
+      "error": "We couldn't load the bank details. Please try again.",
+      "submitting": "Registering…",
+      "submitted": "Registered",
+      "paid": "I've paid"
+    }
   }
 }

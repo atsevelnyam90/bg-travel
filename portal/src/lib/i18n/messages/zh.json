@@ -1,0 +1,334 @@
+{
+  "publicHero": {
+    "title": "高品质旅程，尽享超值价格……",
+    "description": "与 BG Travel 一起装满一箱美好回忆",
+    "planTrip": "规划旅程",
+    "startJourney": "开启旅程"
+  },
+  "publicHeader": {
+    "home": "BG Travel 首页",
+    "mainNavigation": "主导航",
+    "myAccount": "我的账户",
+    "book": "立即预订"
+  },
+  "publicLanguage": {
+    "changeLanguage": "切换语言",
+    "label": "选择语言",
+    "short": { "mn": "MN", "en": "EN", "zh": "中", "ko": "한" },
+    "names": { "mn": "Монгол", "en": "English", "zh": "中文", "ko": "한국어" }
+  },
+  "publicThemes": {
+    "changeTheme": "切换配色主题",
+    "trigger": "主题",
+    "label": "BG Travel · 配色主题",
+    "items": {
+      "original": { "name": "经典", "description": "白色 · 炭灰 · 粉色" },
+      "sunrise": { "name": "戈壁日出", "description": "象牙白 · 珊瑚 · 莓红" },
+      "rose": { "name": "玫瑰驼队", "description": "淡粉 · 李紫 · 琥珀" },
+      "midnight": { "name": "午夜绿洲", "description": "深紫 · 金色 · 玫瑰" }
+    }
+  },
+  "publicJourney": {
+    "ui": {
+      "sectionTitle": "开启您的旅程",
+      "exploreTrips": "探索我们的旅程",
+      "backToTrips": "返回行程列表",
+      "backToCategories": "返回分类",
+      "previousTrips": "上一组行程",
+      "nextTrips": "下一组行程",
+      "detailNavigation": "行程信息",
+      "overview": "概览",
+      "itinerary": "行程安排",
+      "media": "图片与视频",
+      "book": "立即预订",
+      "fallbackIntro": "一段探索{region}自然风光与当地文化的特别旅程。",
+      "factsLabel": "行程摘要",
+      "when": "出行时间",
+      "seasonComingSoon": "出行季节即将公布",
+      "price": "价格",
+      "duration": "时长",
+      "itineraryLabel": "详细行程",
+      "videoTitle": "{title}行程视频",
+      "day": "第 {day} 天",
+      "galleryLabel": "更多行程图片",
+      "travelNotes": "旅途札记",
+      "journeyStartsHere": "您的旅程从这里开始",
+      "goToBooking": "前往预订"
+    },
+    "categories": {
+      "domestic": { "title": "蒙古国境内游", "subtitle": "探索蒙古国的非凡路线" },
+      "international": { "title": "国际旅行", "subtitle": "精选世界目的地" },
+      "wedding": { "title": "婚礼旅行", "subtitle": "婚礼与蜜月之旅" }
+    },
+    "trips": {
+      "gobi": {
+        "duration": "5天",
+        "region": "南戈壁",
+        "title": "戈壁之旅",
+        "mediaCaption": "金色沙丘 · 戈壁",
+        "intro": "沿着沙丘、岩石峡谷与恐龙遗迹，慢慢穿越辽阔的南戈壁。",
+        "season": "5月至9月",
+        "highlights": { "one": "鹰嘴谷峡谷", "two": "洪戈尔沙丘", "three": "巴彦扎格火焰崖" },
+        "itinerary": {
+          "day01": {
+            "title": "前往戈壁",
+            "description": "从乌兰巴托出发，穿越开阔草原前往达兰扎德嘎德，途中在景观点休息，晚间与旅行团队会合。"
+          },
+          "day02": {
+            "title": "鹰嘴谷",
+            "description": "在向导陪同下徒步穿越古尔班赛汗山脉中清凉狭窄的鹰嘴谷，并留出拍照和休息时间。"
+          },
+          "day03": {
+            "title": "洪戈尔沙丘",
+            "description": "感受洪戈尔沙丘随风变化的纹理和壮阔景色，也可自费体验日落骑骆驼。"
+          },
+          "day04": {
+            "title": "巴彦扎格",
+            "description": "漫步红色火焰崖，聆听当地地质与著名恐龙化石发现的故事。"
+          },
+          "day05": {
+            "title": "返回城市",
+            "description": "在最后一个戈壁景观点停留后返回乌兰巴托，于晚间结束旅程。"
+          }
+        }
+      },
+      "khangai": {
+        "duration": "6天",
+        "region": "后杭爱 · 前杭爱",
+        "title": "杭爱之旅",
+        "mediaCaption": "特尔欣查干湖 · 杭爱",
+        "intro": "在清新的山间空气、宁静湖岸与当地生活中，感受杭爱地区的魅力。",
+        "season": "6月至9月",
+        "highlights": { "one": "特尔欣查干湖", "two": "霍尔戈火山口", "three": "杭爱绿色山谷" },
+        "itinerary": {
+          "day01": {
+            "title": "前往杭爱",
+            "description": "从乌兰巴托前往后杭爱，沿途欣赏草原逐渐转为山地的景观。"
+          },
+          "day02": {
+            "title": "霍尔戈火山口",
+            "description": "在向导带领下参观火山口及周围的熔岩地貌。"
+          },
+          "day03": {
+            "title": "特尔欣查干湖",
+            "description": "漫步湖岸，从不同角度欣赏湖水、森林与群山。"
+          },
+          "day04": {
+            "title": "当地生活",
+            "description": "拜访牧民家庭，在奶茶和当地食物中了解季节劳作与游牧传统。"
+          },
+          "day05": {
+            "title": "穿越杭爱",
+            "description": "沿河谷和山麓前往前杭爱，途中停留欣赏自然地貌。"
+          },
+          "day06": { "title": "返程", "description": "游览杭爱最后一处景点后返回乌兰巴托。" }
+        }
+      },
+      "tavanBogd": {
+        "duration": "7天",
+        "region": "巴彦乌列盖 · 阿尔泰塔旺博格达",
+        "title": "塔旺博格达探险",
+        "mediaCaption": "阿尔泰冰川 · 塔旺博格达",
+        "intro": "一次融合蒙古阿尔泰高山、冰川与哈萨克族热情生活的探险。",
+        "season": "7月至9月",
+        "highlights": {
+          "one": "阿尔泰塔旺博格达群峰",
+          "two": "波塔宁冰川",
+          "three": "巴彦乌列盖哈萨克文化"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "乌列盖市",
+            "description": "抵达巴彦乌列盖，与向导会面并确认路线、天气和高海拔装备。"
+          },
+          "day02": {
+            "title": "阿尔泰山谷",
+            "description": "沿河流与高山牧场驶入阿尔泰山麓，有机会拜访驯鹰人家庭。"
+          },
+          "day03": {
+            "title": "高原之路",
+            "description": "穿过辽阔高原山谷，前往阿尔泰塔旺博格达国家公园。"
+          },
+          "day04": {
+            "title": "冰川景观",
+            "description": "徒步前往波塔宁冰川，并根据天气、道路安全与团队状态调整路线。"
+          },
+          "day05": {
+            "title": "山中一日",
+            "description": "以舒缓节奏探索山麓与附近山谷，享受摄影和观察自然的时间。"
+          },
+          "day06": {
+            "title": "返回乌列盖",
+            "description": "从山区返回巴彦乌列盖，途中在景观点停留并品尝当地美食。"
+          },
+          "day07": {
+            "title": "旅程结束",
+            "description": "送往机场或下一段交通的出发点，结束本次探险。"
+          }
+        }
+      },
+      "terelj": {
+        "duration": "3天",
+        "region": "特勒吉",
+        "title": "特勒吉短途之旅",
+        "mediaCaption": "乌龟石 · 特勒吉",
+        "intro": "暂别城市，在森林、奇岩与宁静河谷之间放松身心。",
+        "season": "5月至10月",
+        "highlights": { "one": "乌龟石", "two": "阿里亚巴拉寺", "three": "特勒吉河谷" },
+        "itinerary": {
+          "day01": {
+            "title": "抵达特勒吉",
+            "description": "从乌兰巴托出发，在乌龟石停留，下午于河谷中悠闲休息。"
+          },
+          "day02": {
+            "title": "山谷与寺院",
+            "description": "沿步道前往阿里亚巴拉寺，欣赏森林、岩山与开阔山谷。"
+          },
+          "day03": {
+            "title": "晨间骑马",
+            "description": "可选择向导陪同的骑马体验，午餐后返回乌兰巴托。"
+          }
+        }
+      },
+      "gobiKhangai": {
+        "duration": "8天",
+        "region": "南戈壁 · 后杭爱",
+        "title": "戈壁与杭爱之旅",
+        "mediaCaption": "辽阔戈壁 · 绿色杭爱山谷",
+        "intro": "从戈壁的红色岩壁与金色沙丘，到杭爱的绿色山谷，一次连接两个自然世界的长途旅行。",
+        "season": "6月至9月",
+        "highlights": { "one": "鹰嘴谷与巴彦扎格", "two": "洪戈尔沙丘", "three": "杭爱山谷" },
+        "itinerary": {
+          "day01": {
+            "title": "南下戈壁",
+            "description": "从乌兰巴托前往戈壁，抵达后听取向导介绍路线。"
+          },
+          "day02": {
+            "title": "鹰嘴谷",
+            "description": "徒步鹰嘴谷，探索岩山、狭窄峡谷与清凉的小气候。"
+          },
+          "day03": {
+            "title": "洪戈尔沙丘",
+            "description": "探索巨大沙丘与开阔山谷，也可选择骑骆驼。"
+          },
+          "day04": { "title": "巴彦扎格", "description": "漫步火焰崖，了解恐龙化石与当地地质。" },
+          "day05": { "title": "转往杭爱", "description": "一路向北，金色荒漠逐渐变为群山与河谷。" },
+          "day06": { "title": "杭爱山谷", "description": "穿过绿色牧场并沿河漫步，了解当地生活。" },
+          "day07": {
+            "title": "山间休憩",
+            "description": "轻松漫步山麓，并享受摄影或河谷休息的自由时间。"
+          },
+          "day08": { "title": "返回乌兰巴托", "description": "早餐后返回乌兰巴托，结束旅程。" }
+        }
+      },
+      "japan": {
+        "duration": "10天",
+        "region": "日本",
+        "title": "日本旅馆与文化之旅",
+        "mediaCaption": "",
+        "intro": "融合传统旅馆、美食、城市与日本文化的旅程。",
+        "season": "出行季节即将公布"
+      },
+      "kenya": {
+        "duration": "8天",
+        "region": "肯尼亚",
+        "title": "肯尼亚私人狩猎之旅",
+        "mediaCaption": "",
+        "intro": "在私人向导陪同下探索肯尼亚的野生动物与壮丽景观。",
+        "season": "出行季节即将公布"
+      },
+      "morocco": {
+        "duration": "7天",
+        "region": "摩洛哥",
+        "title": "摩洛哥阿特拉斯之旅",
+        "mediaCaption": "",
+        "intro": "探索阿特拉斯山脉、古老聚落与摩洛哥文化。",
+        "season": "出行季节即将公布"
+      },
+      "italyWedding": {
+        "duration": "9天",
+        "region": "意大利",
+        "title": "意大利婚礼之旅",
+        "mediaCaption": "",
+        "intro": "穿越意大利美丽城市与海岸的特别婚礼之旅。",
+        "season": "出行季节即将公布"
+      },
+      "greekHoneymoon": {
+        "duration": "11天",
+        "region": "希腊",
+        "title": "希腊海岛蜜月",
+        "mediaCaption": "",
+        "intro": "以舒缓节奏游览希腊群岛的浪漫蜜月之旅。",
+        "season": "出行季节即将公布"
+      },
+      "rainforest": {
+        "duration": "8天",
+        "region": "巴西",
+        "title": "雨林双人度假",
+        "mediaCaption": "",
+        "intro": "在巴西雨林中亲近自然的双人度假之旅。",
+        "season": "出行季节即将公布"
+      }
+    }
+  },
+  "publicBooking": {
+    "sectionLabel": "预订",
+    "close": "关闭",
+    "selectTrip": "选择行程",
+    "searchTrip": "搜索行程",
+    "clearSearch": "清除行程搜索",
+    "loadingTrips": "正在加载行程…",
+    "tripsError": "无法加载行程信息。",
+    "noResults": "未找到结果。",
+    "tripsGroup": "行程",
+    "departures": "{count} 个出发日期",
+    "date": "日期",
+    "departure": "出发日期",
+    "selectDeparture": "选择出发日期",
+    "travellers": "出行人数",
+    "decreaseTravellers": "减少人数",
+    "increaseTravellers": "增加人数",
+    "transportType": "交通方式",
+    "transport": { "GROUND": "陆路交通", "DIRECT_FLIGHT": "直飞" },
+    "perPerson": "{price} / 人",
+    "totalPrice": "总价",
+    "notEnoughSeats": "当前余位不足以容纳所选人数。",
+    "quoteHint": "选择行程、出发日期和人数后，将显示价格与余位。",
+    "remainingSeats": "剩余 {count} 个名额。",
+    "remainingSeatsHint": "完成选择后将显示剩余名额。",
+    "continue": "继续",
+    "toast": { "success": "预订已成功登记", "error": "无法登记预订" },
+    "customer": {
+      "back": "返回行程选择",
+      "title": "预订人信息",
+      "people": "{count} 人",
+      "lastName": "姓",
+      "lastNameError": "请输入姓氏。",
+      "firstName": "名",
+      "firstNameError": "请输入名字。",
+      "phone": "电话",
+      "phoneError": "请输入有效的电话号码。",
+      "email": "电子邮箱",
+      "emailError": "请输入有效的邮箱地址。",
+      "address": "地址（选填）",
+      "addressError": "地址不得超过 500 个字符。",
+      "continue": "继续"
+    },
+    "payment": {
+      "back": "返回预订人信息",
+      "title": "银行账户信息",
+      "temporaryQr": "临时付款二维码",
+      "bank": "银行",
+      "account": "账户 / IBAN",
+      "accountHolder": "账户名",
+      "amount": "应付金额",
+      "copyLabel": "复制{label}",
+      "copy": "复制",
+      "copied": "已复制",
+      "error": "无法获取银行账户信息，请重试。",
+      "submitting": "正在登记…",
+      "submitted": "已登记",
+      "paid": "我已付款"
+    }
+  }
+}

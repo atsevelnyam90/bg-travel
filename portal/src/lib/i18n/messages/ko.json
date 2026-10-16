@@ -1,0 +1,364 @@
+{
+  "publicHero": {
+    "title": "최고의 가치로 만나는 품격 있는 여행...",
+    "description": "BG Travel과 함께 추억으로 가득한 여행 가방을 채워 보세요",
+    "planTrip": "여행 계획하기",
+    "startJourney": "여행 시작하기"
+  },
+  "publicHeader": {
+    "home": "BG Travel 홈",
+    "mainNavigation": "주요 메뉴",
+    "myAccount": "내 계정",
+    "book": "예약하기"
+  },
+  "publicLanguage": {
+    "changeLanguage": "언어 변경",
+    "label": "언어 선택",
+    "short": { "mn": "MN", "en": "EN", "zh": "中", "ko": "한" },
+    "names": { "mn": "Монгол", "en": "English", "zh": "中文", "ko": "한국어" }
+  },
+  "publicThemes": {
+    "changeTheme": "색상 테마 변경",
+    "trigger": "테마",
+    "label": "BG Travel · 색상 테마",
+    "items": {
+      "original": { "name": "오리지널", "description": "화이트 · 차콜 · 핑크" },
+      "sunrise": { "name": "고비의 일출", "description": "아이보리 · 코랄 · 베리" },
+      "rose": { "name": "장미 카라반", "description": "블러시 · 플럼 · 앰버" },
+      "midnight": { "name": "한밤의 오아시스", "description": "딥 플럼 · 골드 · 로즈" }
+    }
+  },
+  "publicJourney": {
+    "ui": {
+      "sectionTitle": "여행을 시작하세요",
+      "exploreTrips": "여행 둘러보기",
+      "backToTrips": "여행 목록으로 돌아가기",
+      "backToCategories": "카테고리로 돌아가기",
+      "previousTrips": "이전 여행",
+      "nextTrips": "다음 여행",
+      "detailNavigation": "여행 정보",
+      "overview": "개요",
+      "itinerary": "일정",
+      "media": "사진 및 영상",
+      "book": "예약하기",
+      "fallbackIntro": "{region}의 자연과 현지 문화를 만나는 특별한 여행입니다.",
+      "factsLabel": "여행 요약",
+      "when": "여행 시기",
+      "seasonComingSoon": "여행 시즌은 곧 안내됩니다",
+      "price": "가격",
+      "duration": "기간",
+      "itineraryLabel": "상세 일정",
+      "videoTitle": "{title} 여행 영상",
+      "day": "{day}일차",
+      "galleryLabel": "추가 여행 사진",
+      "travelNotes": "여행 노트",
+      "journeyStartsHere": "당신의 여행은 여기서 시작됩니다",
+      "goToBooking": "예약으로 이동"
+    },
+    "categories": {
+      "domestic": { "title": "몽골 국내 여행", "subtitle": "몽골의 특별한 여행 코스" },
+      "international": { "title": "해외 여행", "subtitle": "세계의 뛰어난 여행지" },
+      "wedding": { "title": "웨딩 여행", "subtitle": "웨딩 및 허니문 여행" }
+    },
+    "trips": {
+      "gobi": {
+        "duration": "5일",
+        "region": "남고비",
+        "title": "고비 여행",
+        "mediaCaption": "황금빛 모래언덕 · 고비",
+        "intro": "모래언덕과 바위 협곡, 공룡의 흔적을 따라 광활한 남고비를 천천히 여행합니다.",
+        "season": "5월–9월",
+        "highlights": {
+          "one": "욜링암 협곡",
+          "two": "홍고린엘스 모래언덕",
+          "three": "바얀작 불타는 절벽"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "고비로",
+            "description": "울란바토르를 출발해 드넓은 초원을 지나 달란자드가드로 향하고, 전망 좋은 곳에서 쉬며 저녁에 여행팀과 만납니다."
+          },
+          "day02": {
+            "title": "욜링암",
+            "description": "가이드와 함께 구르반사이한 산맥의 시원하고 좁은 욜링암 협곡을 걸으며 사진과 휴식 시간을 갖습니다."
+          },
+          "day03": {
+            "title": "홍고린엘스",
+            "description": "바람에 따라 변하는 거대한 모래언덕과 탁 트인 풍경을 감상하고, 원하면 석양 낙타 체험을 추가할 수 있습니다."
+          },
+          "day04": {
+            "title": "바얀작",
+            "description": "붉은 절벽을 걸으며 이 지역의 지질과 유명한 공룡 화석 발견 이야기를 듣습니다."
+          },
+          "day05": {
+            "title": "도시로 돌아가기",
+            "description": "고비의 마지막 전망대에 들른 뒤 울란바토르로 돌아와 저녁에 여행을 마칩니다."
+          }
+        }
+      },
+      "khangai": {
+        "duration": "6일",
+        "region": "아르항가이 · 우부르항가이",
+        "title": "항가이 여행",
+        "mediaCaption": "테르힌차강 호수 · 항가이",
+        "intro": "맑은 산 공기와 고요한 호숫가, 현지인의 삶을 가까이에서 만나는 항가이 여행입니다.",
+        "season": "6월–9월",
+        "highlights": {
+          "one": "테르힌차강 호수",
+          "two": "호르고 분화구",
+          "three": "푸른 항가이 계곡"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "항가이로",
+            "description": "울란바토르에서 아르항가이로 이동하며 초원이 산악 지대로 바뀌는 풍경을 감상합니다."
+          },
+          "day02": {
+            "title": "호르고 분화구",
+            "description": "가이드와 함께 화산 분화구와 주변 용암 지형을 천천히 둘러봅니다."
+          },
+          "day03": {
+            "title": "테르힌차강 호수",
+            "description": "호숫가를 걸으며 물과 숲, 산이 어우러진 풍경을 여러 각도에서 즐깁니다."
+          },
+          "day04": {
+            "title": "현지 생활",
+            "description": "유목민 가정을 방문해 계절 노동과 유목 전통을 배우고 현지 차와 음식을 맛봅니다."
+          },
+          "day05": {
+            "title": "항가이를 지나",
+            "description": "강 계곡과 산기슭을 따라 우부르항가이로 이동하며 자연 명소에 들릅니다."
+          },
+          "day06": {
+            "title": "귀환길",
+            "description": "항가이의 마지막 명소를 방문한 뒤 울란바토르로 돌아옵니다."
+          }
+        }
+      },
+      "tavanBogd": {
+        "duration": "7일",
+        "region": "바양울기 · 알타이 타왕복드",
+        "title": "타왕복드 어드벤처",
+        "mediaCaption": "알타이 빙하 · 타왕복드",
+        "intro": "몽골 알타이의 고산과 빙하, 카자흐 공동체의 따뜻한 환대를 한 번에 경험하는 모험입니다.",
+        "season": "7월–9월",
+        "highlights": {
+          "one": "알타이 타왕복드 봉우리",
+          "two": "포타닌 빙하",
+          "three": "바양울기의 카자흐 문화"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "울기 시내",
+            "description": "바양울기에 도착해 가이드를 만나고 여행 경로와 날씨, 고산 장비를 확인합니다."
+          },
+          "day02": {
+            "title": "알타이 계곡",
+            "description": "강과 고산 목초지를 지나 알타이 산기슭으로 이동하며, 가능하면 독수리 사냥꾼 가정을 방문합니다."
+          },
+          "day03": {
+            "title": "고원 길",
+            "description": "광활한 고원 계곡과 산악 풍경을 지나 알타이 타왕복드 국립공원으로 향합니다."
+          },
+          "day04": {
+            "title": "빙하 전망",
+            "description": "포타닌 빙하를 향해 걷고 날씨와 안전, 팀 상태에 맞춰 경로를 조정합니다."
+          },
+          "day05": {
+            "title": "산에서의 하루",
+            "description": "산기슭과 인근 계곡을 여유롭게 탐방하며 사진 촬영과 자연 관찰을 즐깁니다."
+          },
+          "day06": {
+            "title": "울기로 귀환",
+            "description": "산악 지대에서 바양울기로 내려오며 전망 좋은 곳에 들르고 현지 음식을 맛봅니다."
+          },
+          "day07": {
+            "title": "여행의 끝",
+            "description": "공항 또는 다음 교통편 출발지로 이동하며 탐험을 마칩니다."
+          }
+        }
+      },
+      "terelj": {
+        "duration": "3일",
+        "region": "테를지",
+        "title": "테를지 힐링 여행",
+        "mediaCaption": "거북바위 · 테를지",
+        "intro": "도시를 잠시 벗어나 숲과 기암, 평화로운 강 계곡에서 쉬어 가는 짧은 여행입니다.",
+        "season": "5월–10월",
+        "highlights": { "one": "거북바위", "two": "아리야발 사원", "three": "테를지 강 계곡" },
+        "itinerary": {
+          "day01": {
+            "title": "테를지 도착",
+            "description": "울란바토르를 출발해 거북바위에 들르고 오후에는 강 계곡에서 여유롭게 쉽니다."
+          },
+          "day02": {
+            "title": "계곡과 사원",
+            "description": "숲과 바위산, 넓은 계곡을 감상하며 아리야발 사원으로 이어지는 길을 걷습니다."
+          },
+          "day03": {
+            "title": "아침 승마",
+            "description": "가이드 승마를 선택해 체험한 뒤 점심 식사 후 울란바토르로 돌아옵니다."
+          }
+        }
+      },
+      "gobiKhangai": {
+        "duration": "8일",
+        "region": "남고비 · 아르항가이",
+        "title": "고비 & 항가이 여행",
+        "mediaCaption": "광활한 고비 · 푸른 항가이 계곡",
+        "intro": "고비의 붉은 바위와 황금 모래에서 항가이의 푸른 계곡까지 두 자연 세계를 잇는 긴 여정입니다.",
+        "season": "6월–9월",
+        "highlights": {
+          "one": "욜링암과 바얀작",
+          "two": "홍고린엘스",
+          "three": "항가이 산악 계곡"
+        },
+        "itinerary": {
+          "day01": {
+            "title": "남쪽 고비로",
+            "description": "울란바토르에서 고비로 출발해 도착 후 가이드에게 여행 경로 안내를 받습니다."
+          },
+          "day02": {
+            "title": "욜링암",
+            "description": "욜링암을 걸으며 바위산과 좁은 협곡, 시원한 미기후를 경험합니다."
+          },
+          "day03": {
+            "title": "홍고린엘스",
+            "description": "거대한 모래언덕과 넓은 계곡을 탐험하고 원하면 낙타 체험을 선택합니다."
+          },
+          "day04": {
+            "title": "바얀작",
+            "description": "불타는 절벽을 걸으며 공룡 화석과 지역 지질에 대해 배웁니다."
+          },
+          "day05": {
+            "title": "항가이로 이동",
+            "description": "북쪽으로 이동하며 황금빛 사막이 산과 강 계곡으로 바뀌는 모습을 봅니다."
+          },
+          "day06": {
+            "title": "항가이 계곡",
+            "description": "푸른 목초지와 강변을 걸으며 현지인의 삶을 알아봅니다."
+          },
+          "day07": {
+            "title": "산에서의 휴식",
+            "description": "가벼운 산기슭 산책과 사진 촬영, 계곡에서의 자유 시간을 즐깁니다."
+          },
+          "day08": {
+            "title": "울란바토르로",
+            "description": "아침 식사 후 울란바토르로 돌아와 여행을 마칩니다."
+          }
+        }
+      },
+      "japan": {
+        "duration": "10일",
+        "region": "일본",
+        "title": "일본 료칸 & 문화 여행",
+        "mediaCaption": "",
+        "intro": "전통 료칸과 미식, 도시와 일본 문화를 함께 만나는 여행입니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      },
+      "kenya": {
+        "duration": "8일",
+        "region": "케냐",
+        "title": "케냐 프라이빗 사파리",
+        "mediaCaption": "",
+        "intro": "전담 가이드와 함께 케냐의 야생동물과 장대한 풍경을 탐험합니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      },
+      "morocco": {
+        "duration": "7일",
+        "region": "모로코",
+        "title": "모로코 아틀라스 여행",
+        "mediaCaption": "",
+        "intro": "아틀라스 산맥과 오래된 마을, 모로코 문화를 발견하는 여행입니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      },
+      "italyWedding": {
+        "duration": "9일",
+        "region": "이탈리아",
+        "title": "이탈리아 웨딩 여행",
+        "mediaCaption": "",
+        "intro": "이탈리아의 아름다운 도시와 해안을 잇는 특별한 웨딩 여행입니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      },
+      "greekHoneymoon": {
+        "duration": "11일",
+        "region": "그리스",
+        "title": "그리스 섬 허니문",
+        "mediaCaption": "",
+        "intro": "그리스 섬을 여유롭게 여행하는 로맨틱한 허니문입니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      },
+      "rainforest": {
+        "duration": "8일",
+        "region": "브라질",
+        "title": "열대우림 커플 휴양",
+        "mediaCaption": "",
+        "intro": "브라질 열대우림에서 자연과 가까이 쉬는 두 사람만의 여행입니다.",
+        "season": "여행 시즌은 곧 안내됩니다"
+      }
+    }
+  },
+  "publicBooking": {
+    "sectionLabel": "예약",
+    "close": "닫기",
+    "selectTrip": "여행 선택",
+    "searchTrip": "여행 검색",
+    "clearSearch": "여행 검색 지우기",
+    "loadingTrips": "여행을 불러오는 중…",
+    "tripsError": "여행 정보를 불러오지 못했습니다.",
+    "noResults": "검색 결과가 없습니다.",
+    "tripsGroup": "여행",
+    "departures": "출발 일정 {count}개",
+    "date": "날짜",
+    "departure": "출발 일정",
+    "selectDeparture": "출발 일정 선택",
+    "travellers": "여행 인원",
+    "decreaseTravellers": "인원 줄이기",
+    "increaseTravellers": "인원 늘리기",
+    "transportType": "교통편",
+    "transport": { "GROUND": "육로", "DIRECT_FLIGHT": "직항" },
+    "perPerson": "1인 {price}",
+    "totalPrice": "총 금액",
+    "notEnoughSeats": "선택한 인원을 위한 좌석이 부족합니다.",
+    "quoteHint": "여행, 출발 일정, 인원을 선택하면 가격과 잔여 좌석이 표시됩니다.",
+    "remainingSeats": "좌석 {count}개 남음.",
+    "remainingSeatsHint": "선택을 완료하면 잔여 좌석이 표시됩니다.",
+    "continue": "계속",
+    "toast": {
+      "success": "예약이 성공적으로 등록되었습니다",
+      "error": "예약을 등록하지 못했습니다"
+    },
+    "customer": {
+      "back": "여행 선택으로 돌아가기",
+      "title": "예약자 정보",
+      "people": "{count}명",
+      "lastName": "성",
+      "lastNameError": "성을 입력해 주세요.",
+      "firstName": "이름",
+      "firstNameError": "이름을 입력해 주세요.",
+      "phone": "전화번호",
+      "phoneError": "올바른 전화번호를 입력해 주세요.",
+      "email": "이메일",
+      "emailError": "올바른 이메일 주소를 입력해 주세요.",
+      "address": "주소(선택)",
+      "addressError": "주소는 500자 이하여야 합니다.",
+      "continue": "계속"
+    },
+    "payment": {
+      "back": "예약자 정보로 돌아가기",
+      "title": "계좌 정보",
+      "temporaryQr": "임시 결제 QR 코드",
+      "bank": "은행",
+      "account": "계좌 / IBAN",
+      "accountHolder": "예금주",
+      "amount": "결제 금액",
+      "copyLabel": "{label} 복사",
+      "copy": "복사",
+      "copied": "복사됨",
+      "error": "계좌 정보를 불러오지 못했습니다. 다시 시도해 주세요.",
+      "submitting": "등록 중…",
+      "submitted": "등록 완료",
+      "paid": "결제 완료"
+    }
+  }
+}

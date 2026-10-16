@@ -1,0 +1,29 @@
+.scope {
+  --public-font-body: var(--font-sans), Arial, sans-serif;
+  --public-font-heading: var(--font-sans), Arial, sans-serif;
+  font-family: var(--public-font-body);
+}
+
+.scope[data-locale="en"] {
+  --public-font-body: "Brandon Grotesque", var(--font-sans), Arial, sans-serif;
+  --public-font-heading: "Chronicle Display", Georgia, serif;
+}
+
+.scope[data-locale="zh"] {
+  --public-font-body: var(--font-public-zh-sans), "PingFang SC", "Microsoft YaHei", sans-serif;
+  --public-font-heading: var(--font-public-zh-serif), "Songti SC", serif;
+}
+
+.scope[data-locale="ko"] {
+  --public-font-body: var(--font-public-ko-sans), "Apple SD Gothic Neo", sans-serif;
+  --public-font-heading: var(--font-public-ko-serif), "AppleMyungjo", serif;
+}
+
+.scope.scope.scope[data-locale]
+  :is(p, a, span, strong, small, button, input, select, textarea, label) {
+  font-family: var(--public-font-body);
+}
+
+.scope.scope.scope[data-locale] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--public-font-heading);
+}

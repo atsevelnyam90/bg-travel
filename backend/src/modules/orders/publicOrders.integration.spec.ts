@@ -116,7 +116,7 @@ describe("public orders", () => {
     expect(await prisma.order.count()).toBe(1);
   });
 
-  it("rejects closed departures and requests exceeding remaining seats", async () => {
+  it("rejects closed departures and counts only confirmed orders against capacity", async () => {
     const closed = await seedSlot({ isBookingOpen: false });
     await api()
       .post(`${PREFIX}/public/orders`)
@@ -124,7 +124,7 @@ describe("public orders", () => {
       .expect(409);
 
     const limited = await seedSlot({ capacity: 2 });
-    await api()
+    const pending = await api()
       .post(`${PREFIX}/public/orders`)
       .send({
         ...orderInput,
@@ -132,12 +132,31 @@ describe("public orders", () => {
         slotPublicId: limited.slot.publicId,
       })
       .expect(201);
-    const full = await api()
+
+    await api()
       .post(`${PREFIX}/public/orders`)
       .send({
         ...orderInput,
         travelerCount: 1,
         idempotencyKey: "0e91e0fd-8fa7-4cb5-826c-14c9865d2bc1",
+        slotPublicId: limited.slot.publicId,
+      })
+      .expect(201);
+
+    const confirmer = await prisma.user.create({
+      data: { email: "order-confirmer@example.mn", name: "Баталгаажуулагч", status: "ACTIVE" },
+    });
+    await prisma.order.update({
+      where: { publicOrderId: pending.body.publicOrderId },
+      data: { status: "PAID", confirmedByUserId: confirmer.id, confirmedAt: new Date() },
+    });
+
+    const full = await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({
+        ...orderInput,
+        travelerCount: 1,
+        idempotencyKey: "8cd58412-42f4-4aa2-9fba-f50fa40af26a",
         slotPublicId: limited.slot.publicId,
       })
       .expect(409);

@@ -1,11 +1,11 @@
 "use client";
 
 import { Check, CircleAlert, Minus, Plane, Plus, Search, Users, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   type BookingQuote,
   formatTravelMoney,
   type TravelOption,
-  transportLabel,
   useBookingBudgetScreen,
 } from "../hooks/useBookingBudgetScreen";
 import { BookingCustomerStep } from "./BookingCustomerStep";
@@ -30,6 +30,8 @@ function TripResult({
   onSelect: () => void;
   trip: TravelOption;
 }) {
+  const t = useTranslations("publicBooking");
+
   return (
     <button className={styles.tripResult} onClick={onSelect} type="button">
       <span className={styles.tripIcon}>
@@ -37,7 +39,9 @@ function TripResult({
       </span>
       <span className={styles.tripBody}>
         <span className={styles.tripTitle}>{trip.name}</span>
-        <span className={styles.tripMeta}>{trip.description ?? `${trip.slots.length} гаралт`}</span>
+        <span className={styles.tripMeta}>
+          {trip.description ?? t("departures", { count: trip.slots.length })}
+        </span>
       </span>
       <span className={styles.tripAdd} aria-hidden="true">
         {isSelected ? <Check size={24} /> : <Plus size={26} />}
@@ -52,6 +56,7 @@ export function BlackTomatoBookingBudgetSection({
   onContinue,
   variant = "section",
 }: BlackTomatoBookingBudgetSectionProps) {
+  const t = useTranslations("publicBooking");
   const screen = useBookingBudgetScreen({ initialTripId, mode, onContinue });
   const isDrawer = variant === "drawer";
 
@@ -59,12 +64,12 @@ export function BlackTomatoBookingBudgetSection({
     <section
       className={`${layout.booking} ${layout[variant]}${variant === "section" ? " section" : ""}`}
       id={isDrawer ? "booking-drawer" : undefined}
-      aria-label="Захиалгын хэсэг"
+      aria-label={t("sectionLabel")}
     >
       {isDrawer ? (
         <button
           className={`${layout.backdrop} js-close-booking-drawer`}
-          aria-label="Хаах"
+          aria-label={t("close")}
           tabIndex={-1}
           type="button"
         />
@@ -74,7 +79,7 @@ export function BlackTomatoBookingBudgetSection({
         {isDrawer ? (
           <button
             className={`${layout.close} js-close-booking-drawer`}
-            aria-label="Хаах"
+            aria-label={t("close")}
             data-booking-initial-focus
             type="button"
           >
@@ -89,10 +94,10 @@ export function BlackTomatoBookingBudgetSection({
             <section
               aria-label={
                 screen.step === "selection"
-                  ? "Аялал сонгох"
+                  ? t("selectTrip")
                   : screen.step === "customer"
-                    ? "Захиалагчийн мэдээлэл"
-                    : "Дансны мэдээлэл"
+                    ? t("customer.title")
+                    : t("payment.title")
               }
               className={styles.stepTransition}
               data-step={screen.step}
@@ -108,7 +113,7 @@ export function BlackTomatoBookingBudgetSection({
                 <form className={styles.form} onSubmit={screen.continueBooking}>
                   <div className={styles.travel}>
                     <label className={styles.field}>
-                      <span className={styles.label}>Аялал сонгох</span>
+                      <span className={styles.label}>{t("selectTrip")}</span>
                       <span className={styles.search}>
                         <Search aria-hidden="true" size={24} />
                         <input
@@ -119,13 +124,13 @@ export function BlackTomatoBookingBudgetSection({
                             screen.setDropdownOpen(true);
                           }}
                           onFocus={() => screen.setDropdownOpen(true)}
-                          placeholder={screen.selectedTrip?.name ?? "Аялал хайх"}
+                          placeholder={screen.selectedTrip?.name ?? t("searchTrip")}
                           role="combobox"
                           type="search"
                           value={screen.query}
                         />
                         <button
-                          aria-label="Clear trip search"
+                          aria-label={t("clearSearch")}
                           className={styles.clear}
                           onClick={() => {
                             screen.setQuery("");
@@ -145,9 +150,9 @@ export function BlackTomatoBookingBudgetSection({
                     {screen.isDropdownOpen ? (
                       <div className={styles.results}>
                         {screen.isLoading ? (
-                          <p className={styles.empty}>Аяллуудыг ачаалж байна…</p>
+                          <p className={styles.empty}>{t("loadingTrips")}</p>
                         ) : screen.travelsError ? (
-                          <p className={styles.empty}>Аяллын мэдээлэл авахад алдаа гарлаа.</p>
+                          <p className={styles.empty}>{t("tripsError")}</p>
                         ) : screen.filteredTripGroups.some((group) => group.trips.length > 0) ? (
                           screen.filteredTripGroups.map((group) =>
                             group.trips.length > 0 ? (
@@ -165,7 +170,7 @@ export function BlackTomatoBookingBudgetSection({
                             ) : null,
                           )
                         ) : (
-                          <p className={styles.empty}>Илэрц олдсонгүй.</p>
+                          <p className={styles.empty}>{t("noResults")}</p>
                         )}
                       </div>
                     ) : null}
@@ -173,7 +178,7 @@ export function BlackTomatoBookingBudgetSection({
 
                   <div className={styles.controls}>
                     <div className={styles.field}>
-                      <span className={styles.label}>Огноо</span>
+                      <span className={styles.label}>{t("date")}</span>
                       <BookingDateSelect
                         disabled={!screen.selectedTrip || screen.dateOptions.length === 0}
                         isLight={variant === "card"}
@@ -184,10 +189,10 @@ export function BlackTomatoBookingBudgetSection({
                     </div>
 
                     <div className={styles.field}>
-                      <span className={styles.label}>Хүний тоо</span>
+                      <span className={styles.label}>{t("travellers")}</span>
                       <div className={styles.stepper}>
                         <button
-                          aria-label="Decrease travellers"
+                          aria-label={t("decreaseTravellers")}
                           disabled={screen.peopleCount <= 1}
                           onClick={screen.decrementPeople}
                           type="button"
@@ -198,7 +203,7 @@ export function BlackTomatoBookingBudgetSection({
                           <Users aria-hidden="true" size={17} /> {screen.peopleCount}
                         </span>
                         <button
-                          aria-label="Increase travellers"
+                          aria-label={t("increaseTravellers")}
                           onClick={screen.incrementPeople}
                           type="button"
                         >
@@ -210,7 +215,7 @@ export function BlackTomatoBookingBudgetSection({
 
                   {screen.selectedDateKey && screen.transportOptions.length > 0 ? (
                     <div className={styles.transport}>
-                      <span className={styles.label}>Тээврийн төрөл</span>
+                      <span className={styles.label}>{t("transportType")}</span>
                       <div className={styles.transportList}>
                         {screen.transportOptions.map((slot) => (
                           <button
@@ -221,10 +226,12 @@ export function BlackTomatoBookingBudgetSection({
                             type="button"
                           >
                             <span className={styles.transportName}>
-                              {transportLabel(slot.transportType)}
+                              {screen.transportLabel(slot.transportType)}
                             </span>
                             <span className={styles.transportPrice}>
-                              {formatTravelMoney(slot.unitPriceMinor)} / хүн
+                              {t("perPerson", {
+                                price: formatTravelMoney(slot.unitPriceMinor),
+                              })}
                             </span>
                           </button>
                         ))}
@@ -233,34 +240,34 @@ export function BlackTomatoBookingBudgetSection({
                   ) : null}
 
                   <div className={styles.total} aria-live="polite">
-                    <span className={styles.label}>Нийт үнэ</span>
+                    <span className={styles.label}>{t("totalPrice")}</span>
                     <strong>
                       {screen.quote ? formatTravelMoney(screen.quote.totalPriceMinor) : "—"}
                     </strong>
                   </div>
 
-                  <div
-                    role="status"
-                    className={
-                      screen.quote && !screen.quote.hasAvailability
-                        ? `${styles.status} ${styles.statusWarning}`
-                        : styles.status
-                    }
-                  >
-                    <CircleAlert aria-hidden="true" size={20} />
-                    <span>
-                      {screen.quote
-                        ? screen.quote.hasAvailability
-                          ? `${screen.quote.selectedSlot.capacity} суудалтай. Үргэлжлүүлэх боломжтой.`
-                          : "Сонгосон хүний тоонд хүрэлцэх суудал одоогоор алга."
-                        : "Үнэ болон суудлын мэдээлэл аялал, гаралт, хүний тоо сонгосны дараа гарна."}
-                    </span>
-                  </div>
+                  {!screen.quote?.hasAvailability ? (
+                    <div
+                      role="status"
+                      className={
+                        screen.quote ? `${styles.status} ${styles.statusWarning}` : styles.status
+                      }
+                    >
+                      <CircleAlert aria-hidden="true" size={20} />
+                      <span>{screen.quote ? t("notEnoughSeats") : t("quoteHint")}</span>
+                    </div>
+                  ) : null}
 
                   <div className={styles.actions} ref={screen.bookingActionsRef}>
-                    <p className={styles.note}>Сонгосон мэдээлэл дараагийн алхамд хадгалагдана.</p>
+                    <p className={styles.note}>
+                      {screen.quote
+                        ? t("remainingSeats", {
+                            count: screen.quote.selectedSlot.remainingSeats,
+                          })
+                        : t("remainingSeatsHint")}
+                    </p>
                     <button className={styles.button} disabled={!screen.canContinue} type="submit">
-                      Үргэлжлүүлэх
+                      {t("continue")}
                     </button>
                   </div>
                 </form>

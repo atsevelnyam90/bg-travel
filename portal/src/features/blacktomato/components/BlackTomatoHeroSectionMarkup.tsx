@@ -1,7 +1,12 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { BlackTomatoHeroButton } from "./BlackTomatoHeroButton";
 import { BlackTomatoHeroCopy } from "./BlackTomatoHeroCopy";
 
 export function BlackTomatoHeroSectionMarkup() {
+  const t = useTranslations("publicHero");
+
   return (
 <section className="section section--hero-banner section--hero-banner--single_image section--hero-banner--full section--hero-banner--video section--hero-banner--" id="">
             
@@ -29,9 +34,11 @@ export function BlackTomatoHeroSectionMarkup() {
   </div>
 
       <div className="section__scroll section__scroll--white">
-        <a href="#journey-start" className="js-scroll-page-down">
-            <span>Scroll</span>
-        </a>
+        <a
+          href="#journey-start"
+          className="js-scroll-page-down"
+          aria-label={t("startJourney")}
+        />
         <span className="section__scroll__line"></span>
     </div>
     

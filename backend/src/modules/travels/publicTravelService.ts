@@ -19,6 +19,7 @@ export async function listPublicTravels(): Promise<travelsContract.ListPublicTra
     },
     orderBy: [{ departureDate: "asc" }, { transportType: "asc" }],
     select: {
+      id: true,
       publicId: true,
       travelId: true,
       departureDate: true,
@@ -28,6 +29,22 @@ export async function listPublicTravels(): Promise<travelsContract.ListPublicTra
       capacity: true,
     },
   });
+
+  const confirmedOrders = await prisma.order.findMany({
+    where: {
+      status: "PAID",
+      travelDepartureId: { in: departures.map((departure) => departure.id) },
+    },
+    select: { travelDepartureId: true, travelerCount: true },
+  });
+  const confirmedSeatsByDepartureId = new Map<string, number>();
+  for (const order of confirmedOrders) {
+    if (!order.travelDepartureId) continue;
+    confirmedSeatsByDepartureId.set(
+      order.travelDepartureId,
+      (confirmedSeatsByDepartureId.get(order.travelDepartureId) ?? 0) + order.travelerCount,
+    );
+  }
 
   const slotsByTravelId = new Map<string, travelsContract.PublicTravelSlot[]>();
   for (const departure of departures) {
@@ -39,6 +56,10 @@ export async function listPublicTravels(): Promise<travelsContract.ListPublicTra
       transportType: departure.transportType,
       unitPriceMinor: Number(departure.unitPriceMinor),
       capacity: departure.capacity,
+      remainingSeats: Math.max(
+        departure.capacity - (confirmedSeatsByDepartureId.get(departure.id) ?? 0),
+        0,
+      ),
     });
     slotsByTravelId.set(departure.travelId, slots);
   }

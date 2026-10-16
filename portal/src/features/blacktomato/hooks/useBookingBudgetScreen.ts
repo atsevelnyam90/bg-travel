@@ -1,8 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { orders, type travels } from "@/api/generated/contracts";
 import { formatMinor } from "@/api/generated/contracts/money";
 import { useCreatePublicOrder } from "./useCreatePublicOrder";
@@ -42,18 +44,6 @@ type BookingBudgetScreenOptions = {
   onContinue?: (quote: BookingQuote) => void;
 };
 
-const transportLabels: Record<TravelSlot["transportType"], string> = {
-  GROUND: "Газар",
-  DIRECT_FLIGHT: "Шууд нислэг",
-};
-
-const dateFormatter = new Intl.DateTimeFormat("mn-MN", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  timeZone: "UTC",
-});
-
 function parseDateOnly(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`);
 }
@@ -62,18 +52,8 @@ function slotDateKey(slot: TravelSlot): string {
   return `${slot.departureDate}|${slot.returnDate}`;
 }
 
-export function formatTravelDate(departureDate: string, returnDate: string): string {
-  const departure = dateFormatter.format(parseDateOnly(departureDate));
-  const returning = dateFormatter.format(parseDateOnly(returnDate));
-  return departureDate === returnDate ? departure : `${departure} – ${returning}`;
-}
-
 export function formatTravelMoney(priceMinor: number) {
   return formatMinor(priceMinor);
-}
-
-export function transportLabel(type: TravelSlot["transportType"]): string {
-  return transportLabels[type];
 }
 
 export function useBookingBudgetScreen({
@@ -81,6 +61,8 @@ export function useBookingBudgetScreen({
   mode = "home",
   onContinue,
 }: BookingBudgetScreenOptions = {}) {
+  const locale = useLocale();
+  const t = useTranslations("publicBooking");
   const travelsQuery = usePublicTravels();
   const paymentInfoQuery = usePublicPaymentInfo();
   const orderMutation = useCreatePublicOrder();
@@ -103,6 +85,28 @@ export function useBookingBudgetScreen({
     resolver: zodResolver(bookingCustomerSchema),
     defaultValues: { firstName: "", lastName: "", phone: "", email: "", address: "" },
   });
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "UTC",
+      }),
+    [locale],
+  );
+  const formatTravelDate = useCallback(
+    (departureDate: string, returnDate: string) => {
+      const departure = dateFormatter.format(parseDateOnly(departureDate));
+      const returning = dateFormatter.format(parseDateOnly(returnDate));
+      return departureDate === returnDate ? departure : `${departure} – ${returning}`;
+    },
+    [dateFormatter],
+  );
+  const transportLabel = useCallback(
+    (type: TravelSlot["transportType"]) => t(`transport.${type}`),
+    [t],
+  );
 
   const selectedTrip =
     travelOptions.find((trip) => trip.publicId === selectedTripId) ??
@@ -122,8 +126,8 @@ export function useBookingBudgetScreen({
             .includes(normalizedQuery),
         )
       : travelOptions;
-    return [{ category: "Аяллууд", trips: filteredTrips }];
-  }, [normalizedQuery, travelOptions]);
+    return [{ category: t("tripsGroup"), trips: filteredTrips }];
+  }, [normalizedQuery, t, transportLabel, travelOptions]);
 
   const dateOptions = useMemo(() => {
     const unique = new Map<string, { key: string; label: string }>();
@@ -137,7 +141,7 @@ export function useBookingBudgetScreen({
       }
     }
     return [...unique.values()];
-  }, [selectedTrip]);
+  }, [formatTravelDate, selectedTrip]);
 
   const transportOptions = selectedDateKey
     ? (selectedTrip?.slots.filter((slot) => slotDateKey(slot) === selectedDateKey) ?? [])
@@ -150,7 +154,7 @@ export function useBookingBudgetScreen({
   const quote = useMemo<BookingQuote | null>(() => {
     if (!selectedTrip || !selectedSlot) return null;
     return {
-      hasAvailability: selectedSlot.capacity >= peopleCount,
+      hasAvailability: selectedSlot.remainingSeats >= peopleCount,
       peopleCount,
       selectedSlot,
       selectedTrip,
@@ -221,6 +225,12 @@ export function useBookingBudgetScreen({
     setStep("selection");
   }
 
+  function goBackToCustomer() {
+    if (orderMutation.isPending || orderResult) return;
+    orderMutation.reset();
+    setStep("customer");
+  }
+
   const continueToPayment = customerForm.handleSubmit((customer) => {
     setPendingCustomer(customer);
     orderMutation.reset();
@@ -238,8 +248,9 @@ export function useBookingBudgetScreen({
         idempotencyKey: idempotencyKey.current,
       });
       setOrderResult(created);
-    } catch {
-      return;
+      toast.success(t("toast.success"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("toast.error"));
     }
   }
 
@@ -277,11 +288,13 @@ export function useBookingBudgetScreen({
     dateOptions,
     decrementPeople,
     filteredTripGroups,
+    formatTravelDate,
     incrementPeople,
     isDropdownOpen,
     isLoading: travelsQuery.isLoading,
     isSubmitting: orderMutation.isPending,
     customerForm,
+    goBackToCustomer,
     goBackToSelection,
     orderResult,
     paymentInfo: paymentInfoQuery.data ?? null,
@@ -294,7 +307,6 @@ export function useBookingBudgetScreen({
     selectTrip,
     step,
     stepContainerRef,
-    submitError: orderMutation.error instanceof Error ? orderMutation.error.message : null,
     selectedDateKey,
     selectedSlot,
     selectedTrip,
@@ -302,6 +314,7 @@ export function useBookingBudgetScreen({
     setQuery,
     setSelectedSlotId,
     transportOptions,
+    transportLabel,
     travelsError: travelsQuery.isError,
     resetBooking,
   };

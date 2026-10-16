@@ -7,6 +7,7 @@ export const publicTravelSlotSchema = z.object({
   transportType: z.enum(["GROUND", "DIRECT_FLIGHT"]),
   unitPriceMinor: z.number().int().min(0),
   capacity: z.number().int().positive(),
+  remainingSeats: z.number().int().min(0),
 });
 export type PublicTravelSlot = z.infer<typeof publicTravelSlotSchema>;
 

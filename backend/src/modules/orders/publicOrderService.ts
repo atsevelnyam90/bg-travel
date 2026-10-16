@@ -114,7 +114,7 @@ export async function createPublicOrder(
       if (!slot.isBookingOpen) throw conflict("Энэ гаралтын захиалга хаагдсан байна");
 
       const booked = await tx.order.aggregate({
-        where: { travelDepartureId: slot.id, deletedAt: null },
+        where: { travelDepartureId: slot.id, status: "PAID", deletedAt: null },
         _sum: { travelerCount: true },
       });
       const remainingSeats = slot.capacity - (booked._sum.travelerCount ?? 0);

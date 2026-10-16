@@ -2,7 +2,7 @@ import type {
   BuilderTriggerContext,
   BuilderTriggerResult,
 } from "@duke333/builder-backend/triggers";
-import { badRequest } from "@/lib/errors";
+import { badRequest, conflict } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { getRequestAuth } from "@/lib/requestContext";
 
@@ -11,6 +11,39 @@ export const ORDER_CONFIRM_PAID_TRIGGER = "/api/v1/orders/triggers/confirm-paid"
 function statusValue(values: Record<string, unknown> | undefined): string | null {
   const value = values?.status;
   return typeof value === "string" ? value : null;
+}
+
+async function assertDepartureHasCapacity(order: {
+  id: string;
+  travelDepartureId: string | null;
+  travelerCount: number;
+}) {
+  if (!order.travelDepartureId) return;
+
+  const departure = await prisma.travelDeparture.findFirst({
+    where: { id: order.travelDepartureId },
+    select: { capacity: true },
+  });
+  if (!departure) {
+    throw badRequest("Захиалгын аяллын гаралт олдсонгүй");
+  }
+
+  const confirmedOrders = await prisma.order.findMany({
+    where: {
+      id: { not: order.id },
+      status: "PAID",
+      travelDepartureId: order.travelDepartureId,
+    },
+    select: { travelerCount: true },
+  });
+  const confirmedSeats = confirmedOrders.reduce(
+    (total, confirmedOrder) => total + confirmedOrder.travelerCount,
+    0,
+  );
+  const remainingSeats = departure.capacity - confirmedSeats;
+  if (remainingSeats < order.travelerCount) {
+    throw conflict(`Энэ гаралт дээр ${Math.max(remainingSeats, 0)} суудал үлдсэн байна`);
+  }
 }
 
 export async function confirmPaidOrderTrigger(
@@ -26,7 +59,14 @@ export async function confirmPaidOrderTrigger(
   if (context.entryId) {
     const existing = await prisma.order.findUnique({
       where: { id: context.entryId },
-      select: { status: true, confirmedByUserId: true, confirmedAt: true },
+      select: {
+        id: true,
+        status: true,
+        confirmedByUserId: true,
+        confirmedAt: true,
+        travelDepartureId: true,
+        travelerCount: true,
+      },
     });
     if (existing?.status === "PAID" && existing.confirmedByUserId && existing.confirmedAt) {
       return {
@@ -36,6 +76,7 @@ export async function confirmPaidOrderTrigger(
         },
       };
     }
+    if (existing) await assertDepartureHasCapacity(existing);
   }
 
   const auth = getRequestAuth();

@@ -9,8 +9,8 @@ export function useJourneyExplorerScreen() {
   const isMobile = useIsMobile();
   const [isCategoryOpen, setCategoryOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(null);
-  const [selectedTripTitle, setSelectedTripTitle] = useState<string | null>(null);
-  const [closingTripTitle, setClosingTripTitle] = useState<string | null>(null);
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [closingTripId, setClosingTripId] = useState<string | null>(null);
   const [canScrollTripsBack, setCanScrollTripsBack] = useState(false);
   const [canScrollTripsForward, setCanScrollTripsForward] = useState(false);
   const openingFrameRef = useRef<number | null>(null);
@@ -73,19 +73,19 @@ export function useJourneyExplorerScreen() {
         tripCloseTimerRef.current = null;
       }
       setCategoryOpen(false);
-      setSelectedTripTitle(null);
-      setClosingTripTitle(null);
+      setSelectedTripId(null);
+      setClosingTripId(null);
     },
     closeTrip: () => {
-      if (!selectedTripTitle || closingTripTitle) {
+      if (!selectedTripId || closingTripId) {
         return;
       }
 
-      setClosingTripTitle(selectedTripTitle);
-      setSelectedTripTitle(null);
+      setClosingTripId(selectedTripId);
+      setSelectedTripId(null);
       tripCloseTimerRef.current = setTimeout(() => {
         tripCloseTimerRef.current = null;
-        setClosingTripTitle(null);
+        setClosingTripId(null);
         requestAnimationFrame(() => {
           const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
             ? "instant"
@@ -96,11 +96,11 @@ export function useJourneyExplorerScreen() {
     },
     isCategoryOpen,
     isMobile,
-    isTripClosing: closingTripTitle !== null,
+    isTripClosing: closingTripId !== null,
     openCategory: (categoryId: JourneyCategoryId, tripCount: number) => {
       cancelPendingOpen();
       setCategoryOpen(false);
-      setSelectedTripTitle(null);
+      setSelectedTripId(null);
       selectedTripCountRef.current = tripCount;
       setSelectedCategoryId(categoryId);
       openingFrameRef.current = requestAnimationFrame(() => {
@@ -121,17 +121,17 @@ export function useJourneyExplorerScreen() {
         left: direction * viewport.clientWidth,
       });
     },
-    openTrip: (title: string) => {
+    openTrip: (tripId: string) => {
       if (tripCloseTimerRef.current !== null) {
         clearTimeout(tripCloseTimerRef.current);
         tripCloseTimerRef.current = null;
       }
-      setClosingTripTitle(null);
-      setSelectedTripTitle(title);
+      setClosingTripId(null);
+      setSelectedTripId(tripId);
     },
-    closingTripTitle,
+    closingTripId,
     selectedCategoryId,
-    selectedTripTitle,
+    selectedTripId,
     syncTripNavigation,
     tripViewportRef,
   };
