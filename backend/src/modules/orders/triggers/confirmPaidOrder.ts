@@ -29,7 +29,12 @@ export async function confirmPaidOrderTrigger(
       select: { status: true, confirmedByUserId: true, confirmedAt: true },
     });
     if (existing?.status === "PAID" && existing.confirmedByUserId && existing.confirmedAt) {
-      return undefined;
+      return {
+        valuesPatch: {
+          confirmed_by_user_id: existing.confirmedByUserId,
+          confirmed_at: existing.confirmedAt.toISOString(),
+        },
+      };
     }
   }
 

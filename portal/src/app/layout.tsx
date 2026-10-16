@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { Caveat, Manrope } from "next/font/google";
 import type { ReactNode } from "react";
+import "@duke333/builder-ui/styles.css";
 import { brand } from "@/config/brand";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { Providers } from "./providers";
 
 const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-sans" });
-const caveat = Caveat({ subsets: ["latin", "cyrillic", "cyrillic-ext"], variable: "--font-handwriting" });
+const caveat = Caveat({
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  variable: "--font-handwriting",
+});
 
 export const metadata: Metadata = {
   title: brand.name,
@@ -23,7 +27,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="mn" className={cn("font-sans", manrope.variable, caveat.variable)} suppressHydrationWarning>
+    <html
+      lang="mn"
+      className={cn("font-sans", manrope.variable, caveat.variable)}
+      suppressHydrationWarning
+    >
       <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>

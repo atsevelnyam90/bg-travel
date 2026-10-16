@@ -1,10 +1,8 @@
 "use client";
 
+import { BuilderForm, BuilderGrid, BuilderView } from "@duke333/builder-ui";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DynamicForm } from "./DynamicForm";
-import { DynamicList } from "./DynamicList";
-import { DynamicView } from "./DynamicView";
 
 function MissingKey({ label }: { label: string }) {
   return (
@@ -21,15 +19,15 @@ function MissingKey({ label }: { label: string }) {
 
 export function DynamicFormRoutePage() {
   const id = useSearchParams().get("id");
-  return id ? <DynamicForm formId={id} /> : <MissingKey label="Form" />;
+  return id ? <BuilderForm formId={id} /> : <MissingKey label="Form" />;
 }
 
 export function DynamicListRoutePage() {
   const id = useSearchParams().get("id");
-  return id ? <DynamicList listId={id} /> : <MissingKey label="List" />;
+  return id ? <BuilderGrid listId={id} /> : <MissingKey label="List" />;
 }
 
 export function DynamicViewRoutePage() {
   const id = useSearchParams().get("id");
-  return id ? <DynamicView viewId={id} /> : <MissingKey label="View" />;
+  return id ? <BuilderView viewId={id} /> : <MissingKey label="View" />;
 }

@@ -25,7 +25,7 @@ Developer/Admin
   -> Dynamic View дээр Form + List сонгоно
   -> Backend DB-д schema хадгална
   -> Runtime дээр ганц id дамжуулж дуудна
-  -> DynamicForm / DynamicList / DynamicView render хийнэ
+  -> BuilderForm / BuilderGrid / BuilderView render хийнэ
 ```
 
 ## Нэршил
@@ -62,9 +62,9 @@ Runtime дээр дуудах хэсэг:
 React component-оор дангаар нь дуудах contract:
 
 ```tsx
-<DynamicForm formId="..." />
-<DynamicList listId="..." />
-<DynamicView viewId="..." />
+<BuilderForm formId="..." />
+<BuilderGrid listId="..." />
+<BuilderView viewId="..." />
 ```
 
 Runtime contract нь `id`-first. `key` нь зөвхөн legacy/display metadata бөгөөд
@@ -87,9 +87,9 @@ apiEndpoint -> /api/v1/... base path metadata хадгална
 - List columns auto үүснэ
 - label/type/required/sortable suggestion автоматаар бөглөгдөнө
 
-Runtime data нь builder metadata table дээр хадгалагдахгүй. `products` болон
-`users` datasource-ууд одоогоор бодит table руугаа уншиж/бичиж ажиллана.
-Дараагийн шатанд энэ mapping-ийг generic table/API datasource болгоно.
+Runtime data нь builder metadata table дээр хадгалагдахгүй. Ердийн `dbTable`
+datasource-ийг package-ийн generic Prisma repository уншиж/бичнэ. Тусгай business
+validation шаарддаг `products`, `users` зэрэг datasource domain adapter ашиглана.
 
 ## Backend API
 
@@ -133,39 +133,19 @@ DELETE /api/v1/builder/runtime/views/:viewId/entries/:id
 
 ## Backend Structure
 
-Builder backend нь `winu-backend`-ийн controller/usecase чиглэлтэй ижил boundary
-барина. Route нь зөвхөн URL + middleware wiring, controller нь request/response,
-usecase нь business flow, datasource нь бодит table/API read/write хариуцна.
+Builder backend-ийн generic router, usecase, metadata repository, migration болон
+runtime adapter нь package дотор байна. App нэг integration file-ээр auth, audit,
+Prisma client болон domain extension-үүдээ холбоно.
 
 ```text
 backend/src/modules/builder/
-  builder.routes.ts          -> URL + middleware wiring
-  builderService.ts          -> compatibility facade, usecase export
+  builder.config.ts          -> package integration/bind
+  runtimeValues.ts           -> domain adapter input helpers
+  scripts/migrateBuilder.ts  -> package migration entrypoint
 
-  controllers/
-    builderAdminController.ts
-    builderRuntimeController.ts
-
-  usecases/
-    builderDefinitionUseCases.ts
-    builderDatasourceUseCases.ts
-    builderRuntimeUseCases.ts
-    builderViewUseCases.ts
-
-  datasources/
-    runtimeEntryDatasources.ts
-
-  triggers/
-    runBuilderTriggers.ts
-    runBuilderFieldTrigger.ts
-    triggerTypes.ts
-    handlers/
-      validateTriggerHandler.ts
-      auditTriggerHandler.ts
-      callApiTriggerHandler.ts
-
-  shared/
-    builderMapper.ts
+backend/src/modules/<domain>/
+  *BuilderRuntime.ts         -> зөвхөн domain-specific datasource override
+  triggers/                  -> domain business trigger implementation
 ```
 
 Trigger execution нь `usecases/builderRuntimeUseCases.ts` дотор lifecycle-ийн
@@ -285,9 +265,9 @@ portal/src/features/builder/
     BuilderFormsPage.tsx
     BuilderListsPage.tsx
     BuilderViewsPage.tsx
-    DynamicForm.tsx
-    DynamicList.tsx
-    DynamicView.tsx
+portal/src/features/builder/
+  builder.config.tsx         -> package integration/bind
+  presentation/             -> app design system-ийн нэг удаагийн renderer adapter
 ```
 
 ## UX Rules
@@ -296,6 +276,7 @@ portal/src/features/builder/
 - Runtime view нь ERP-ийн ердийн page шиг харагдана.
 - Form editor нь `DataForm` pattern ашиглана.
 - List/View renderer нь shared `DataGrid` pattern ашиглана.
+- `BuilderProvider.components` нь Form/Grid/View presentation-ийг app даяар нэг удаа солино.
 - Builder дээр Product/User гэх мэт domain-specific hardcode оруулахгүй.
 - Domain module өөрөө хүсвэл зөвхөн runtime component-д id дамжуулж ашиглана.
 - Runtime data нь builder metadata table дээр хадгалагдахгүй. Data нь тухайн

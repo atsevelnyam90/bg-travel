@@ -10,6 +10,7 @@ export const TRAVEL_BUILDER_IDS = {
 } as const;
 
 export const travelFormSchema = builder.builderFormSchema.parse({
+  presentation: "drawer",
   fields: [
     { key: "name", label: "Аяллын нэр", type: "text", required: true },
     { key: "description", label: "Тайлбар", type: "textarea" },
@@ -36,11 +37,13 @@ export const travelFormSchema = builder.builderFormSchema.parse({
       childField: "travelId",
       buttonLabel: "Гаралт нэмэх",
       icon: "plus",
+      presentation: "dialog",
     },
   ],
 });
 
 export const departureFormSchema = builder.builderFormSchema.parse({
+  presentation: "drawer",
   fields: [
     { key: "travelId", label: "Аялал", type: "text", required: true, hidden: true },
     { key: "departureDate", label: "Гарах огноо", type: "date", required: true },

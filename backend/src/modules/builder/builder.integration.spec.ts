@@ -539,6 +539,16 @@ describe("builder runtime view", () => {
     expect(created.body.values.confirmed_at).toBeTruthy();
     expect(created.body.values.address).toBe("Test address");
 
+    const listed = await api()
+      .get(`${PREFIX}/builder/runtime/views/${ORDER_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .expect(200);
+    expect(listed.body.items[0].values).toMatchObject({
+      address: "Test address",
+      confirmed_by_user_id: ownerId,
+    });
+    expect(listed.body.items[0].values.confirmed_at).toBeTruthy();
+
     const order = await prisma.order.findUniqueOrThrow({ where: { id: created.body.id } });
     expect(order.confirmedByUserId).toBe(ownerId);
     expect(order.confirmedAt).toBeInstanceOf(Date);

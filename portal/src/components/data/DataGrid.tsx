@@ -2,7 +2,7 @@
 
 import type { RowData } from "@tanstack/react-table";
 import { Grid3X3, Rows3 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import {
   Card,
   CardAction,
@@ -27,7 +27,7 @@ type DataGridProps<T extends RowData> = {
   searchPlaceholder?: string;
   emptyTitle?: string;
   emptyDescription?: string;
-  onRowClick?: (row: T) => void;
+  onRowClick?: (row: T, event: MouseEvent) => void;
   toolbarExtra?: ReactNode;
   filterBar?: ReactNode;
 };

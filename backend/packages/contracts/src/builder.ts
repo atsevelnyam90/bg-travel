@@ -87,6 +87,9 @@ export const builderSelectOptionsSourceSchema = z.object({
 });
 export type BuilderSelectOptionsSource = z.infer<typeof builderSelectOptionsSourceSchema>;
 
+export const builderPresentationSchema = z.enum(["dialog", "drawer"]);
+export type BuilderPresentation = z.infer<typeof builderPresentationSchema>;
+
 export const builderFormSubformSchema = z.object({
   key: z.string().regex(fieldKeyPattern),
   label: z.string().min(1).max(120),
@@ -95,6 +98,7 @@ export const builderFormSubformSchema = z.object({
   childField: z.string().regex(fieldKeyPattern),
   buttonLabel: z.string().min(1).max(120).optional(),
   icon: z.string().max(80).optional(),
+  presentation: builderPresentationSchema.default("dialog"),
 });
 export type BuilderFormSubform = z.infer<typeof builderFormSubformSchema>;
 
@@ -129,9 +133,21 @@ export const builderColumnSchema = z.object({
   key: z.string().regex(fieldKeyPattern),
   label: z.string().min(1).max(120),
   sortable: z.boolean().default(false),
+  hidden: z.boolean().default(false),
   align: z.enum(["left", "right"]).default("left"),
 });
 export type BuilderColumn = z.infer<typeof builderColumnSchema>;
+
+export const builderListOrderBySchema = z.object({
+  field: z.string().regex(fieldKeyPattern),
+  direction: z.enum(["asc", "desc"]),
+});
+export type BuilderListOrderBy = z.infer<typeof builderListOrderBySchema>;
+
+const builderListOrderByListSchema = z.preprocess(
+  (value) => (value && !Array.isArray(value) ? [value] : value),
+  z.array(builderListOrderBySchema).max(8),
+);
 
 export const builderFormLayoutFieldSchema = z.object({
   key: z.string().regex(fieldKeyPattern),
@@ -153,6 +169,7 @@ export const builderFormLayoutSchema = z.object({
 export type BuilderFormLayout = z.infer<typeof builderFormLayoutSchema>;
 
 export const builderFormSchema = z.object({
+  presentation: builderPresentationSchema.default("dialog"),
   fields: z.array(builderFieldSchema).min(1).max(64),
   layout: builderFormLayoutSchema.optional(),
   subforms: z.array(builderFormSubformSchema).max(24).default([]),
@@ -161,6 +178,7 @@ export type BuilderFormSchema = z.infer<typeof builderFormSchema>;
 
 export const builderListSchema = z.object({
   columns: z.array(builderColumnSchema).min(1).max(24),
+  orderBy: builderListOrderByListSchema.optional(),
 });
 export type BuilderListSchema = z.infer<typeof builderListSchema>;
 

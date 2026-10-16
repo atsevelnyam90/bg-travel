@@ -56,6 +56,7 @@ const orderFormTriggers = [
 ];
 
 const productFormSchema = {
+  presentation: "drawer",
   fields: [
     {
       key: "name",
@@ -142,6 +143,7 @@ const productFormSchema = {
 };
 
 const userFormSchema = {
+  presentation: "drawer",
   fields: [
     { key: "email", label: "И-мэйл", type: "text", required: true },
     { key: "name", label: "Нэр", type: "text", required: true },
@@ -176,6 +178,7 @@ const userFormSchema = {
 };
 
 const orderFormSchema = {
+  presentation: "drawer",
   fields: [
     { key: "public_order_id", label: "Захиалгын дугаар", type: "text", required: true },
     { key: "first_name", label: "Нэр", type: "text", required: true },

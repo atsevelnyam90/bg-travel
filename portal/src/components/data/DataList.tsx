@@ -1,6 +1,7 @@
 "use client";
 
 import { flexRender, type RowData } from "@tanstack/react-table";
+import type { MouseEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,7 +25,7 @@ type DataListProps<T extends RowData> = {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  onRowClick?: (row: T) => void;
+  onRowClick?: (row: T, event: MouseEvent) => void;
 };
 
 /**
@@ -73,7 +74,7 @@ export function DataList<T extends RowData>({
         <Card
           key={row.id}
           className={cn("py-0 shadow-xs", onRowClick && "cursor-pointer active:bg-muted/50")}
-          onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+          onClick={onRowClick ? (event) => onRowClick(row.original, event) : undefined}
         >
           <CardContent className="grid gap-2 p-4">
             {row

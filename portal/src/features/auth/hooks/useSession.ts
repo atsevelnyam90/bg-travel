@@ -14,21 +14,24 @@ export const sessionKeys = { me: ["auth", "me"] as const };
 export function useSession() {
   const query = useQuery<auth.Me | null>({
     queryKey: sessionKeys.me,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       try {
-        return await fetchMe();
+        return await fetchMe(signal);
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) return null;
         throw error;
       }
     },
     staleTime: 5 * 60 * 1000,
-    retry: false,
+    // Route transition үеэр түр тасарсан хүсэлтийг нэг удаа автоматаар сэргээнэ.
+    retry: 1,
+    retryDelay: 300,
   });
 
   return {
     session: query.data ?? null,
-    isLoading: query.isPending,
+    isLoading: query.isLoading,
+    isError: query.isError || (query.isPending && !query.isFetching),
     isAuthenticated: Boolean(query.data),
     refetch: query.refetch,
   };

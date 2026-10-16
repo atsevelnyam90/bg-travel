@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReadyBuilderContracts } from "@duke333/builder-ui";
 import {
   createDynamicFormComponent,
   type DynamicFormErrorStateProps,
@@ -7,16 +8,16 @@ import {
   type DynamicFormShellProps,
   type DynamicFormSubmitProps,
 } from "@duke333/builder-ui/components";
+import type { BuilderHooks } from "@duke333/builder-ui/hooks";
 import type { BuilderRuntimeFormValues } from "@duke333/builder-ui/runtime";
 import { toast } from "sonner";
-import type { builder } from "@/api/generated/contracts";
 import { DataForm } from "@/components/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import type { PortalBuilderApiContracts } from "../builder.config";
-import { useRuntimeBuilderForm, useSaveRuntimeBuilderFormEntry } from "../builder.config";
+
+type BuilderFormSchema = ReadyBuilderContracts["BuilderForm"]["schema"];
 
 function FormShell({ title, children }: DynamicFormShellProps) {
   return (
@@ -29,11 +30,7 @@ function FormShell({ title, children }: DynamicFormShellProps) {
   );
 }
 
-function FormFields({
-  formId,
-  schema,
-  namePrefix,
-}: DynamicFormFieldsProps<builder.BuilderFormSchema>) {
+function FormFields({ formId, schema, namePrefix }: DynamicFormFieldsProps<BuilderFormSchema>) {
   return (
     <FieldGroup>
       <DataForm<BuilderRuntimeFormValues> formId={formId} schema={schema} namePrefix={namePrefix} />
@@ -62,20 +59,17 @@ function ErrorState({ title, description }: DynamicFormErrorStateProps) {
   );
 }
 
-export const DynamicForm = createDynamicFormComponent<PortalBuilderApiContracts>({
-  hooks: {
-    useRuntimeBuilderForm,
-    useSaveRuntimeBuilderFormEntry,
-  },
-  FormShell,
-  FormFields,
-  SubmitButton,
-  ErrorState,
-  notifications: {
-    success: toast.success,
-    error: toast.error,
-    errorMessage(error, fallback) {
-      return apiErrorMessage(error, fallback);
+export function createAppBuilderForm(hooks: BuilderHooks<ReadyBuilderContracts>) {
+  return createDynamicFormComponent<ReadyBuilderContracts>({
+    hooks,
+    FormShell,
+    FormFields,
+    SubmitButton,
+    ErrorState,
+    notifications: {
+      success: toast.success,
+      error: toast.error,
+      errorMessage: apiErrorMessage,
     },
-  },
-});
+  });
+}

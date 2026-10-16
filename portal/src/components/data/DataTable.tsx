@@ -2,6 +2,7 @@
 
 import { flexRender, type RowData } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
+import type { MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +22,7 @@ type DataTableProps<T extends RowData> = {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  onRowClick?: (row: T) => void;
+  onRowClick?: (row: T, event: MouseEvent) => void;
 };
 
 function alignClass(align?: "left" | "center" | "right") {
@@ -121,7 +122,7 @@ export function DataTable<T extends RowData>({
               key={row.id}
               data-state={row.getIsSelected() ? "selected" : undefined}
               className={cn(onRowClick && "cursor-pointer")}
-              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              onClick={onRowClick ? (event) => onRowClick(row.original, event) : undefined}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell

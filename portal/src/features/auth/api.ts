@@ -5,5 +5,25 @@ export const login = (input: auth.LoginInput) => api.post<auth.TokenPair>("/auth
 
 export const logout = () => api.post<void>("/auth/logout");
 
-// skipAuthRefresh: 401 үед сэргээх оролдлого хийхгүй — нэвтрээгүй нь хэвийн хариу.
-export const fetchMe = () => api.get<auth.Me>("/auth/me", { skipAuthRefresh: true });
+const SESSION_REQUEST_TIMEOUT_MS = 5_000;
+
+export async function fetchMe(parentSignal?: AbortSignal): Promise<auth.Me> {
+  const controller = new AbortController();
+  const abortFromParent = () => controller.abort();
+  const timeoutId = setTimeout(() => controller.abort(), SESSION_REQUEST_TIMEOUT_MS);
+
+  if (parentSignal?.aborted) {
+    controller.abort();
+  } else {
+    parentSignal?.addEventListener("abort", abortFromParent, { once: true });
+  }
+
+  try {
+    return await api.get<auth.Me>("/auth/me", {
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+    parentSignal?.removeEventListener("abort", abortFromParent);
+  }
+}

@@ -12,14 +12,20 @@ const REFRESH_KEY = "auth.refreshToken";
 let cachedAccess: string | null = null;
 
 export async function loadTokens(): Promise<void> {
+  if (platform.name === "web") {
+    cachedAccess = null;
+    return;
+  }
+
   cachedAccess = await platform.storage.get(ACCESS_KEY);
 }
 
 export function getAccessToken(): string | null {
-  return cachedAccess;
+  return platform.name === "web" ? null : cachedAccess;
 }
 
 export async function getRefreshToken(): Promise<string | null> {
+  if (platform.name === "web") return null;
   return platform.storage.get(REFRESH_KEY);
 }
 
@@ -27,6 +33,12 @@ export async function setTokens(tokens: {
   accessToken: string;
   refreshToken: string;
 }): Promise<void> {
+  if (platform.name === "web") {
+    cachedAccess = null;
+    await Promise.all([platform.storage.remove(ACCESS_KEY), platform.storage.remove(REFRESH_KEY)]);
+    return;
+  }
+
   cachedAccess = tokens.accessToken;
   await platform.storage.set(ACCESS_KEY, tokens.accessToken);
   await platform.storage.set(REFRESH_KEY, tokens.refreshToken);

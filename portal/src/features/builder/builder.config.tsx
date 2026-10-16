@@ -1,131 +1,61 @@
 "use client";
 
+import { BuilderProvider, type ReadyBuilderContracts } from "@duke333/builder-ui";
 import { createBuilderAdminPages } from "@duke333/builder-ui/admin";
-import { type BuilderApiContracts, createBuilderApiClient } from "@duke333/builder-ui/api";
-import { createBuilderHooks } from "@duke333/builder-ui/hooks";
 import { createBuilderIntegration } from "@duke333/builder-ui/integration";
+import type { QueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
 import { toast } from "sonner";
-import type { builder } from "@/api/generated/contracts";
 import { builder as builderContract, PERMISSIONS } from "@/api/generated/contracts";
 import { api } from "@/lib/api/apiClient";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
+import { createAppBuilderRuntimeComponents } from "./presentation";
 
-export type PortalBuilderApiContracts = BuilderApiContracts & {
-  BuilderDbTable: builder.BuilderDbTable;
-  BuilderForm: builder.BuilderForm;
-  BuilderList: builder.BuilderList;
-  BuilderView: builder.BuilderView;
-  BuilderViewEntry: builder.BuilderViewEntry;
-  ListBuilderFormsQuery: builder.ListBuilderFormsQuery;
-  ListBuilderFormsResponse: builder.ListBuilderFormsResponse;
-  CreateBuilderFormInput: builder.CreateBuilderFormInput;
-  UpdateBuilderFormInput: builder.UpdateBuilderFormInput;
-  ListBuilderListsQuery: builder.ListBuilderListsQuery;
-  ListBuilderListsResponse: builder.ListBuilderListsResponse;
-  CreateBuilderListInput: builder.CreateBuilderListInput;
-  UpdateBuilderListInput: builder.UpdateBuilderListInput;
-  ListBuilderViewsQuery: builder.ListBuilderViewsQuery;
-  ListBuilderViewsResponse: builder.ListBuilderViewsResponse;
-  CreateBuilderViewInput: builder.CreateBuilderViewInput;
-  UpdateBuilderViewInput: builder.UpdateBuilderViewInput;
-  ReplicateBuilderEntityInput: builder.ReplicateBuilderEntityInput;
-  CreateBuilderViewEntryInput: builder.CreateBuilderViewEntryInput;
-  CreateCompositeBuilderViewEntryInput: builder.CreateCompositeBuilderViewEntryInput;
-  UpdateCompositeBuilderViewEntryInput: builder.UpdateCompositeBuilderViewEntryInput;
-  UpdateBuilderViewEntryInput: builder.UpdateBuilderViewEntryInput;
-  ListBuilderFieldOptionsQuery: builder.ListBuilderFieldOptionsQuery;
-  ListBuilderFieldOptionsResponse: builder.ListBuilderFieldOptionsResponse;
-  RunBuilderFieldTriggerInput: builder.RunBuilderFieldTriggerInput;
-  BuilderFieldTriggerEvent: builder.BuilderFieldTriggerEvent;
-  BuilderFieldTriggerResponse: builder.BuilderFieldTriggerResponse;
-  ListBuilderViewEntriesQuery: builder.ListBuilderViewEntriesQuery;
-  ListBuilderViewEntriesResponse: builder.ListBuilderViewEntriesResponse;
-};
+export type PortalBuilderApiContracts = ReadyBuilderContracts;
 
-export const builderClient = createBuilderIntegration<PortalBuilderApiContracts>({
+export const builderClient = createBuilderIntegration<ReadyBuilderContracts>({
   transport: api,
   adminBasePath: "/admin/dev/builder",
+  runtimeBasePath: "/admin/winu",
 });
 
-export const builderApiClient = createBuilderApiClient<PortalBuilderApiContracts>(api);
+export const builderRuntimeComponents = createAppBuilderRuntimeComponents(builderClient.hooks);
+
+export function AppBuilderProvider({
+  children,
+  queryClient,
+}: {
+  children: ReactNode;
+  queryClient: QueryClient;
+}) {
+  return (
+    <BuilderProvider
+      client={builderClient.api}
+      components={builderRuntimeComponents}
+      queryClient={queryClient}
+    >
+      {children}
+    </BuilderProvider>
+  );
+}
 
 export const {
-  createBuilderForm,
-  createBuilderList,
-  createBuilderView,
-  createBuilderViewEntry,
-  createCompositeBuilderViewEntry,
-  createRuntimeBuilderFormEntry,
-  deleteBuilderForm,
-  deleteBuilderList,
-  deleteBuilderView,
-  deleteBuilderViewEntry,
-  getBuilderForm,
-  getBuilderList,
-  getBuilderView,
-  getRuntimeBuilderForm,
-  getRuntimeBuilderList,
-  getRuntimeBuilderView,
-  listBuilderDbTables,
-  listBuilderFormOptions,
-  listBuilderForms,
-  listBuilderListOptions,
-  listBuilderLists,
-  listBuilderViewEntries,
-  listBuilderViews,
-  listRuntimeBuilderFormFieldOptions,
-  listRuntimeBuilderListEntries,
-  replicateBuilderForm,
-  replicateBuilderList,
-  replicateBuilderView,
-  runRuntimeBuilderFormFieldTrigger,
-  runRuntimeBuilderViewFieldTrigger,
-  updateBuilderForm,
-  updateBuilderList,
-  updateCompositeBuilderViewEntry,
-  updateBuilderView,
-  updateBuilderViewEntry,
-} = builderApiClient;
-
-export const {
-  builderKeys,
-  useBuilderDbTables,
-  useBuilderForm,
-  useBuilderFormOptions,
-  useBuilderForms,
-  useBuilderList,
-  useBuilderListOptions,
-  useBuilderLists,
   useBuilderViewEntries,
-  useBuilderViews,
   useCreateCompositeBuilderViewEntry,
-  useDeleteBuilderForm,
-  useDeleteBuilderList,
-  useDeleteBuilderView,
   useDeleteBuilderViewEntry,
-  useReplicateBuilderForm,
-  useReplicateBuilderList,
-  useReplicateBuilderView,
-  useRuntimeBuilderForm,
-  useRuntimeBuilderFormFieldOptions,
-  useRuntimeBuilderList,
-  useRuntimeBuilderListEntries,
-  useRuntimeBuilderView,
   useRunRuntimeBuilderFieldTrigger,
-  useSaveBuilderForm,
-  useSaveBuilderList,
-  useSaveBuilderView,
+  useRuntimeBuilderFormFieldOptions,
+  useRuntimeBuilderView,
   useSaveBuilderViewEntry,
-  useSaveRuntimeBuilderFormEntry,
   useUpdateCompositeBuilderViewEntry,
-} = createBuilderHooks<PortalBuilderApiContracts>(builderApiClient);
+} = builderClient.hooks;
 
-const builderAdmin = createBuilderAdminPages<PortalBuilderApiContracts>({
+const builderAdmin = createBuilderAdminPages<ReadyBuilderContracts>({
   hooks: builderClient.hooks,
   routes: {
     adminBasePath: builderClient.routes.adminBasePath,
-    runtimeBasePath: "/admin/winu",
+    runtimeBasePath: builderClient.routes.runtimeBasePath,
   },
   fieldTypeOptions: builderContract.builderFieldTypeSchema.options.map((value) => ({
     value,

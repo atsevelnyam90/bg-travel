@@ -44,6 +44,7 @@ describe("travel builder", () => {
     const view = await api().get(`${root}/${ids.travelView}`).set(bearer(token)).expect(200);
     expect(view.body.form.id).toBe(ids.travelForm);
     expect(view.body.list.id).toBe(ids.travelList);
+    expect(view.body.form.schema.presentation).toBe("drawer");
     expect(view.body.form.schema.fields.map((field: { key: string }) => field.key)).toEqual([
       "name",
       "description",
@@ -55,6 +56,7 @@ describe("travel builder", () => {
       viewId: ids.departureView,
       parentField: "id",
       childField: "travelId",
+      presentation: "dialog",
     });
     await prisma.builderDefinition.update({
       where: { id: ids.travelForm },

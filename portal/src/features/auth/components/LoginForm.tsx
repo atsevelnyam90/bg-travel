@@ -36,29 +36,47 @@ export function LoginForm() {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Нэвтрэх</CardTitle>
-        <CardDescription>И-мэйл болон нууц үгээ оруулна уу.</CardDescription>
+    <Card className="gap-0 rounded-3xl bg-card/95 py-0 shadow-xl ring-foreground/10 backdrop-blur-sm">
+      <CardHeader className="gap-2 px-6 pt-7 pb-5 sm:px-8 sm:pt-8">
+        <CardTitle role="heading" aria-level={1} className="text-2xl tracking-tight">
+          Тавтай морил
+        </CardTitle>
+        <CardDescription className="leading-6">
+          Удирдлагын хэсэгт и-мэйл, нууц үгээрээ нэвтэрнэ үү.
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6 pb-7 sm:px-8 sm:pb-8">
         <FormProvider {...form}>
-          <form onSubmit={onSubmit} noValidate>
-            <FieldGroup>
+          <form onSubmit={onSubmit} noValidate autoComplete="on">
+            <FieldGroup className="gap-4">
               <TextField<LoginValues>
                 name="email"
                 label="И-мэйл"
                 type="email"
-                autoComplete="email"
+                inputMode="email"
+                enterKeyHint="next"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
                 autoFocus
+                placeholder="name@example.com"
+                className="h-11 rounded-xl px-3.5"
               />
               <TextField<LoginValues>
                 name="password"
                 label="Нууц үг"
                 type="password"
+                enterKeyHint="go"
                 autoComplete="current-password"
+                placeholder="Нууц үгээ оруулна уу"
+                className="h-11 rounded-xl px-3.5"
               />
-              <Button type="submit" disabled={login.isPending} className="w-full">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={login.isPending}
+                className="h-11 w-full rounded-xl"
+              >
                 {login.isPending ? "Нэвтэрч байна…" : "Нэвтрэх"}
               </Button>
             </FieldGroup>

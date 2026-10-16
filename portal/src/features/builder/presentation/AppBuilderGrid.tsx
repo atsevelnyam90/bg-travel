@@ -1,13 +1,14 @@
 "use client";
 
+import type { ReadyBuilderContracts } from "@duke333/builder-ui";
 import {
   createDynamicListComponent,
   type DynamicListDataGridProps,
   type DynamicListErrorStateProps,
 } from "@duke333/builder-ui/components";
+import type { BuilderHooks } from "@duke333/builder-ui/hooks";
 import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { builder } from "@/api/generated/contracts";
 import {
   DataGrid,
   type DataTableController,
@@ -16,13 +17,15 @@ import {
   useDataTableState,
 } from "@/components/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { PortalBuilderApiContracts } from "../builder.config";
-import { useRuntimeBuilderList, useRuntimeBuilderListEntries } from "../builder.config";
 
-function buildColumns(list: builder.BuilderList) {
-  // biome-ignore lint/suspicious/noExplicitAny: TanStack v9-ийн feature generic — багана тодорхойлолтод хамаагүй.
-  const columns: ColumnDef<any, builder.BuilderViewEntry, unknown>[] = list.schema.columns.map(
-    (column) => ({
+type BuilderList = ReadyBuilderContracts["BuilderList"];
+type BuilderViewEntry = ReadyBuilderContracts["BuilderViewEntry"];
+
+function buildColumns(list: BuilderList) {
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack v9 feature generic is unrelated to row data.
+  const columns: ColumnDef<any, BuilderViewEntry, unknown>[] = list.schema.columns
+    .filter((column) => !column.hidden)
+    .map((column) => ({
       id: column.key,
       header: column.label,
       meta: { sortable: column.sortable, label: column.label, align: column.align },
@@ -31,8 +34,7 @@ function buildColumns(list: builder.BuilderList) {
           {formatBuilderRuntimeValue(row.original.values[column.key])}
         </span>
       ),
-    }),
-  );
+    }));
 
   return columns;
 }
@@ -40,8 +42,8 @@ function buildColumns(list: builder.BuilderList) {
 function BuilderDataGrid({
   controller,
   ...props
-}: DynamicListDataGridProps<DataTableController<builder.BuilderViewEntry>>) {
-  return <DataGrid<builder.BuilderViewEntry> controller={controller} {...props} />;
+}: DynamicListDataGridProps<DataTableController<BuilderViewEntry>>) {
+  return <DataGrid<BuilderViewEntry> controller={controller} {...props} />;
 }
 
 function ErrorState({ title, description }: DynamicListErrorStateProps) {
@@ -57,33 +59,32 @@ function ErrorState({ title, description }: DynamicListErrorStateProps) {
 
 function useBuilderDataTableState(args?: { pageSize?: number }) {
   return useDataTableState(args) as DataTableState & {
-    query: PortalBuilderApiContracts["ListBuilderViewEntriesQuery"];
+    query: ReadyBuilderContracts["ListBuilderViewEntriesQuery"];
   };
 }
 
 function useBuilderDataTable(args: {
   columns: ReturnType<typeof buildColumns>;
-  data: builder.BuilderViewEntry[];
+  data: BuilderViewEntry[];
   rowCount: number;
   state: DataTableState;
-  getRowId(row: builder.BuilderViewEntry): string;
+  getRowId(row: BuilderViewEntry): string;
 }) {
-  return useDataTable<builder.BuilderViewEntry>(args);
+  return useDataTable<BuilderViewEntry>(args);
 }
 
-export const DynamicList = createDynamicListComponent<
-  PortalBuilderApiContracts,
-  ReturnType<typeof buildColumns>[number],
-  ReturnType<typeof useBuilderDataTableState>,
-  DataTableController<builder.BuilderViewEntry>
->({
-  hooks: {
-    useRuntimeBuilderList,
-    useRuntimeBuilderListEntries,
-  },
-  buildColumns,
-  useDataTableState: useBuilderDataTableState,
-  useDataTable: useBuilderDataTable,
-  DataGrid: BuilderDataGrid,
-  ErrorState,
-});
+export function createAppBuilderGrid(hooks: BuilderHooks<ReadyBuilderContracts>) {
+  return createDynamicListComponent<
+    ReadyBuilderContracts,
+    ReturnType<typeof buildColumns>[number],
+    ReturnType<typeof useBuilderDataTableState>,
+    DataTableController<BuilderViewEntry>
+  >({
+    hooks,
+    buildColumns,
+    useDataTableState: useBuilderDataTableState,
+    useDataTable: useBuilderDataTable,
+    DataGrid: BuilderDataGrid,
+    ErrorState,
+  });
+}

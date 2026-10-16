@@ -1,6 +1,7 @@
 "use client";
 
-import { EllipsisVertical, LogOut } from "lucide-react";
+import { EllipsisVertical, LogOut, Settings } from "lucide-react";
+import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,7 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useLogout, useSession } from "@/features/auth";
+import { Can, useLogout, useSession } from "@/features/auth";
 
 function initials(name: string): string {
   return name
@@ -83,6 +84,15 @@ export function UserMenu() {
               <div className="truncate">{orgLabel}</div>
               <div className="truncate">{roleLabel}</div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <Can do="org:manage">
+              <DropdownMenuItem asChild>
+                <Link href="/admin/settings">
+                  <Settings />
+                  Тохиргоо
+                </Link>
+              </DropdownMenuItem>
+            </Can>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => logout.mutate()} disabled={logout.isPending}>
               <LogOut />

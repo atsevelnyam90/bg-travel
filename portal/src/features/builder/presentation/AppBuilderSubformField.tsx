@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReadyBuilderContracts } from "@duke333/builder-ui";
 import {
   createRuntimeSubformFieldComponent,
   type RuntimeSubformDataPanelProps,
@@ -8,9 +9,9 @@ import {
   type RuntimeSubformDialogShellProps,
   type RuntimeSubformShellProps,
 } from "@duke333/builder-ui/components";
+import type { BuilderHooks } from "@duke333/builder-ui/hooks";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { builder } from "@/api/generated/contracts";
 import {
   DataForm,
   DataPagination,
@@ -22,34 +23,24 @@ import {
   useDataTableState,
 } from "@/components/data";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import type { PortalBuilderApiContracts } from "../builder.config";
-import {
-  useBuilderViewEntries,
-  useRuntimeBuilderView,
-  useSaveBuilderViewEntry,
-} from "../builder.config";
-import { formatRuntimeField } from "../formatRuntimeField";
+import { AppBuilderPresentationShell } from "./AppBuilderPresentationShell";
+import { formatBuilderField } from "./formatBuilderField";
 
-function buildSubformColumns(
-  view: builder.BuilderView,
-): DataTableColumnDef<builder.BuilderViewEntry>[] {
+type BuilderFormSchema = ReadyBuilderContracts["BuilderForm"]["schema"];
+type BuilderFormSubform = BuilderFormSchema["subforms"][number];
+type BuilderView = ReadyBuilderContracts["BuilderView"];
+type BuilderViewEntry = ReadyBuilderContracts["BuilderViewEntry"];
+
+function buildSubformColumns(view: BuilderView): DataTableColumnDef<BuilderViewEntry>[] {
   return (
-    view.list?.schema.columns.map((column) => ({
+    view.list?.schema.columns.filter((column) => !column.hidden).map((column) => ({
       id: column.key,
       header: column.label,
       meta: { sortable: column.sortable, label: column.label, align: column.align },
       cell: ({ row }) =>
-        formatRuntimeField(
+        formatBuilderField(
           row.original.values[column.key],
           view.form?.schema.fields.find((field) => field.key === column.key),
         ),
@@ -59,18 +50,18 @@ function buildSubformColumns(
 
 function useBuilderDataTableState(args?: { pageSize?: number }) {
   return useDataTableState(args) as DataTableState & {
-    query: PortalBuilderApiContracts["ListBuilderViewEntriesQuery"];
+    query: ReadyBuilderContracts["ListBuilderViewEntriesQuery"];
   };
 }
 
 function useBuilderDataTable(args: {
   columns: ReturnType<typeof buildSubformColumns>;
-  data: builder.BuilderViewEntry[];
+  data: BuilderViewEntry[];
   rowCount: number;
   state: DataTableState;
-  getRowId(row: builder.BuilderViewEntry): string;
+  getRowId(row: BuilderViewEntry): string;
 }) {
-  return useDataTable<builder.BuilderViewEntry>(args);
+  return useDataTable<BuilderViewEntry>(args);
 }
 
 function Shell({
@@ -102,10 +93,7 @@ function DataPanel({
   showDraftDelete,
   onRowClick,
   onDeleteSelected,
-}: RuntimeSubformDataPanelProps<
-  DataTableController<builder.BuilderViewEntry>,
-  builder.BuilderViewEntry
->) {
+}: RuntimeSubformDataPanelProps<DataTableController<BuilderViewEntry>, BuilderViewEntry>) {
   return (
     <div className="min-w-0 overflow-hidden rounded-md border bg-card">
       <DataTable
@@ -130,32 +118,16 @@ function DataPanel({
   );
 }
 
-function DialogShell({
-  open,
-  title,
-  description,
-  onClose,
-  children,
-}: RuntimeSubformDialogShellProps) {
-  return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="flex max-h-[88dvh] flex-col gap-0 overflow-hidden rounded-lg p-0 sm:max-w-3xl lg:max-w-4xl">
-        <DialogHeader className="border-b bg-muted/20 px-5 py-4 pr-12">
-          <DialogTitle className="text-lg">{title}</DialogTitle>
-          <DialogDescription className="truncate">{description}</DialogDescription>
-        </DialogHeader>
-        {children}
-      </DialogContent>
-    </Dialog>
-  );
-}
+const DialogShell = (props: RuntimeSubformDialogShellProps) => (
+  <AppBuilderPresentationShell {...props} />
+);
 
 function DialogFields({
   formId,
   viewId,
   schema,
   namePrefix,
-}: RuntimeSubformDialogFieldsProps<builder.BuilderFormSchema>) {
+}: RuntimeSubformDialogFieldsProps<BuilderFormSchema>) {
   return (
     <FieldGroup className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
       <DataForm formId={formId} viewId={viewId} schema={schema} namePrefix={namePrefix} />
@@ -163,43 +135,41 @@ function DialogFields({
   );
 }
 
-function DialogActions({ isSaving, onClose }: RuntimeSubformDialogActionsProps) {
+function DialogActions({ isSaving, submitLabel, onClose }: RuntimeSubformDialogActionsProps) {
   return (
-    <DialogFooter className="mx-0 mt-0 mb-0 flex-row justify-end rounded-none border-t bg-background px-5 py-3">
+    <div className="mx-0 mt-0 mb-0 flex flex-row justify-end gap-2 rounded-none border-t bg-background px-5 py-3">
       <Button type="button" variant="outline" className="min-w-24" onClick={onClose}>
         Болих
       </Button>
       <Button type="submit" className="min-w-28" disabled={isSaving}>
-        {isSaving ? "Хадгалж байна..." : "Хадгалах"}
+        {isSaving ? `${submitLabel}...` : submitLabel}
       </Button>
-    </DialogFooter>
+    </div>
   );
 }
 
-export const RuntimeSubformField = createRuntimeSubformFieldComponent<
-  PortalBuilderApiContracts,
-  builder.BuilderFormSubform,
-  ReturnType<typeof buildSubformColumns>[number],
-  ReturnType<typeof useBuilderDataTableState>,
-  DataTableController<builder.BuilderViewEntry>
->({
-  hooks: {
-    useBuilderViewEntries,
-    useRuntimeBuilderView,
-    useSaveBuilderViewEntry,
-  },
-  buildColumns: buildSubformColumns,
-  useDataTableState: useBuilderDataTableState,
-  useDataTable: useBuilderDataTable,
-  Shell,
-  DataPanel,
-  DialogShell,
-  DialogFields,
-  DialogActions,
-  dialogFormClassName: "flex min-h-0 flex-1 flex-col",
-  notifications: {
-    success: toast.success,
-    error: toast.error,
-    errorMessage: apiErrorMessage,
-  },
-});
+export function createAppBuilderSubformField(hooks: BuilderHooks<ReadyBuilderContracts>) {
+  return createRuntimeSubformFieldComponent<
+    ReadyBuilderContracts,
+    BuilderFormSubform,
+    ReturnType<typeof buildSubformColumns>[number],
+    ReturnType<typeof useBuilderDataTableState>,
+    DataTableController<BuilderViewEntry>
+  >({
+    hooks,
+    buildColumns: buildSubformColumns,
+    useDataTableState: useBuilderDataTableState,
+    useDataTable: useBuilderDataTable,
+    Shell,
+    DataPanel,
+    DialogShell,
+    DialogFields,
+    DialogActions,
+    dialogFormClassName: "flex min-h-0 flex-1 flex-col",
+    notifications: {
+      success: toast.success,
+      error: toast.error,
+      errorMessage: apiErrorMessage,
+    },
+  });
+}

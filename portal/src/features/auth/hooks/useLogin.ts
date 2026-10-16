@@ -11,8 +11,8 @@ export function useLogin() {
   return useMutation({
     mutationFn: login,
     onSuccess: async (tokens) => {
-      // Mobile-д Bearer токен хэрэгтэй. Web дээр cookie аль хэдийн тавигдсан
-      // ч хадгалахад хор хөнөөлгүй — apiClient cookie-г эхэнд ашиглана.
+      // Platform adapter web дээр token-ийг үлдээхгүй; httpOnly session cookie ашиглана.
+      // Native adapter дээр Bearer token хадгалагдана.
       await setTokens(tokens);
       await queryClient.invalidateQueries({ queryKey: sessionKeys.me });
     },
