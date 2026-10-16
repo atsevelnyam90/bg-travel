@@ -7,7 +7,7 @@ export function BlackTomatoHomeMarkup() {
     <>
       <BlackTomatoHeaderMarkup />
       <BlackTomatoMainMarkup />
-      <BlackTomatoFooterMarkup />
+      {/* <BlackTomatoFooterMarkup /> */}
     </>
   );
 }
