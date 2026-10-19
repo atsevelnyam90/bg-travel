@@ -22,7 +22,7 @@ type LocalizedTrip = {
 
 type LocalizedJourney = {
   categories: Record<string, { subtitle: string; title: string }>;
-  trips: Record<JourneyTripId, LocalizedTrip>;
+  trips: Partial<Record<JourneyTripId, LocalizedTrip>>;
 };
 
 type JourneyTrip = Omit<LocalizedTrip, "itinerary"> & {
@@ -31,6 +31,7 @@ type JourneyTrip = Omit<LocalizedTrip, "itinerary"> & {
   image: string;
   itinerary: Array<{ day: string; description: string; title: string }>;
   price: string;
+  transportTypes?: readonly ("GROUND" | "DIRECT_FLIGHT")[];
   videoId?: string;
 };
 
@@ -42,15 +43,40 @@ function createJourneyCategories(locale: keyof typeof publicMessages) {
     ...copy.categories[category.id],
     trips: category.trips.map((trip): JourneyTrip => {
       const localizedTrip = copy.trips[trip.id];
+      const title = localizedTrip?.title ?? trip.title ?? trip.id;
+      const mockCopy = trip.copy;
+      const region = localizedTrip?.region ?? mockCopy?.region ?? "Азийн аялал";
       return {
         ...trip,
         ...localizedTrip,
-        highlights: localizedTrip.highlights,
-        itinerary: (trip.itineraryDays ?? []).map((dayKey) => ({
-          day: dayKey.slice(-2),
-          description: localizedTrip.itinerary?.[dayKey]?.description ?? "",
-          title: localizedTrip.itinerary?.[dayKey]?.title ?? "",
-        })),
+        duration: localizedTrip?.duration ?? mockCopy?.duration ?? "6 өдөр · MOCK",
+        intro:
+          localizedTrip?.intro ??
+          mockCopy?.intro ??
+          `${title} чиглэлийн жишиг аяллын мэдээлэл. Үнэ, хөтөлбөр болон нислэгийн хуваарь нь мок өгөгдөл болно.`,
+        mediaCaption: localizedTrip?.mediaCaption ?? mockCopy?.mediaCaption ?? title,
+        region,
+        season: localizedTrip?.season ?? mockCopy?.season ?? "Жилийн турш · MOCK",
+        title,
+        highlights:
+          localizedTrip?.highlights ??
+          Object.fromEntries(
+            (mockCopy?.highlights ?? ["Хотын аялал", "Орон нутгийн соёл", "Чөлөөт цаг"]).map(
+              (highlight, index) => [`item${index + 1}`, highlight],
+            ),
+          ),
+        itinerary: trip.itineraryDays
+          ? trip.itineraryDays.map((dayKey) => ({
+              day: dayKey.slice(-2),
+              description:
+                localizedTrip?.itinerary?.[dayKey]?.description ??
+                "Үзэсгэлэнт газруудтай танилцаж, чөлөөт цаг өнгөрүүлнэ. · MOCK",
+              title: localizedTrip?.itinerary?.[dayKey]?.title ?? `Аяллын өдөр ${dayKey.slice(-2)}`,
+            }))
+          : (mockCopy?.itinerary ?? []).map((stop, index) => ({
+              day: String(index + 1).padStart(2, "0"),
+              ...stop,
+            })),
       };
     }),
   }));
@@ -235,6 +261,7 @@ export function BlackTomatoJourneyBlocks() {
 
 function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip }) {
   const t = useTranslations("publicJourney.ui");
+  const bookingT = useTranslations("publicBooking");
   const highlights = Object.values(trip.highlights ?? { region: trip.region });
   const scrollToBooking = () =>
     document
@@ -265,6 +292,16 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
         <h3 id="trip-overview-title">{trip.title}</h3>
         <p>{trip.intro || t("fallbackIntro", { region: trip.region })}</p>
       </section>
+      {trip.transportTypes?.length ? (
+        <section aria-label={bookingT("transportType")} className={styles.btFacts}>
+          <div>
+            <span>{bookingT("transportType")}</span>
+            <strong>
+              {trip.transportTypes.map((type) => bookingT(`transport.${type}`)).join(" · ")}
+            </strong>
+          </div>
+        </section>
+      ) : null}
       <section aria-label={t("factsLabel")} className={styles.btFacts}>
         <div>
           <span>{t("when")}</span>
@@ -323,25 +360,6 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
           })}
         </div>
       </section>
-      {trip.galleryImage ? (
-        <section aria-label={t("galleryLabel")} className={styles.btGallery}>
-          {/* biome-ignore lint/performance/noImgElement: local trip gallery image follows the editorial reference layout */}
-          <img alt={trip.mediaCaption || trip.region} loading="lazy" src={trip.galleryImage} />
-          <div>
-            <p className={styles.btEyebrow}>{t("travelNotes")}</p>
-            <h3>{trip.mediaCaption || trip.region}</h3>
-          </div>
-        </section>
-      ) : null}
-      <footer className={styles.btDetailFooter}>
-        <div>
-          <p className={styles.btEyebrow}>{t("journeyStartsHere")}</p>
-          <h3>{trip.title}</h3>
-        </div>
-        <button onClick={scrollToBooking} type="button">
-          {t("goToBooking")} <ChevronRight aria-hidden="true" size={18} />
-        </button>
-      </footer>
     </section>
   );
 }
