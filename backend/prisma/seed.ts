@@ -16,7 +16,7 @@ const ORG_NAME = process.env.SEED_ORG_NAME ?? "Demo ХХК";
 const OWNER_EMAIL = (process.env.SEED_OWNER_EMAIL ?? "owner@example.mn").toLowerCase();
 const OWNER_PASSWORD = process.env.SEED_OWNER_PASSWORD ?? "ChangeMe123!";
 
-const DEFAULT_PASSWORD = "ChangeMe123!";
+const DEFAULT_PASSWORD = "password1";
 
 const PRODUCT_FORM_ID = "11111111-1111-4111-8111-111111111111";
 const PRODUCT_LIST_ID = "11111111-1111-4111-8111-111111111112";
