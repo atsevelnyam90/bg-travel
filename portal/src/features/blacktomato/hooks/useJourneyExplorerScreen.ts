@@ -63,6 +63,24 @@ export function useJourneyExplorerScreen() {
     setCanScrollTripsForward(viewport.scrollLeft + viewport.clientWidth < viewport.scrollWidth - 2);
   };
 
+  const scrollToExplorerLevel = (
+    elementId: "journey-explorer" | "trip-list",
+    topOffset: number,
+  ) => {
+    requestAnimationFrame(() => {
+      const target = document.getElementById(elementId);
+      if (!target) {
+        return;
+      }
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({
+        behavior: isMobile || reduceMotion ? "instant" : "smooth",
+        top: window.scrollY + target.getBoundingClientRect().top - topOffset,
+      });
+    });
+  };
+
   return {
     canScrollTripsBack,
     canScrollTripsForward,
@@ -75,9 +93,17 @@ export function useJourneyExplorerScreen() {
       setCategoryOpen(false);
       setSelectedTripId(null);
       setClosingTripId(null);
+      scrollToExplorerLevel("journey-explorer", isMobile ? 68 : 84);
     },
     closeTrip: () => {
       if (!selectedTripId || closingTripId) {
+        return;
+      }
+
+      if (isMobile) {
+        setSelectedTripId(null);
+        setClosingTripId(null);
+        scrollToExplorerLevel("trip-list", 0);
         return;
       }
 
@@ -86,12 +112,7 @@ export function useJourneyExplorerScreen() {
       tripCloseTimerRef.current = setTimeout(() => {
         tripCloseTimerRef.current = null;
         setClosingTripId(null);
-        requestAnimationFrame(() => {
-          const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "instant"
-            : "smooth";
-          document.getElementById("trip-list")?.scrollIntoView({ behavior, block: "start" });
-        });
+        scrollToExplorerLevel("trip-list", 84);
       }, 480);
     },
     isCategoryOpen,

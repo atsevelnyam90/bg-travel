@@ -6,7 +6,7 @@ import { publicOrderRateLimit } from "@/middlewares/rateLimit";
 import { auditFromRequest } from "@/modules/audit/writeAudit";
 import { createPublicOrder, getPublicPaymentInfo } from "@/modules/orders/publicOrderService";
 import { getPublicProduct, listPublicProducts } from "@/modules/products/productService";
-import { listPublicTravels } from "@/modules/travels/publicTravelService";
+import { getPublicTravel, listPublicTravels } from "@/modules/travels/publicTravelService";
 
 /**
  * НЭВТРЭЛТГҮЙ endpoint-ууд.
@@ -27,6 +27,14 @@ publicRouter.get(
   "/travels",
   asyncHandler(async (_req, res) => {
     res.json(await listPublicTravels());
+  }),
+);
+
+publicRouter.get(
+  "/travels/:slug",
+  asyncHandler(async (req, res) => {
+    const { slug } = slugParamSchema.parse(req.params);
+    res.json(await getPublicTravel(slug));
   }),
 );
 

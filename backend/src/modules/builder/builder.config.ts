@@ -1,3 +1,8 @@
+import { join } from "node:path";
+import {
+  createBuilderLocalFileStorage,
+  createBuilderS3FileStorage,
+} from "@duke333/builder-backend/files";
 import { createBuilderBackendIntegration } from "@duke333/builder-backend/integration";
 import { createBuilderPrismaRepositories } from "@duke333/builder-backend/prisma";
 import {
@@ -6,10 +11,12 @@ import {
 } from "@duke333/builder-backend/triggers";
 import type { Permission } from "@winu/contracts";
 import { Router } from "express";
+import { env } from "@/lib/env";
 import { badRequest, conflict, forbidden, notFound, unauthorized } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { prisma, prismaUnfiltered } from "@/lib/prisma";
 import { runWithRequestContext } from "@/lib/requestContext";
+import { s3 } from "@/lib/storage/s3";
 import { requireAuth, requirePermission } from "@/middlewares/requirePermission";
 import { runAppFieldTrigger } from "@/modules/appTriggers/fieldRegistry";
 import { getAppTriggerRoute, runAppTrigger } from "@/modules/appTriggers/registry";
@@ -22,6 +29,16 @@ export const BUILDER_DEFAULT_VIEW_PERMISSION = BUILDER_ADMIN_PERMISSION;
 
 const errors = { badRequest, unauthorized, forbidden, notFound, conflict };
 const repositories = createBuilderPrismaRepositories({ prisma, prismaUnfiltered });
+const fileStorages = {
+  s3: createBuilderS3FileStorage({
+    client: s3,
+    bucket: env.S3_BUCKET,
+    publicUrl: env.S3_PUBLIC_URL,
+  }),
+  server: createBuilderLocalFileStorage({
+    directory: join(process.cwd(), "storage", "builder-files"),
+  }),
+};
 
 const callAppTriggerHandler: BuilderTriggerHandler = async (trigger, context) => {
   return runAppTrigger(getAppTriggerRoute(trigger.config), context);
@@ -53,6 +70,7 @@ export const builder = createBuilderBackendIntegration({
   adminPermission: BUILDER_ADMIN_PERMISSION,
   defaultViewPermission: BUILDER_DEFAULT_VIEW_PERMISSION,
   missingRuntimePermission: "deny",
+  fileStorages,
 });
 
 const packageBuilderRouter = builder.builderRouter;

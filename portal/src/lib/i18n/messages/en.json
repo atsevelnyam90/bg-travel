@@ -32,6 +32,8 @@
     "ui": {
       "sectionTitle": "START YOUR JOURNEY",
       "exploreTrips": "EXPLORE OUR TRIPS",
+      "journeys": "Journeys",
+      "breadcrumbLabel": "Journey path",
       "backToTrips": "Back to the trip list",
       "backToCategories": "Back to categories",
       "previousTrips": "Previous trips",

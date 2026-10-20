@@ -45,8 +45,13 @@ function renderBookingScreen() {
 
 const travel = {
   publicId: "6cc7df59-93bf-4499-a9d5-4c90834618eb",
+  slug: "kenya-private-safari",
   name: "Kenya Private Safari",
   description: "Safari аялал",
+  category: "INTERNATIONAL" as const,
+  coverImage: null,
+  durationDays: 8,
+  details: [],
   slots: [
     {
       publicId: "ab2c0b37-ed02-4a8d-96d9-864c59acc70b",
@@ -74,7 +79,7 @@ beforeEach(() => {
     data: [travel],
     isError: false,
     isLoading: false,
-  } as ReturnType<typeof usePublicTravels>);
+  } as unknown as ReturnType<typeof usePublicTravels>);
   vi.mocked(usePublicPaymentInfo).mockReturnValue({
     data: {
       bankAccount: "MN770005005619113075",

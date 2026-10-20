@@ -10,103 +10,19 @@ import {
   Wallet,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { publicMessages } from "@/lib/i18n/config";
 import { usePublicLocale } from "@/lib/i18n/PublicI18nProvider";
 import { useJourneyExplorerScreen } from "../hooks/useJourneyExplorerScreen";
-import { type JourneyTripId, journeyCatalog } from "../journeyCatalog";
+import { usePublicTravels } from "../hooks/usePublicTravels";
+import { createJourneyCategories, type JourneyTrip } from "../journeyTravelMapper";
 import { BlackTomatoBookingBudgetSection } from "./BlackTomatoBookingBudgetSection";
 import styles from "./journey.module.css";
-
-type LocalizedTrip = {
-  duration: string;
-  highlights?: Record<string, string>;
-  intro: string;
-  itinerary?: Record<string, { description: string; title: string }>;
-  mediaCaption: string;
-  region: string;
-  season: string;
-  title: string;
-};
-
-type LocalizedJourney = {
-  categories: Record<string, { subtitle: string; title: string }>;
-  trips: Partial<Record<JourneyTripId, LocalizedTrip>>;
-};
-
-type JourneyTrip = Omit<LocalizedTrip, "itinerary"> & {
-  excluded?: readonly string[];
-  galleryImage?: string;
-  id: JourneyTripId;
-  included?: readonly string[];
-  image: string;
-  itineraryImages?: readonly (readonly string[])[];
-  itinerary: Array<{
-    day: string;
-    description?: string;
-    hotel?: string;
-    meals?: string;
-    points?: readonly string[];
-    title: string;
-  }>;
-  price: string;
-  transportTypes?: readonly ("GROUND" | "DIRECT_FLIGHT")[];
-  videoId?: string;
-};
-
-function createJourneyCategories(locale: keyof typeof publicMessages) {
-  const copy = publicMessages[locale].publicJourney as LocalizedJourney;
-
-  return journeyCatalog.map((category) => ({
-    ...category,
-    ...copy.categories[category.id],
-    trips: category.trips.map((trip): JourneyTrip => {
-      const localizedTrip = copy.trips[trip.id];
-      const title = localizedTrip?.title ?? trip.title ?? trip.id;
-      const mockCopy = trip.copy;
-      const region = localizedTrip?.region ?? mockCopy?.region ?? "Азийн аялал";
-      return {
-        ...trip,
-        ...localizedTrip,
-        duration: localizedTrip?.duration ?? mockCopy?.duration ?? "6 өдөр · MOCK",
-        intro:
-          localizedTrip?.intro ??
-          mockCopy?.intro ??
-          `${title} чиглэлийн жишиг аяллын мэдээлэл. Үнэ, хөтөлбөр болон нислэгийн хуваарь нь мок өгөгдөл болно.`,
-        mediaCaption: localizedTrip?.mediaCaption ?? mockCopy?.mediaCaption ?? title,
-        region,
-        season: localizedTrip?.season ?? mockCopy?.season ?? "Жилийн турш · MOCK",
-        title,
-        highlights:
-          localizedTrip?.highlights ??
-          Object.fromEntries(
-            (mockCopy?.highlights ?? ["Хотын аялал", "Орон нутгийн соёл", "Чөлөөт цаг"]).map(
-              (highlight, index) => [`item${index + 1}`, highlight],
-            ),
-          ),
-        itinerary:
-          trip.itineraryDays && localizedTrip?.itinerary
-            ? trip.itineraryDays.map((dayKey) => ({
-                day: dayKey.slice(-2),
-                description:
-                  localizedTrip?.itinerary?.[dayKey]?.description ??
-                  "Үзэсгэлэнт газруудтай танилцаж, чөлөөт цаг өнгөрүүлнэ. · MOCK",
-                title:
-                  localizedTrip?.itinerary?.[dayKey]?.title ?? `Аяллын өдөр ${dayKey.slice(-2)}`,
-              }))
-            : (mockCopy?.itinerary ?? []).map((stop, index) => ({
-                day: String(index + 1).padStart(2, "0"),
-                ...stop,
-              })),
-      };
-    }),
-  }));
-}
 
 export function BlackTomatoJourneyBlocks() {
   const t = useTranslations("publicJourney.ui");
   const { locale } = usePublicLocale();
   const screen = useJourneyExplorerScreen();
-  const journeyCategories = createJourneyCategories(locale);
+  const travelsQuery = usePublicTravels();
+  const journeyCategories = createJourneyCategories(locale, travelsQuery.data ?? []);
   const selectedCategory =
     journeyCategories.find((category) => category.id === screen.selectedCategoryId) ?? null;
   const selectedTrip =
@@ -117,12 +33,14 @@ export function BlackTomatoJourneyBlocks() {
   return (
     <div className={styles.blocks}>
       <div className={styles.bookingColumn} id="journey-booking">
-        <BlackTomatoBookingBudgetSection variant="card" />
+        <BlackTomatoBookingBudgetSection initialTripId={selectedTrip?.id} variant="card" />
       </div>
 
       <div
         className={`${styles.explorer} ${screen.isCategoryOpen ? styles.explorerOpen : ""} ${screen.selectedTripId ? styles.explorerDetail : ""}`}
+        data-journey-open={screen.isCategoryOpen ? "" : undefined}
         data-selected-category={selectedCategory?.id}
+        id="journey-explorer"
       >
         <div className={styles.categoryCards} aria-hidden={screen.isCategoryOpen}>
           {journeyCategories.map((category) => (
@@ -152,10 +70,35 @@ export function BlackTomatoJourneyBlocks() {
           ))}
         </div>
 
-        <div aria-hidden={!screen.isCategoryOpen} aria-live="polite" className={styles.tripPanel}>
+        <div
+          aria-hidden={!screen.isCategoryOpen}
+          aria-live="polite"
+          className={styles.tripPanel}
+          id="trip-list"
+        >
           {selectedCategory ? (
             <>
-              <header className={styles.tripPanelHeader} id="trip-list">
+              <MobileJourneyNavigation
+                backLabel={
+                  screen.selectedTripId || screen.closingTripId
+                    ? t("backToTrips")
+                    : t("backToCategories")
+                }
+                breadcrumbLabel={t("breadcrumbLabel")}
+                categoryTitle={selectedCategory.title}
+                isActive={screen.isCategoryOpen}
+                journeysLabel={t("journeys")}
+                onBack={
+                  screen.selectedTripId || screen.closingTripId
+                    ? screen.closeTrip
+                    : screen.closeCategory
+                }
+                onOpenCategories={screen.closeCategory}
+                onOpenTrips={screen.closeTrip}
+                tripTitle={selectedTrip?.title}
+              />
+
+              <header className={styles.tripPanelHeader}>
                 <button
                   aria-label={
                     screen.selectedTripId || screen.closingTripId
@@ -168,7 +111,7 @@ export function BlackTomatoJourneyBlocks() {
                       ? screen.closeTrip
                       : screen.closeCategory
                   }
-                  tabIndex={screen.isCategoryOpen ? 0 : -1}
+                  tabIndex={screen.isCategoryOpen && !screen.isMobile ? 0 : -1}
                   type="button"
                 >
                   <ArrowLeft aria-hidden="true" size={20} />
@@ -276,6 +219,69 @@ export function BlackTomatoJourneyBlocks() {
         </div>
       </div>
     </div>
+  );
+}
+
+type MobileJourneyNavigationProps = {
+  backLabel: string;
+  breadcrumbLabel: string;
+  categoryTitle: string;
+  isActive: boolean;
+  journeysLabel: string;
+  onBack: () => void;
+  onOpenCategories: () => void;
+  onOpenTrips: () => void;
+  tripTitle?: string;
+};
+
+function MobileJourneyNavigation({
+  backLabel,
+  breadcrumbLabel,
+  categoryTitle,
+  isActive,
+  journeysLabel,
+  onBack,
+  onOpenCategories,
+  onOpenTrips,
+  tripTitle,
+}: MobileJourneyNavigationProps) {
+  const tabIndex = isActive ? 0 : -1;
+
+  return (
+    <nav aria-label={breadcrumbLabel} className={styles.mobileJourneyNavigation}>
+      <button
+        aria-label={backLabel}
+        className={styles.mobileBackButton}
+        onClick={onBack}
+        tabIndex={tabIndex}
+        type="button"
+      >
+        <ArrowLeft aria-hidden="true" size={24} strokeWidth={2.25} />
+      </button>
+      <ol className={styles.journeyBreadcrumb}>
+        <li>
+          <button onClick={onOpenCategories} tabIndex={tabIndex} type="button">
+            {journeysLabel}
+          </button>
+        </li>
+        <li>
+          <ChevronRight aria-hidden="true" size={14} />
+          {tripTitle ? (
+            <button onClick={onOpenTrips} tabIndex={tabIndex} type="button">
+              {categoryTitle}
+            </button>
+          ) : (
+            <span aria-current="page">{categoryTitle}</span>
+          )}
+        </li>
+        {tripTitle ? (
+          <li>
+            <ChevronRight aria-hidden="true" size={14} />
+            <span aria-current="page">{tripTitle}</span>
+          </li>
+        ) : null}
+      </ol>
+    </nav>
   );
 }
 

@@ -4,6 +4,9 @@ packages:
   - "packages/contracts"
   - "packages/mn-integrations"
 
+overrides:
+  '@duke333/builder-contracts': 'file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz'
+
 allowBuilds:
   "@prisma/engines": true
   prisma: true

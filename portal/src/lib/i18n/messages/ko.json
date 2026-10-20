@@ -32,6 +32,8 @@
     "ui": {
       "sectionTitle": "여행을 시작하세요",
       "exploreTrips": "여행 둘러보기",
+      "journeys": "여행",
+      "breadcrumbLabel": "여행 경로",
       "backToTrips": "여행 목록으로 돌아가기",
       "backToCategories": "카테고리로 돌아가기",
       "previousTrips": "이전 여행",

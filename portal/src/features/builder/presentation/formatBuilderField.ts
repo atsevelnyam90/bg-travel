@@ -15,5 +15,9 @@ export function formatBuilderField(value: unknown, field?: BuilderField): string
       formatBuilderRuntimeValue(value)
     );
   }
+  if (field?.type === "file") {
+    const count = Array.isArray(value) ? value.length : 1;
+    return `${count} ${field.contentKind === "image" ? "зураг" : "файл"}`;
+  }
   return formatBuilderRuntimeValue(value);
 }

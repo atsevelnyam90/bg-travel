@@ -32,6 +32,12 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   skipAuthRefresh?: boolean;
 };
 
+type UploadOptions = {
+  contentType?: string;
+  /** true бол 401 дээр токен сэргээхийг оролдохгүй. */
+  skipAuthRefresh?: boolean;
+};
+
 function buildUrl(path: string, query?: RequestOptions["query"]): string {
   const base = /^https?:\/\//i.test(path) ? path : `${env.NEXT_PUBLIC_API_BASE_URL}${path}`;
   if (!query) return base;
@@ -105,6 +111,19 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
   });
 }
 
+async function sendUpload(path: string, body: Blob, options: UploadOptions): Promise<Response> {
+  const accessToken = getAccessToken();
+  return fetch(buildUrl(path), {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      ...(options.contentType ? { "Content-Type": options.contentType } : {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body,
+  });
+}
+
 /**
  * Амжилтгүй үед ЗААВАЛ шидэнэ — { success, data, error } биш.
  * Ингэснээр TanStack Query алдааг өөрөө барьж, дуудагч тал бүрт
@@ -126,6 +145,21 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return (await response.json()) as T;
 }
 
+export async function apiUpload<T>(
+  path: string,
+  body: Blob,
+  options: UploadOptions = {},
+): Promise<T> {
+  let response = await sendUpload(path, body, options);
+
+  if (response.status === 401 && !options.skipAuthRefresh && (await ensureRefresh())) {
+    response = await sendUpload(path, body, { ...options, skipAuthRefresh: true });
+  }
+
+  if (!response.ok) throw new ApiError(response.status, await parseError(response));
+  return (await response.json()) as T;
+}
+
 export const api = {
   get: <T>(path: string, options?: RequestOptions) =>
     apiRequest<T>(path, { ...options, method: "GET" }),
@@ -133,6 +167,8 @@ export const api = {
     apiRequest<T>(path, { ...options, method: "POST", body }),
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     apiRequest<T>(path, { ...options, method: "PATCH", body }),
+  upload: <T>(path: string, body: Blob, options?: UploadOptions) =>
+    apiUpload<T>(path, body, options),
   put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     apiRequest<T>(path, { ...options, method: "PUT", body }),
   delete: <T>(path: string, options?: RequestOptions) =>

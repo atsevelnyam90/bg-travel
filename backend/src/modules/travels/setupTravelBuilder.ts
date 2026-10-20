@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import {
   departureFormSchema,
   departureListSchema,
+  detailFormSchema,
+  detailListSchema,
   TRAVEL_BUILDER_IDS as ids,
   travelFormSchema,
   travelListSchema,
@@ -31,6 +33,20 @@ export async function setupTravelBuilder() {
         title: "Аяллын гаралт — grid",
         tableName: "travel_departures",
         schema: departureListSchema,
+      },
+      {
+        id: ids.detailForm,
+        type: "form",
+        title: "Аяллын өдрийн хөтөлбөр — form",
+        tableName: "travel_details",
+        schema: detailFormSchema,
+      },
+      {
+        id: ids.detailList,
+        type: "list",
+        title: "Аяллын өдрийн хөтөлбөр — grid",
+        tableName: "travel_details",
+        schema: detailListSchema,
       },
       {
         id: ids.travelForm,
@@ -107,6 +123,12 @@ export async function setupTravelBuilder() {
         title: "Аяллын гаралтууд",
         formId: ids.departureForm,
         listId: ids.departureList,
+      },
+      {
+        id: ids.detailView,
+        title: "Аяллын өдрийн хөтөлбөр",
+        formId: ids.detailForm,
+        listId: ids.detailList,
       },
       { id: ids.travelView, title: "Аялал", formId: ids.travelForm, listId: ids.travelList },
     ]) {

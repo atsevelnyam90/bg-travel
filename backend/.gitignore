@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+storage/
 *.tsbuildinfo
 
 # Нууц утга — БҮҮ commit хий

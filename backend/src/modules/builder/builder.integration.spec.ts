@@ -556,7 +556,9 @@ describe("builder runtime view", () => {
 
   it("үлдсэн суудлаас хэтэрсэн order-ийг PAID болгож баталгаажуулахгүй", async () => {
     await seedOrderBuilderView();
-    const travel = await prisma.travel.create({ data: { name: "Capacity test" } });
+    const travel = await prisma.travel.create({
+      data: { name: "Capacity test", slug: "capacity-test", status: "PUBLISHED" },
+    });
     const slot = await prisma.travelDeparture.create({
       data: {
         travelId: travel.id,

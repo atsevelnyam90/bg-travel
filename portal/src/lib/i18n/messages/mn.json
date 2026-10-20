@@ -32,6 +32,8 @@
     "ui": {
       "sectionTitle": "АЯЛЛАА ЭХЛҮҮЛЭХ",
       "exploreTrips": "АЯЛЛУУДТАЙ ТАНИЛЦАХ",
+      "journeys": "Аяллууд",
+      "breadcrumbLabel": "Аяллын буцах зам",
       "backToTrips": "Аяллын жагсаалт руу буцах",
       "backToCategories": "Ангиллууд руу буцах",
       "previousTrips": "Өмнөх аяллууд",

@@ -107,6 +107,7 @@ export async function createPublicOrder(
         WHERE departure."publicId" = ${input.slotPublicId}
           AND departure."deletedAt" IS NULL
           AND travel."deletedAt" IS NULL
+          AND travel.status = 'PUBLISHED'::"TravelStatus"
         FOR UPDATE OF departure
       `);
       const slot = slots[0];

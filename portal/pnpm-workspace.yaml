@@ -1,6 +1,9 @@
 # pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
 packages: []
 
+overrides:
+  '@duke333/builder-contracts': 'file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz'
+
 allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false

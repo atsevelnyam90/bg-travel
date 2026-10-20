@@ -32,6 +32,8 @@
     "ui": {
       "sectionTitle": "开启您的旅程",
       "exploreTrips": "探索我们的旅程",
+      "journeys": "旅行",
+      "breadcrumbLabel": "行程导航",
       "backToTrips": "返回行程列表",
       "backToCategories": "返回分类",
       "previousTrips": "上一组行程",

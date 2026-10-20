@@ -112,6 +112,13 @@ export function useBookingBudgetScreen({
     travelOptions.find((trip) => trip.publicId === selectedTripId) ??
     (mode === "detail" ? (travelOptions[0] ?? null) : null);
 
+  useEffect(() => {
+    if (!initialTripId || !travelOptions.some((trip) => trip.publicId === initialTripId)) return;
+    setSelectedTripId(initialTripId);
+    setSelectedDateKey(null);
+    setSelectedSlotId(null);
+  }, [initialTripId, travelOptions]);
+
   const normalizedQuery = query.trim().toLowerCase();
   const filteredTripGroups = useMemo(() => {
     const filteredTrips = normalizedQuery

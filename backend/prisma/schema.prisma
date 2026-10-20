@@ -307,19 +307,38 @@ model WebsiteSection {
 // ─── Аялал ба гаралт ────────────────────────────────────────────────────────
 // Аяллын үндсэн мэдээлэл parent, огноо/тээвэр бүрийн гаралт subform child байна.
 
+enum TravelCategory {
+  DOMESTIC
+  INTERNATIONAL
+  WEDDING
+}
+
+enum TravelStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model Travel {
-  id          String    @id @default(uuid())
-  publicId    String    @unique @default(dbgenerated("gen_random_uuid()::text"))
-  name        String
-  description String?
-  version     Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
-  deletedAt   DateTime?
+  id           String         @id @default(uuid())
+  publicId     String         @unique @default(dbgenerated("gen_random_uuid()::text"))
+  name         String
+  slug         String         @unique
+  category     TravelCategory @default(DOMESTIC)
+  status       TravelStatus   @default(PUBLISHED)
+  coverImage   String?
+  durationDays Int            @default(1)
+  description  String?
+  version      Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  deletedAt    DateTime?
 
   departures TravelDeparture[]
+  details    TravelDetail[]
 
   @@index([name])
+  @@index([status, category])
   @@map("travels")
 }
 
@@ -344,6 +363,24 @@ model TravelDeparture {
 
   @@index([travelId, departureDate])
   @@map("travel_departures")
+}
+
+model TravelDetail {
+  id        String   @id @default(uuid())
+  travelId  String
+  dayNumber Int
+  title     String
+  content   String?
+  images    String[] @default([])
+  version   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  travel Travel @relation(fields: [travelId], references: [id], onDelete: Restrict)
+
+  @@index([travelId, dayNumber])
+  @@map("travel_details")
 }
 
 // ─── Захиалга ───────────────────────────────────────────────────────────────

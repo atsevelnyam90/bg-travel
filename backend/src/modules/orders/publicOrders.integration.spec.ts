@@ -13,9 +13,18 @@ const orderInput = {
   idempotencyKey: "c06bd669-6a43-4ed5-a1f2-b76a9c6b1269",
 };
 
-async function seedSlot(options?: { capacity?: number; isBookingOpen?: boolean }) {
+async function seedSlot(options?: {
+  capacity?: number;
+  isBookingOpen?: boolean;
+  travelStatus?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+}) {
   const travel = await prisma.travel.create({
-    data: { name: "Kenya Private Safari", description: "Safari аялал" },
+    data: {
+      name: "Kenya Private Safari",
+      slug: `kenya-private-safari-${crypto.randomUUID()}`,
+      description: "Safari аялал",
+      status: options?.travelStatus ?? "PUBLISHED",
+    },
   });
   const slot = await prisma.travelDeparture.create({
     data: {
@@ -161,5 +170,14 @@ describe("public orders", () => {
       })
       .expect(409);
     expect(full.body.code).toBe("CONFLICT");
+  });
+
+  it("rejects an order for a departure whose travel is not published", async () => {
+    const { slot } = await seedSlot({ travelStatus: "DRAFT" });
+
+    await api()
+      .post(`${PREFIX}/public/orders`)
+      .send({ ...orderInput, slotPublicId: slot.publicId })
+      .expect(404);
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { ReadyFileField } from "@duke333/builder-ui";
 import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Controller,
@@ -234,7 +235,9 @@ function DataFormField<T extends FieldValues>({
 
   let fieldElement: ReactNode;
 
-  if (field.type === "textarea") {
+  if (field.type === "file") {
+    fieldElement = <ReadyFileField field={field} formId={formId} viewId={viewId} name={name} />;
+  } else if (field.type === "textarea") {
     fieldElement = (
       <TextareaField<T>
         name={name}

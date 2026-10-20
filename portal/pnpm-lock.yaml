@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@duke333/builder-contracts': file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz
+
 importers:
 
   .:
@@ -21,8 +24,8 @@ importers:
         specifier: ^7.6.8
         version: 7.6.8(@capacitor/core@7.6.8)
       '@duke333/builder-ui':
-        specifier: 0.2.3
-        version: 0.2.3(@tanstack/react-query@5.101.4(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)
+        specifier: file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz
+        version: file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz(@tanstack/react-query@5.101.4(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.85.0(react@19.2.8))(zod@4.4.3)
@@ -441,11 +444,13 @@ packages:
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
 
-  '@duke333/builder-contracts@0.2.1':
-    resolution: {integrity: sha512-hxhT27oob8ypcqhWqhtp9+lB6lVR5YHuqTj5bqtMsTY0qpaJC0oHobGqlGW5um/i0bMJmomA/F3583n7GgSwwA==}
+  '@duke333/builder-contracts@file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz':
+    resolution: {integrity: sha512-crLHmaUHK2bih7fzkHcbuWV477qu1IRl1ZTlYxeBkAiBEybk+MJtUfbGDVNprEMIH4cuIYbMsfzpBoMQI74i2w==, tarball: file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz}
+    version: 0.2.2
 
-  '@duke333/builder-ui@0.2.3':
-    resolution: {integrity: sha512-PPsnLeG5abR7I+7d0Oi+7NjKo9hOe2JF3cmLvKGoNWqKPLYZKYReEa4d/PFCZhGAmKNxgIeh6diWfxNQ1ccPpA==}
+  '@duke333/builder-ui@file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz':
+    resolution: {integrity: sha512-+KzRKCJeohLbVHtqcd/+mPK7GaI2SF/CJBNVeX89ok7ScDC6Dz9TVx+l8yoO8wVQXPihwVf5+EW7hz7IT4fz7A==, tarball: file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz}
+    version: 0.2.7
     peerDependencies:
       '@tanstack/react-query': ^5.101.4
       react: '>=18.2.0 <20'
@@ -4585,13 +4590,13 @@ snapshots:
 
   '@dotenvx/primitives@0.8.0': {}
 
-  '@duke333/builder-contracts@0.2.1':
+  '@duke333/builder-contracts@file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz':
     dependencies:
       zod: 4.4.3
 
-  '@duke333/builder-ui@0.2.3(@tanstack/react-query@5.101.4(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)':
+  '@duke333/builder-ui@file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz(@tanstack/react-query@5.101.4(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)':
     dependencies:
-      '@duke333/builder-contracts': 0.2.1
+      '@duke333/builder-contracts': file:../../../../../../tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz
       '@tanstack/react-query': 5.101.4(react@19.2.8)
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)

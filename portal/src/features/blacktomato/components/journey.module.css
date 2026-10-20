@@ -227,6 +227,10 @@
   width: 42px;
 }
 
+.mobileJourneyNavigation {
+  display: none;
+}
+
 .backButton:hover,
 .backButton:focus-visible {
   background: var(--color-neutral-950);
@@ -1513,6 +1517,93 @@
 }
 
 @media (max-width: 760px) {
+  .tripPanelHeader {
+    margin-bottom: calc(var(--spacing) * 5);
+  }
+
+  .tripPanelHeader .backButton {
+    display: none;
+  }
+
+  .mobileJourneyNavigation {
+    align-items: center;
+    background: color-mix(in srgb, var(--travel-surface, var(--color-white)) 96%, transparent);
+    border-bottom: 1px solid var(--color-neutral-200);
+    box-sizing: border-box;
+    display: flex;
+    gap: calc(var(--spacing) * 3);
+    margin: 0 -15px calc(var(--spacing) * 5);
+    min-height: 60px;
+    padding: 6px calc(var(--spacing) * 3);
+    position: sticky;
+    top: 0;
+    z-index: 6;
+  }
+
+  .mobileBackButton {
+    align-items: center;
+    background: var(--color-neutral-100);
+    border: 0;
+    border-radius: 50%;
+    color: var(--travel-ink, var(--color-neutral-950));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 48px;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+  }
+
+  .mobileBackButton:focus-visible,
+  .journeyBreadcrumb button:focus-visible {
+    outline: 2px solid var(--color-green-700);
+    outline-offset: 2px;
+  }
+
+  .journeyBreadcrumb {
+    align-items: center;
+    display: flex;
+    gap: 7px;
+    list-style: none;
+    margin: 0;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 5px 0;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .journeyBreadcrumb::-webkit-scrollbar {
+    display: none;
+  }
+
+  .journeyBreadcrumb li {
+    align-items: center;
+    color: var(--color-neutral-400);
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 7px;
+  }
+
+  .journeyBreadcrumb button,
+  .journeyBreadcrumb span {
+    color: var(--color-neutral-600);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .journeyBreadcrumb button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 8px 0;
+  }
+
+  .journeyBreadcrumb span[aria-current="page"] {
+    color: var(--travel-ink, var(--color-neutral-950));
+  }
+
   .btOverview {
     margin: 22px 0 30px;
   }

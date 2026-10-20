@@ -66,8 +66,15 @@ export const builderFieldTypeSchema = z.enum([
   "select",
   "checkbox",
   "date",
+  "file",
 ]);
 export type BuilderFieldType = z.infer<typeof builderFieldTypeSchema>;
+
+export const builderFileStorageSchema = z.enum(["s3", "server"]);
+export type BuilderFileStorage = z.infer<typeof builderFileStorageSchema>;
+
+export const builderFileContentKindSchema = z.enum(["image", "file"]);
+export type BuilderFileContentKind = z.infer<typeof builderFileContentKindSchema>;
 
 export const builderSelectOptionSchema = z.object({
   label: z.string().min(1).max(120),
@@ -124,6 +131,16 @@ export const builderFieldSchema = z.object({
   required: z.boolean().default(false),
   hidden: z.boolean().default(false),
   disabled: z.boolean().default(false),
+  defaultValue: z.union([z.string(), z.number(), z.boolean()]).optional(),
+  storage: builderFileStorageSchema.optional(),
+  contentKind: builderFileContentKindSchema.optional(),
+  multiple: z.boolean().optional(),
+  maxBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(100 * 1024 * 1024)
+    .optional(),
   placeholder: z.string().max(160).optional(),
   description: z.string().max(240).optional(),
   options: z.array(builderSelectOptionSchema).max(50).optional(),
@@ -131,6 +148,24 @@ export const builderFieldSchema = z.object({
   triggers: z.array(builderFieldTriggerSchema).max(10).default([]),
 });
 export type BuilderField = z.infer<typeof builderFieldSchema>;
+
+export const builderFileUploadRequestSchema = z.object({
+  contentType: z.string().min(1).max(160),
+  contentLength: z.number().int().positive(),
+});
+export type BuilderFileUploadRequest = z.infer<typeof builderFileUploadRequestSchema>;
+
+export const builderFileUploadResponseSchema = z.object({
+  url: z.string().url(),
+  key: z.string().min(1),
+});
+export type BuilderFileUploadResponse = z.infer<typeof builderFileUploadResponseSchema>;
+
+export const builderFilePresignResponseSchema = builderFileUploadResponseSchema.extend({
+  uploadUrl: z.string().url(),
+  expiresInSeconds: z.number().int().positive(),
+});
+export type BuilderFilePresignResponse = z.infer<typeof builderFilePresignResponseSchema>;
 
 export const builderColumnSchema = z.object({
   key: z.string().regex(fieldKeyPattern),
