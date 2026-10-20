@@ -34,10 +34,20 @@ type LocalizedJourney = {
 };
 
 type JourneyTrip = Omit<LocalizedTrip, "itinerary"> & {
+  excluded?: readonly string[];
   galleryImage?: string;
   id: JourneyTripId;
+  included?: readonly string[];
   image: string;
-  itinerary: Array<{ day: string; description: string; title: string }>;
+  itineraryImages?: readonly (readonly string[])[];
+  itinerary: Array<{
+    day: string;
+    description?: string;
+    hotel?: string;
+    meals?: string;
+    points?: readonly string[];
+    title: string;
+  }>;
   price: string;
   transportTypes?: readonly ("GROUND" | "DIRECT_FLIGHT")[];
   videoId?: string;
@@ -73,18 +83,20 @@ function createJourneyCategories(locale: keyof typeof publicMessages) {
               (highlight, index) => [`item${index + 1}`, highlight],
             ),
           ),
-        itinerary: trip.itineraryDays
-          ? trip.itineraryDays.map((dayKey) => ({
-              day: dayKey.slice(-2),
-              description:
-                localizedTrip?.itinerary?.[dayKey]?.description ??
-                "Үзэсгэлэнт газруудтай танилцаж, чөлөөт цаг өнгөрүүлнэ. · MOCK",
-              title: localizedTrip?.itinerary?.[dayKey]?.title ?? `Аяллын өдөр ${dayKey.slice(-2)}`,
-            }))
-          : (mockCopy?.itinerary ?? []).map((stop, index) => ({
-              day: String(index + 1).padStart(2, "0"),
-              ...stop,
-            })),
+        itinerary:
+          trip.itineraryDays && localizedTrip?.itinerary
+            ? trip.itineraryDays.map((dayKey) => ({
+                day: dayKey.slice(-2),
+                description:
+                  localizedTrip?.itinerary?.[dayKey]?.description ??
+                  "Үзэсгэлэнт газруудтай танилцаж, чөлөөт цаг өнгөрүүлнэ. · MOCK",
+                title:
+                  localizedTrip?.itinerary?.[dayKey]?.title ?? `Аяллын өдөр ${dayKey.slice(-2)}`,
+              }))
+            : (mockCopy?.itinerary ?? []).map((stop, index) => ({
+                day: String(index + 1).padStart(2, "0"),
+                ...stop,
+              })),
       };
     }),
   }));
@@ -284,43 +296,70 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
         className={styles.btOverview}
         id="trip-overview"
       >
-        <div className={styles.btOverviewTitle}>
-          <p className={styles.btEyebrow}>{trip.region}</p>
-          <h3 id="trip-overview-title">{trip.title}</h3>
-        </div>
-        <p className={styles.btOverviewCopy}>
-          {trip.intro || t("fallbackIntro", { region: trip.region })}
-        </p>
-      </section>
-      <section
-        aria-label={t("factsLabel")}
-        className={`${styles.btFacts} ${trip.transportTypes?.length ? styles.btFactsWithTransport : ""}`}
-      >
-        <div>
-          <CalendarDays aria-hidden="true" className={styles.btFactIcon} size={19} />
-          <span>{t("when")}</span>
-          <strong>{trip.season || t("seasonComingSoon")}</strong>
-        </div>
-        <div>
-          <Wallet aria-hidden="true" className={styles.btFactIcon} size={19} />
-          <span>{t("price")}</span>
-          <strong>{trip.price}</strong>
-        </div>
-        <div>
-          <Clock3 aria-hidden="true" className={styles.btFactIcon} size={19} />
-          <span>{t("duration")}</span>
-          <strong>{trip.duration}</strong>
-        </div>
-        {trip.transportTypes?.length ? (
-          <div>
-            <Plane aria-hidden="true" className={styles.btFactIcon} size={19} />
-            <span>{bookingT("transportType")}</span>
-            <strong>
-              {trip.transportTypes.map((type) => bookingT(`transport.${type}`)).join(" · ")}
-            </strong>
+        <div className={styles.btOverviewMedia}>
+          <span className={styles.btOverviewRegion}>{trip.region}</span>
+          <div className={styles.btOverviewContent}>
+            <p className={styles.btEyebrow}>{t("journeyStartsHere")}</p>
+            <h3 id="trip-overview-title">{trip.title}</h3>
+            <p className={styles.btOverviewCopy}>
+              {trip.intro || t("fallbackIntro", { region: trip.region })}
+            </p>
           </div>
-        ) : null}
+        </div>
+        <section
+          aria-label={t("factsLabel")}
+          className={`${styles.btFacts} ${trip.transportTypes?.length ? styles.btFactsWithTransport : styles.btFactsBasic}`}
+        >
+          <div>
+            <CalendarDays aria-hidden="true" className={styles.btFactIcon} size={18} />
+            <span>{t("when")}</span>
+            <strong>{trip.season || t("seasonComingSoon")}</strong>
+          </div>
+          <div>
+            <Wallet aria-hidden="true" className={styles.btFactIcon} size={18} />
+            <span>{t("price")}</span>
+            <strong>{trip.price}</strong>
+          </div>
+          <div>
+            <Clock3 aria-hidden="true" className={styles.btFactIcon} size={18} />
+            <span>{t("duration")}</span>
+            <strong>{trip.duration}</strong>
+          </div>
+          {trip.transportTypes?.length ? (
+            <div>
+              <Plane aria-hidden="true" className={styles.btFactIcon} size={18} />
+              <span>{bookingT("transportType")}</span>
+              <strong>
+                {trip.transportTypes.map((type) => bookingT(`transport.${type}`)).join(" · ")}
+              </strong>
+            </div>
+          ) : null}
+        </section>
       </section>
+      {trip.included?.length || trip.excluded?.length ? (
+        <section aria-label="Аяллын зардлын мэдээлэл" className={styles.btInclusions}>
+          {trip.included?.length ? (
+            <div>
+              <p className={styles.btEyebrow}>ҮНЭД БАГТСАН</p>
+              <ul>
+                {trip.included.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {trip.excluded?.length ? (
+            <div>
+              <p className={styles.btEyebrow}>ҮНЭД БАГТААГҮЙ</p>
+              <ul>
+                {trip.excluded.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
       <section aria-label={t("itineraryLabel")} className={styles.btRoute} id="trip-route">
         <div className={styles.btHighlights}>
           {highlights.map((highlight, index) => (
@@ -332,13 +371,9 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
         </div>
         <div className={styles.btDayList}>
           {trip.itinerary.map((stop, index) => {
-            const reverse = index % 2 === 1;
-            const image = index % 2 === 0 ? (trip.galleryImage ?? trip.image) : trip.image;
+            const images = trip.itineraryImages?.[index] ?? [trip.galleryImage ?? trip.image];
             return (
-              <article
-                className={`${styles.btDay} ${reverse ? styles.btDayReverse : ""}`}
-                key={`${stop.day}-${stop.title}`}
-              >
+              <article className={styles.btDay} key={`${stop.day}-${stop.title}`}>
                 <div className={styles.btDayMedia} id={index === 0 ? "trip-media" : undefined}>
                   {index === 0 && trip.videoId ? (
                     <iframe
@@ -350,15 +385,49 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
                       title={t("videoTitle", { title: trip.title })}
                     />
                   ) : (
-                    // biome-ignore lint/performance/noImgElement: local trip media follows the editorial reference layout
-                    <img alt={trip.mediaCaption || trip.region} loading="lazy" src={image} />
+                    <div className={styles.btDayPhotoGrid} data-count={images.length}>
+                      {images.map((image, imageIndex) => (
+                        <div className={styles.btDayPhoto} key={image}>
+                          {/* biome-ignore lint/performance/noImgElement: local trip media follows the editorial reference layout */}
+                          <img
+                            alt={`${stop.title} · ${imageIndex + 1}`}
+                            loading="lazy"
+                            src={image}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   )}
                   {index === 0 ? <span>{trip.mediaCaption || trip.region}</span> : null}
                 </div>
                 <div className={styles.btDayCopy}>
                   <p className={styles.btEyebrow}>{t("day", { day: stop.day })}</p>
                   <h4>{stop.title}</h4>
-                  <p>{stop.description}</p>
+                  {stop.points?.length ? (
+                    <ul className={styles.btDayPoints}>
+                      {stop.points.map((point) => (
+                        <li key={point}>{point}</li>
+                      ))}
+                    </ul>
+                  ) : stop.description ? (
+                    <p>{stop.description}</p>
+                  ) : null}
+                  {stop.meals || stop.hotel ? (
+                    <div className={styles.btDayStay}>
+                      {stop.meals ? (
+                        <p>
+                          <span>Хоол</span>
+                          {stop.meals}
+                        </p>
+                      ) : null}
+                      {stop.hotel ? (
+                        <p>
+                          <span>Буудал</span>
+                          {stop.hotel}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               </article>
             );
