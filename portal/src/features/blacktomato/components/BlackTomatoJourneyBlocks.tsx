@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Plane,
+  Wallet,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { publicMessages } from "@/lib/i18n/config";
 import { usePublicLocale } from "@/lib/i18n/PublicI18nProvider";
@@ -263,10 +271,6 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
   const t = useTranslations("publicJourney.ui");
   const bookingT = useTranslations("publicBooking");
   const highlights = Object.values(trip.highlights ?? { region: trip.region });
-  const scrollToBooking = () =>
-    document
-      .getElementById("journey-booking")
-      ?.scrollIntoView({ behavior: "instant", block: "start" });
 
   return (
     <section
@@ -275,46 +279,47 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
       id="trip-detail"
       tabIndex={-1}
     >
-      <nav aria-label={t("detailNavigation")} className={styles.btDetailNav}>
-        <a href="#trip-overview">{t("overview")}</a>
-        <a href="#trip-route">{t("itinerary")}</a>
-        <a href="#trip-media">{t("media")}</a>
-        <button onClick={scrollToBooking} type="button">
-          {t("book")} <ChevronRight aria-hidden="true" size={15} />
-        </button>
-      </nav>
       <section
         aria-labelledby="trip-overview-title"
         className={styles.btOverview}
         id="trip-overview"
       >
-        <p className={styles.btEyebrow}>{trip.region}</p>
-        <h3 id="trip-overview-title">{trip.title}</h3>
-        <p>{trip.intro || t("fallbackIntro", { region: trip.region })}</p>
+        <div className={styles.btOverviewTitle}>
+          <p className={styles.btEyebrow}>{trip.region}</p>
+          <h3 id="trip-overview-title">{trip.title}</h3>
+        </div>
+        <p className={styles.btOverviewCopy}>
+          {trip.intro || t("fallbackIntro", { region: trip.region })}
+        </p>
       </section>
-      {trip.transportTypes?.length ? (
-        <section aria-label={bookingT("transportType")} className={styles.btFacts}>
+      <section
+        aria-label={t("factsLabel")}
+        className={`${styles.btFacts} ${trip.transportTypes?.length ? styles.btFactsWithTransport : ""}`}
+      >
+        <div>
+          <CalendarDays aria-hidden="true" className={styles.btFactIcon} size={19} />
+          <span>{t("when")}</span>
+          <strong>{trip.season || t("seasonComingSoon")}</strong>
+        </div>
+        <div>
+          <Wallet aria-hidden="true" className={styles.btFactIcon} size={19} />
+          <span>{t("price")}</span>
+          <strong>{trip.price}</strong>
+        </div>
+        <div>
+          <Clock3 aria-hidden="true" className={styles.btFactIcon} size={19} />
+          <span>{t("duration")}</span>
+          <strong>{trip.duration}</strong>
+        </div>
+        {trip.transportTypes?.length ? (
           <div>
+            <Plane aria-hidden="true" className={styles.btFactIcon} size={19} />
             <span>{bookingT("transportType")}</span>
             <strong>
               {trip.transportTypes.map((type) => bookingT(`transport.${type}`)).join(" · ")}
             </strong>
           </div>
-        </section>
-      ) : null}
-      <section aria-label={t("factsLabel")} className={styles.btFacts}>
-        <div>
-          <span>{t("when")}</span>
-          <strong>{trip.season || t("seasonComingSoon")}</strong>
-        </div>
-        <div>
-          <span>{t("price")}</span>
-          <strong>{trip.price}</strong>
-        </div>
-        <div>
-          <span>{t("duration")}</span>
-          <strong>{trip.duration}</strong>
-        </div>
+        ) : null}
       </section>
       <section aria-label={t("itineraryLabel")} className={styles.btRoute} id="trip-route">
         <div className={styles.btHighlights}>

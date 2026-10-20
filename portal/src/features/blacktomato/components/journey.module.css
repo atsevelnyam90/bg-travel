@@ -1031,16 +1031,9 @@
   font-family: var(--font-handwriting), cursive;
 }
 
-.btDetailNav { align-items: center; background: var(--travel-surface, #fff); border-bottom: 1px solid var(--color-neutral-200); display: flex; gap: clamp(18px, 4vw, 52px); justify-content: center; margin: 0 auto; padding: 15px 20px; position: sticky; top: 0; z-index: 5; }
-.btDetailNav a,
-.btDetailNav button { background: none; border: 0; color: var(--color-neutral-800); cursor: pointer; font-family: var(--font-sans), sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
-.btDetailNav a:hover,
-.btDetailNav a:focus-visible,
-.btDetailNav button:hover,
-.btDetailNav button:focus-visible { color: var(--color-green-700); }
-.btDetailNav button { align-items: center; display: inline-flex; gap: 6px; }
-
-.btOverview { margin: 0 auto; max-width: 780px; padding: clamp(56px, 8vw, 100px) 24px 52px; text-align: center; }
+.btOverview { align-items: center; column-gap: clamp(32px, 6vw, 86px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .9fr); margin: 0 auto; max-width: 1050px; padding: clamp(46px, 6vw, 78px) 28px 36px; row-gap: 15px; }
+.btOverviewTitle { border-left: 2px solid var(--travel-primary); padding-left: clamp(18px, 3vw, 34px); }
+.btOverviewTitle .btEyebrow { margin-bottom: 14px; }
 .btEyebrow { color: var(--color-green-700); font-family: var(--font-sans), sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .16em; margin: 0 0 12px; text-transform: uppercase; }
 .btOverview h3,
 .btRouteHeading h3,
@@ -1048,18 +1041,23 @@
 .btDetailFooter h3 { color: var(--color-neutral-950); font-family: var(--font-sans), sans-serif; font-size: clamp(36px, 5vw, 60px); font-weight: 500; letter-spacing: .01em; line-height: 1.02; margin: 0 0 20px; text-transform: none; }
 .btOverview > p:last-child,
 .btRouteHeading > p:last-child { color: var(--color-neutral-600); font-size: 15px; line-height: 1.9; margin: 0 auto; max-width: 720px; }
+.btOverview h3 { font-size: clamp(42px, 5vw, 64px); letter-spacing: -.035em; line-height: 1.05; margin: 0; max-width: 520px; }
+.btOverviewCopy { color: var(--color-neutral-600); font-family: var(--font-sans), sans-serif; font-size: 16px; line-height: 1.9; margin: 0; max-width: 490px; }
 
-.btFacts { border-bottom: 1px solid var(--color-neutral-200); border-top: 1px solid var(--color-neutral-200); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto; max-width: 1050px; }
-.btFacts > div { display: grid; gap: 8px; padding: 22px 28px; }
-.btFacts > div + div { border-left: 1px solid var(--color-neutral-200); }
-.btFacts span { color: var(--color-neutral-500); font-family: var(--font-sans), sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-.btFacts strong { color: var(--color-neutral-950); font-size: 14px; font-weight: 600; }
+.btFacts { background: var(--travel-dark, var(--color-neutral-950)); border-radius: 14px; box-shadow: 0 14px 34px rgb(53 28 48 / 12%); color: var(--travel-on-dark, #fff4e8); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto 38px; max-width: 1050px; overflow: hidden; }
+.btFactsWithTransport { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.btFacts > div { align-content: center; column-gap: 12px; display: grid; grid-template-columns: 22px minmax(0, 1fr); padding: 20px clamp(14px, 2.4vw, 30px); row-gap: 5px; }
+.btFacts > div + div { border-left: 1px solid var(--travel-dark-soft, var(--color-neutral-700)); }
+.btFactIcon { color: var(--travel-gold, var(--color-green-700)); grid-row: 1 / span 2; margin-top: 2px; }
+.btFacts span { color: var(--travel-dark-muted, var(--color-neutral-300)); font-family: var(--font-sans), sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.btFacts strong { color: var(--travel-on-dark, #fff4e8); font-size: 14px; font-weight: 600; line-height: 1.45; }
 
-.btRoute { background: var(--travel-surface, #f4f4f2); margin-inline: calc(clamp(4px, 3.4vw, 46px) * -1); padding: clamp(28px, 4vw, 48px) clamp(20px, 6vw, 86px) clamp(55px, 8vw, 100px); }
+.btRoute { background: var(--travel-surface, #f4f4f2); margin-inline: calc(clamp(4px, 3.4vw, 46px) * -1); padding: clamp(22px, 3vw, 34px) clamp(20px, 6vw, 86px) clamp(55px, 8vw, 100px); }
 .btRouteHeading { margin: 0 auto 42px; max-width: 780px; text-align: center; }
-.btHighlights { border-bottom: 1px solid var(--color-neutral-300); border-top: 1px solid var(--color-neutral-300); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto 60px; max-width: 1050px; }
-.btHighlights > span { align-items: center; color: var(--color-neutral-800); display: flex; gap: 12px; padding: 18px 12px; }
-.btHighlights small { color: var(--color-green-700); font-family: var(--font-sans), sans-serif; font-size: 10px; letter-spacing: .1em; }
+.btHighlights { display: grid; gap: 20px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 auto 54px; max-width: 1050px; position: relative; }
+.btHighlights::before { background: var(--color-neutral-300); content: ""; height: 1px; left: 16%; position: absolute; right: 16%; top: 19px; }
+.btHighlights > span { align-items: center; color: var(--color-neutral-800); display: grid; font-family: var(--font-sans), sans-serif; gap: 12px; grid-template-columns: 40px minmax(0, 1fr); line-height: 1.5; padding: 0 12px; position: relative; }
+.btHighlights small { align-items: center; background: var(--travel-surface, #fff); border: 1px solid var(--travel-primary); border-radius: 50%; color: var(--travel-primary); display: inline-flex; font-family: var(--font-sans), sans-serif; font-size: 10px; height: 38px; justify-content: center; letter-spacing: .04em; width: 38px; z-index: 1; }
 .btDayList { display: grid; gap: 60px; margin: 0 auto; max-width: 1100px; padding-left: 64px; position: relative; }
 .btDayList::before { border-left: 1px dashed #1e6e9f; content: ""; inset: 8px auto 8px 8px; position: absolute; }
 .btDay { align-items: stretch; background: #fff; border-radius: 15px; box-shadow: 0 5px 8px rgb(0 0 0 / 16%); display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1fr); min-height: 480px; overflow: visible; position: relative; }
@@ -1092,20 +1090,25 @@
 .btDetailFooter button:focus-visible { background: var(--color-green-700); }
 
 @media (max-width: 760px) {
-  .btDetailNav { gap: 16px; justify-content: flex-start; margin-inline: -15px; overflow-x: auto; padding: 14px 18px; }
-  .btDetailNav a,
-  .btDetailNav button { flex: 0 0 auto; font-size: 10px; }
-  .btOverview { padding: 54px 12px 40px; }
+  .btOverview { grid-template-columns: minmax(0, 1fr); padding: 42px 12px 26px; row-gap: 20px; }
+  .btOverviewTitle { border-left-width: 2px; padding-left: 16px; }
   .btOverview h3,
   .btRouteHeading h3 { font-size: 42px; }
-  .btFacts { margin-bottom: 50px; }
-  .btFacts > div { gap: 6px; padding: 14px 9px; }
-  .btFacts span { font-size: 8px; letter-spacing: .06em; }
-  .btFacts strong { font-size: 11px; }
-  .btRoute { margin-inline: -15px; padding: 52px 15px; }
+  .btOverview h3 { font-size: clamp(38px, 11vw, 50px); }
+  .btOverviewCopy { font-size: 15px; }
+  .btFacts,
+  .btFactsWithTransport { border-radius: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 28px; }
+  .btFacts > div { column-gap: 8px; min-height: 82px; padding: 14px 12px; }
+  .btFacts > div:nth-child(odd) { border-left: 0; }
+  .btFacts > div:nth-child(n + 3) { border-top: 1px solid var(--travel-dark-soft, var(--color-neutral-700)); }
+  .btFactIcon { height: 17px; width: 17px; }
+  .btFacts span { font-size: 8px; letter-spacing: .08em; }
+  .btFacts strong { font-size: 11px; line-height: 1.5; }
+  .btRoute { margin-inline: -15px; padding: 30px 15px 52px; }
   .btRouteHeading { margin-bottom: 30px; }
-  .btHighlights { grid-template-columns: minmax(0, 1fr); margin-bottom: 38px; }
-  .btHighlights > span { padding: 12px 4px; }
+  .btHighlights { gap: 16px; grid-template-columns: minmax(0, 1fr); margin-bottom: 32px; padding-left: 2px; }
+  .btHighlights::before { height: auto; inset: 19px auto 19px 30px; width: 1px; }
+  .btHighlights > span { gap: 12px; grid-template-columns: 40px minmax(0, 1fr); min-height: 38px; padding: 0; }
   .btDayList { gap: 24px; }
   .btDay,
   .btDayReverse { grid-template-columns: minmax(0, 1fr); }
