@@ -327,6 +327,11 @@
     "price": "가격",
     "selectPrice": "가격 선택",
     "searchPrice": "가격 검색",
+    "searchSummary": {
+      "trips": "여행 {count}개",
+      "dates": "날짜 {count}개",
+      "transports": "교통편 {count}개"
+    },
     "totalPrice": "총 금액",
     "notEnoughSeats": "선택한 인원을 위한 좌석이 부족합니다.",
     "quoteHint": "여행, 출발 일정, 인원을 선택하면 가격과 잔여 좌석이 표시됩니다.",

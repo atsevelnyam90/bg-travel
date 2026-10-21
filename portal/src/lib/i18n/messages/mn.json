@@ -331,6 +331,11 @@
     "price": "Үнэ",
     "selectPrice": "Үнэ сонгох",
     "searchPrice": "Үнэ хайх",
+    "searchSummary": {
+      "trips": "{count} аялал",
+      "dates": "{count} огноо",
+      "transports": "{count} төрөл"
+    },
     "totalPrice": "Нийт үнэ",
     "notEnoughSeats": "Сонгосон хүний тоонд хүрэлцэх суудал одоогоор алга.",
     "quoteHint": "Үнэ болон суудлын мэдээлэл аялал, гаралт, хүний тоо сонгосны дараа гарна.",

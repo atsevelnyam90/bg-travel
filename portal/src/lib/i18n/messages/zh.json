@@ -300,6 +300,11 @@
     "price": "价格",
     "selectPrice": "选择价格",
     "searchPrice": "搜索价格",
+    "searchSummary": {
+      "trips": "{count} 个行程",
+      "dates": "{count} 个日期",
+      "transports": "{count} 种交通方式"
+    },
     "totalPrice": "总价",
     "notEnoughSeats": "当前余位不足以容纳所选人数。",
     "quoteHint": "选择行程、出发日期和人数后，将显示价格与余位。",

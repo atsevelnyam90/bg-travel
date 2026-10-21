@@ -94,10 +94,19 @@
   opacity: 0.48;
 }
 
-.searchField:hover,
-.searchField:focus-within {
-  background: color-mix(in srgb, var(--color-white) 7%, transparent);
+.searchField:hover {
+  background: color-mix(in srgb, var(--color-white) 6%, transparent);
+}
+
+.searchField:focus-visible,
+.searchField[aria-expanded="true"],
+.searchField[data-selected] {
+  background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 12%, transparent);
   box-shadow: inset 0 -2px 0 var(--travel-primary, var(--color-green-700));
+}
+
+.searchField[data-selected]:hover {
+  background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 18%, transparent);
 }
 
 .searchIcon {
@@ -115,6 +124,14 @@
   min-width: 0;
 }
 
+.searchFieldLabel {
+  align-items: center;
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  justify-content: space-between;
+  min-width: 0;
+}
+
 .searchFieldBody small {
   color: var(--travel-dark-muted, var(--color-neutral-400));
   font-size: 9px;
@@ -124,6 +141,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.searchFieldMeta {
+  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 48%, transparent);
+  flex: 0 1 auto;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  max-width: 72%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -210,9 +240,19 @@
 
 [data-slot="popover-content"].searchPopover .searchOption[data-selected="true"],
 [data-slot="popover-content"].searchPopover .searchClearOption[data-selected="true"] {
-  background: color-mix(in srgb, var(--color-white) 10%, transparent);
-  box-shadow: inset 2px 0 0 var(--travel-gold, var(--color-green-500));
+  background: color-mix(in srgb, var(--color-white) 8%, transparent);
+  box-shadow: none;
   color: var(--travel-on-dark, var(--color-white));
+}
+
+[data-slot="popover-content"].searchPopover .searchOption[data-checked="true"] {
+  background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 22%, transparent);
+  box-shadow: inset 3px 0 0 var(--travel-primary, var(--color-pink-700));
+}
+
+[data-slot="popover-content"].searchPopover
+  .searchOption[data-checked="true"][data-selected="true"] {
+  background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 30%, transparent);
 }
 
 [data-slot="popover-content"].searchPopover .searchClearOption {
@@ -415,6 +455,11 @@
   .searchFieldBody small {
     font-size: 7px;
     letter-spacing: 0.08em;
+  }
+
+  .searchFieldMeta {
+    font-size: 6px;
+    max-width: 58%;
   }
 
   .searchFieldValue {

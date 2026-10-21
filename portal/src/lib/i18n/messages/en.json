@@ -334,6 +334,11 @@
     "price": "Price",
     "selectPrice": "Choose a price",
     "searchPrice": "Search prices",
+    "searchSummary": {
+      "trips": "{count, plural, one {# trip} other {# trips}}",
+      "dates": "{count, plural, one {# date} other {# dates}}",
+      "transports": "{count, plural, one {# type} other {# types}}"
+    },
     "totalPrice": "Total price",
     "notEnoughSeats": "There are not enough seats for the selected group size.",
     "quoteHint": "Price and availability will appear after you choose a trip, departure and group size.",
