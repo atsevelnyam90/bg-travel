@@ -151,7 +151,12 @@ export const detailFormSchema = builder.builderFormSchema.parse({
     { key: "travelId", label: "Аялал", type: "text", required: true, hidden: true },
     { key: "dayNumber", label: "Өдөр", type: "number", required: true },
     { key: "title", label: "Гарчиг", type: "text", required: true },
-    { key: "content", label: "Тайлбар", type: "textarea" },
+    {
+      key: "content",
+      label: "Тайлбар",
+      type: "richtext",
+      placeholder: "Өдрийн хөтөлбөрөө bullet list, тод текст ашиглан бичнэ үү",
+    },
     {
       key: "images",
       label: "Зургууд",

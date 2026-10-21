@@ -91,6 +91,9 @@ describe("travel builder", () => {
       "content",
       "images",
     ]);
+    expect(
+      detailView.body.form.schema.fields.find((field: { key: string }) => field.key === "content"),
+    ).toMatchObject({ type: "richtext" });
     await prisma.builderDefinition.update({
       where: { id: ids.travelForm },
       data: { title: "Custom title" },

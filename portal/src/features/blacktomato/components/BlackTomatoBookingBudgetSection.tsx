@@ -18,7 +18,12 @@ type BlackTomatoBookingBudgetSectionProps = {
   initialTripId?: string;
   mode?: "home" | "detail";
   onContinue?: (quote: BookingQuote) => void;
-  variant?: "section" | "drawer" | "card";
+  variant?: "section" | "drawer" | "sideDrawer" | "card";
+};
+
+type BlackTomatoBookingBudgetViewProps = {
+  screen: ReturnType<typeof useBookingBudgetScreen>;
+  variant: NonNullable<BlackTomatoBookingBudgetSectionProps["variant"]>;
 };
 
 function TripResult({
@@ -56,9 +61,17 @@ export function BlackTomatoBookingBudgetSection({
   onContinue,
   variant = "section",
 }: BlackTomatoBookingBudgetSectionProps) {
-  const t = useTranslations("publicBooking");
   const screen = useBookingBudgetScreen({ initialTripId, mode, onContinue });
-  const isDrawer = variant === "drawer";
+
+  return <BlackTomatoBookingBudgetView screen={screen} variant={variant} />;
+}
+
+export function BlackTomatoBookingBudgetView({
+  screen,
+  variant,
+}: BlackTomatoBookingBudgetViewProps) {
+  const t = useTranslations("publicBooking");
+  const isDrawer = variant === "drawer" || variant === "sideDrawer";
 
   return (
     <section

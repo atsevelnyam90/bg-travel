@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 let bookingDrawerTrigger: HTMLElement | null = null;
+export const OPEN_BOOKING_DRAWER_EVENT = "blacktomato:open-booking-drawer";
 
 const focusableSelector = [
   "a[href]",
@@ -105,9 +106,57 @@ function bindPageScroll(root: ParentNode) {
     });
 }
 
+function bindAutoHidingHeader(root: ParentNode) {
+  const header = root.querySelector<HTMLElement>("[data-public-header]");
+  if (!header) return () => undefined;
+
+  let previousScrollY = Math.max(0, window.scrollY);
+  let animationFrame: number | null = null;
+
+  const updateHeader = () => {
+    const currentScrollY = Math.max(0, window.scrollY);
+    const scrollDelta = currentScrollY - previousScrollY;
+
+    if (currentScrollY <= 16 || scrollDelta < 0) {
+      header.removeAttribute("data-scroll-hidden");
+    } else if (scrollDelta > 0) {
+      header.dataset.scrollHidden = "true";
+    }
+
+    previousScrollY = currentScrollY;
+    animationFrame = null;
+  };
+
+  const handleScroll = () => {
+    if (animationFrame === null) {
+      animationFrame = window.requestAnimationFrame(updateHeader);
+    }
+  };
+
+  const handleWheel = (event: WheelEvent) => {
+    if (event.deltaY > 0) {
+      header.dataset.scrollHidden = "true";
+    } else if (event.deltaY < 0) {
+      header.removeAttribute("data-scroll-hidden");
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  window.addEventListener("wheel", handleWheel, { passive: true });
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+    window.removeEventListener("wheel", handleWheel);
+    if (animationFrame !== null) {
+      window.cancelAnimationFrame(animationFrame);
+    }
+  };
+}
+
 function openBookingDrawer(trigger: HTMLElement | null) {
   bookingDrawerTrigger = trigger;
   startPage();
+  document.querySelector("[data-public-header]")?.removeAttribute("data-scroll-hidden");
   document
     .querySelector(".blacktomato-shell")
     ?.classList.add("blacktomato-shell--started", "blacktomato-shell--booking-open");
@@ -168,6 +217,17 @@ function bindBookingDrawer(root: ParentNode) {
     }
     trapBookingDrawerFocus(event);
   });
+}
+
+function bindBookingDrawerRequest() {
+  const openRequestedDrawer = () => {
+    openBookingDrawer(
+      document.activeElement instanceof HTMLElement ? document.activeElement : null,
+    );
+  };
+
+  window.addEventListener(OPEN_BOOKING_DRAWER_EVENT, openRequestedDrawer);
+  return () => window.removeEventListener(OPEN_BOOKING_DRAWER_EVENT, openRequestedDrawer);
 }
 
 function bindMobileMenu(root: ParentNode) {
@@ -278,6 +338,8 @@ function bindHorizontalScrollers(root: ParentNode) {
 export function BlackTomatoInteractions() {
   useEffect(() => {
     const root = document;
+    const unbindAutoHidingHeader = bindAutoHidingHeader(root);
+    const unbindBookingDrawerRequest = bindBookingDrawerRequest();
 
     preventLocalFormSubmit(root);
     bindDismissButtons(root);
@@ -288,6 +350,11 @@ export function BlackTomatoInteractions() {
     bindTabs(root);
     bindAccordions(root);
     bindHorizontalScrollers(root);
+
+    return () => {
+      unbindAutoHidingHeader();
+      unbindBookingDrawerRequest();
+    };
   }, []);
 
   return null;

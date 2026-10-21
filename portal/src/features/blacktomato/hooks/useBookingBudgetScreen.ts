@@ -48,7 +48,7 @@ function parseDateOnly(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`);
 }
 
-function slotDateKey(slot: TravelSlot): string {
+export function getTravelSlotDateKey(slot: TravelSlot): string {
   return `${slot.departureDate}|${slot.returnDate}`;
 }
 
@@ -139,7 +139,7 @@ export function useBookingBudgetScreen({
   const dateOptions = useMemo(() => {
     const unique = new Map<string, { key: string; label: string }>();
     for (const slot of selectedTrip?.slots ?? []) {
-      const key = slotDateKey(slot);
+      const key = getTravelSlotDateKey(slot);
       if (!unique.has(key)) {
         unique.set(key, {
           key,
@@ -151,7 +151,7 @@ export function useBookingBudgetScreen({
   }, [formatTravelDate, selectedTrip]);
 
   const transportOptions = selectedDateKey
-    ? (selectedTrip?.slots.filter((slot) => slotDateKey(slot) === selectedDateKey) ?? [])
+    ? (selectedTrip?.slots.filter((slot) => getTravelSlotDateKey(slot) === selectedDateKey) ?? [])
     : [];
   const selectedSlot =
     transportOptions.find((slot) => slot.publicId === selectedSlotId) ??
@@ -206,9 +206,39 @@ export function useBookingBudgetScreen({
   }
 
   function selectDate(dateKey: string) {
+    if (!dateKey) return;
     setSelectedDateKey(dateKey);
-    const firstSlot = selectedTrip?.slots.find((slot) => slotDateKey(slot) === dateKey);
+    const firstSlot = selectedTrip?.slots.find((slot) => getTravelSlotDateKey(slot) === dateKey);
     setSelectedSlotId(firstSlot?.publicId ?? null);
+  }
+
+  function applySearchSelection({
+    dateKey,
+    transportType,
+    tripPublicId,
+    unitPriceMinor,
+  }: {
+    dateKey: string;
+    transportType: TravelSlot["transportType"];
+    tripPublicId: string;
+    unitPriceMinor: number;
+  }) {
+    const trip = travelOptions.find((option) => option.publicId === tripPublicId);
+    const slot = trip?.slots.find(
+      (option) =>
+        getTravelSlotDateKey(option) === dateKey &&
+        option.transportType === transportType &&
+        option.unitPriceMinor === unitPriceMinor,
+    );
+    if (!trip || !slot) return;
+
+    setSelectedTripId(trip.publicId);
+    setSelectedDateKey(dateKey);
+    setSelectedSlotId(slot.publicId);
+    setPeopleCount(1);
+    setStep("selection");
+    setQuery("");
+    setDropdownOpen(false);
   }
 
   function incrementPeople() {
@@ -285,6 +315,7 @@ export function useBookingBudgetScreen({
   }
 
   return {
+    applySearchSelection,
     bookingActionsRef,
     canContinue,
     confirmPayment,
@@ -322,6 +353,7 @@ export function useBookingBudgetScreen({
     setSelectedSlotId,
     transportOptions,
     transportLabel,
+    travelOptions,
     travelsError: travelsQuery.isError,
     resetBooking,
   };

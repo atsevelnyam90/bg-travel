@@ -1,5 +1,5 @@
 import type { ReadyBuilderContracts } from "@duke333/builder-ui";
-import { formatBuilderRuntimeValue } from "@duke333/builder-ui/runtime";
+import { formatBuilderRuntimeValue, richTextToPlainText } from "@duke333/builder-ui/runtime";
 import { formatMinor } from "@/api/generated/contracts/money";
 
 type BuilderField = ReadyBuilderContracts["BuilderForm"]["schema"]["fields"][number];
@@ -19,5 +19,6 @@ export function formatBuilderField(value: unknown, field?: BuilderField): string
     const count = Array.isArray(value) ? value.length : 1;
     return `${count} ${field.contentKind === "image" ? "зураг" : "файл"}`;
   }
+  if (field?.type === "richtext") return richTextToPlainText(value) || "—";
   return formatBuilderRuntimeValue(value);
 }

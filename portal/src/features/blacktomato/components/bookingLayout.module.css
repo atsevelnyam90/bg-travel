@@ -25,11 +25,13 @@
   min-height: 100%;
 }
 
-body[class~="blacktomato-booking-open"]:has(.drawer) {
+body[class~="blacktomato-booking-open"]:has(.drawer),
+body[class~="blacktomato-booking-open"]:has(.sideDrawer) {
   overflow: hidden;
 }
 
-.drawer {
+.drawer,
+.sideDrawer {
   inset: 0;
   opacity: 0;
   pointer-events: none;
@@ -41,7 +43,8 @@ body[class~="blacktomato-booking-open"]:has(.drawer) {
   z-index: 10050;
 }
 
-[class~="blacktomato-shell--booking-open"] .drawer {
+[class~="blacktomato-shell--booking-open"] .drawer,
+[class~="blacktomato-shell--booking-open"] .sideDrawer {
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
@@ -76,6 +79,26 @@ body[class~="blacktomato-booking-open"]:has(.drawer) {
 [class~="blacktomato-shell--booking-open"] .drawer .drawerPanel {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+}
+
+.sideDrawer .drawerPanel {
+  background: var(--travel-dark, var(--color-neutral-950));
+  bottom: 0;
+  box-shadow: -24px 0 70px color-mix(in srgb, var(--color-black) 32%, transparent);
+  max-height: 100dvh;
+  opacity: 1;
+  overflow-y: auto;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 5) calc(var(--spacing) * 5);
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translateX(100%);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: min(480px, 100%);
+}
+
+[class~="blacktomato-shell--booking-open"] .sideDrawer .drawerPanel {
+  transform: translateX(0);
 }
 
 .close {
@@ -122,14 +145,30 @@ body[class~="blacktomato-booking-open"]:has(.drawer) {
   [class~="blacktomato-shell--booking-open"] .drawer .drawerPanel {
     transform: translateY(0);
   }
+
+  .sideDrawer .drawerPanel {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    height: calc(100dvh - 68px);
+    inset: auto 0 0;
+    max-height: calc(100dvh - 68px);
+    padding: calc(var(--spacing) * 15) calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    transform: translateY(100%);
+    width: 100%;
+  }
+
+  [class~="blacktomato-shell--booking-open"] .sideDrawer .drawerPanel {
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawer {
+  .drawer,
+  .sideDrawer {
     transition: none;
   }
 
   .drawer .drawerPanel,
+  .sideDrawer .drawerPanel,
   .close {
     transition: none;
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { RichTextContent } from "@duke333/builder-ui";
 import {
   ArrowLeft,
   CalendarDays,
@@ -11,13 +12,24 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePublicLocale } from "@/lib/i18n/PublicI18nProvider";
+import type { BookingBudgetScreen } from "../hooks/useBookingBudgetScreen";
 import { useJourneyExplorerScreen } from "../hooks/useJourneyExplorerScreen";
 import { usePublicTravels } from "../hooks/usePublicTravels";
 import { createJourneyCategories, type JourneyTrip } from "../journeyTravelMapper";
 import { BlackTomatoBookingBudgetSection } from "./BlackTomatoBookingBudgetSection";
+import { BlackTomatoBookingSearchBar } from "./BlackTomatoBookingSearchBar";
 import styles from "./journey.module.css";
+import optionTwoStyles from "./journeyOptionTwo.module.css";
 
-export function BlackTomatoJourneyBlocks() {
+type BlackTomatoJourneyBlocksProps = {
+  bookingScreen?: BookingBudgetScreen;
+  variant?: "default" | "option2";
+};
+
+export function BlackTomatoJourneyBlocks({
+  bookingScreen,
+  variant = "default",
+}: BlackTomatoJourneyBlocksProps = {}) {
   const t = useTranslations("publicJourney.ui");
   const { locale } = usePublicLocale();
   const screen = useJourneyExplorerScreen();
@@ -29,41 +41,65 @@ export function BlackTomatoJourneyBlocks() {
     selectedCategory?.trips.find(
       (trip) => trip.id === (screen.selectedTripId ?? screen.closingTripId),
     ) ?? null;
+  const isOptionTwo = variant === "option2";
 
   return (
-    <div className={styles.blocks}>
-      <div className={styles.bookingColumn} id="journey-booking">
-        <BlackTomatoBookingBudgetSection initialTripId={selectedTrip?.id} variant="card" />
-      </div>
+    <div className={`${styles.blocks}${isOptionTwo ? ` ${optionTwoStyles.blocks}` : ""}`}>
+      {isOptionTwo ? (
+        bookingScreen ? (
+          <BlackTomatoBookingSearchBar screen={bookingScreen} />
+        ) : null
+      ) : (
+        <div className={styles.bookingColumn} id="journey-booking">
+          <BlackTomatoBookingBudgetSection initialTripId={selectedTrip?.id} variant="card" />
+        </div>
+      )}
 
       <div
-        className={`${styles.explorer} ${screen.isCategoryOpen ? styles.explorerOpen : ""} ${screen.selectedTripId ? styles.explorerDetail : ""}`}
+        className={`${styles.explorer} ${screen.isCategoryOpen ? styles.explorerOpen : ""} ${screen.selectedTripId ? styles.explorerDetail : ""}${isOptionTwo ? ` ${optionTwoStyles.explorer}` : ""}`}
         data-journey-open={screen.isCategoryOpen ? "" : undefined}
         data-selected-category={selectedCategory?.id}
         id="journey-explorer"
       >
-        <div className={styles.categoryCards} aria-hidden={screen.isCategoryOpen}>
+        <div
+          className={`${styles.categoryCards}${isOptionTwo ? ` ${optionTwoStyles.categoryCards}` : ""}`}
+          aria-hidden={screen.isCategoryOpen}
+        >
           {journeyCategories.map((category) => (
             <div
-              className={`col col--3 panel content__over post-layout-- ${styles.categoryCard} ${
-                category.id === screen.selectedCategoryId ? styles.categoryCardSelected : ""
-              }`}
+              className={
+                isOptionTwo
+                  ? `${styles.categoryCard} ${optionTwoStyles.categoryCard}${
+                      category.id === screen.selectedCategoryId
+                        ? ` ${styles.categoryCardSelected}`
+                        : ""
+                    }`
+                  : `col col--3 panel content__over post-layout-- ${styles.categoryCard} ${
+                      category.id === screen.selectedCategoryId ? styles.categoryCardSelected : ""
+                    }`
+              }
               key={category.id}
               style={{ width: "100%" }}
             >
               <div
-                className="panel__content panel__content--overlay panel__content--with-link"
+                className={
+                  isOptionTwo
+                    ? optionTwoStyles.categoryMedia
+                    : "panel__content panel__content--overlay panel__content--with-link"
+                }
                 style={{ backgroundImage: `url(${category.image})` }}
               >
                 <button
                   aria-expanded={screen.isCategoryOpen && category.id === screen.selectedCategoryId}
-                  className={styles.categoryButton}
+                  className={`${styles.categoryButton}${isOptionTwo ? ` ${optionTwoStyles.categoryButton}` : ""}`}
                   onClick={() => screen.openCategory(category.id, category.trips.length)}
                   tabIndex={screen.isCategoryOpen ? -1 : 0}
                   type="button"
                 >
-                  <h5 className="h6 strong">{category.title}</h5>
-                  <div className="overlay" />
+                  <h5 className={isOptionTwo ? optionTwoStyles.categoryTitle : "h6 strong"}>
+                    {category.title}
+                  </h5>
+                  <div className={isOptionTwo ? optionTwoStyles.overlay : "overlay"} />
                 </button>
               </div>
             </div>
@@ -73,7 +109,7 @@ export function BlackTomatoJourneyBlocks() {
         <div
           aria-hidden={!screen.isCategoryOpen}
           aria-live="polite"
-          className={styles.tripPanel}
+          className={`${styles.tripPanel}${isOptionTwo ? ` ${optionTwoStyles.tripPanel}` : ""}`}
           id="trip-list"
         >
           {selectedCategory ? (
@@ -416,7 +452,7 @@ function TripDetail({ isClosing, trip }: { isClosing: boolean; trip: JourneyTrip
                       ))}
                     </ul>
                   ) : stop.description ? (
-                    <p>{stop.description}</p>
+                    <RichTextContent className={styles.btRichText} value={stop.description} />
                   ) : null}
                   {stop.meals || stop.hotel ? (
                     <div className={styles.btDayStay}>

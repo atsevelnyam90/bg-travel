@@ -1400,6 +1400,43 @@
   line-height: 1.55;
   margin: 0;
 }
+.btRichText {
+  color: #273847;
+  font-family: var(--font-handwriting), cursive;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+}
+.btRichText > :last-child {
+  margin-bottom: 0;
+}
+.btRichText p {
+  margin: 0 0 14px;
+}
+.btRichText h2,
+.btRichText h3 {
+  color: #111;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 19px;
+  line-height: 1.35;
+  margin: 0 0 14px;
+}
+.btRichText ul,
+.btRichText ol {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+.btRichText ul {
+  list-style: disc;
+}
+.btRichText ol {
+  list-style: decimal;
+}
+.btRichText li {
+  padding-left: 2px;
+}
 .btDayCopy .btDayPoints {
   color: #273847;
   display: grid;

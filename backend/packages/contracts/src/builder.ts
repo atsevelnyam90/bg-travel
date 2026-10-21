@@ -58,6 +58,7 @@ export type BuilderDbTable = z.infer<typeof builderDbTableSchema>;
 export const builderFieldTypeSchema = z.enum([
   "text",
   "textarea",
+  "richtext",
   "number",
   "money",
   "select",

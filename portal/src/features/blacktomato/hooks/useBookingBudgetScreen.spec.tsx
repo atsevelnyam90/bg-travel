@@ -117,6 +117,24 @@ afterEach(() => {
 });
 
 describe("useBookingBudgetScreen", () => {
+  it("applies a complete search selection to the booking drawer state", () => {
+    const { result } = renderBookingScreen();
+
+    act(() =>
+      result.current.applySearchSelection({
+        dateKey: "2026-10-16|2026-10-18",
+        transportType: "DIRECT_FLIGHT",
+        tripPublicId: travel.publicId,
+        unitPriceMinor: 150_000_000,
+      }),
+    );
+
+    expect(result.current.selectedTrip?.publicId).toBe(travel.publicId);
+    expect(result.current.selectedDateKey).toBe("2026-10-16|2026-10-18");
+    expect(result.current.selectedSlot?.publicId).toBe(travel.slots[1].publicId);
+    expect(result.current.quote?.totalPriceMinor).toBe(150_000_000);
+  });
+
   it("groups slots by date and calculates the selected transport total", () => {
     const { result } = renderBookingScreen();
 

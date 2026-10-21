@@ -35,7 +35,7 @@
     "@capacitor/android": "^7.6.8",
     "@capacitor/core": "^7.6.8",
     "@capacitor/ios": "^7.6.8",
-    "@duke333/builder-ui": "file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-ui-0.2.7.tgz",
+    "@duke333/builder-ui": "0.2.4",
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-query-devtools": "^5.101.4",
@@ -76,9 +76,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"
-  },
-  "overrides": {
-    "@duke333/builder-contracts": "file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz"
   },
   "packageManager": "pnpm@11.22.0"
 }

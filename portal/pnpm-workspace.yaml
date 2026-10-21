@@ -1,9 +1,6 @@
 # pnpm 11-д энэ файл нь тохиргооны файл (.npmrc-ийн залгамжлагч).
 packages: []
 
-overrides:
-  '@duke333/builder-contracts': 'file:/tmp/winu-builder-app-file-test.pRI8qb/duke333-builder-contracts-0.2.2.tgz'
-
 allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false
@@ -12,5 +9,5 @@ allowBuilds:
   unrs-resolver: false
 
 minimumReleaseAgeExclude:
-  - '@duke333/builder-ui@0.1.0 || 0.1.1 || 0.1.5 || 0.2.0 || 0.2.1 || 0.2.2 || 0.2.3'
-  - '@duke333/builder-contracts@0.2.0 || 0.2.1'
+  - '@duke333/builder-ui@0.1.0 || 0.1.1 || 0.1.5 || 0.2.0 || 0.2.1 || 0.2.2 || 0.2.3 || 0.2.4'
+  - '@duke333/builder-contracts@0.2.0 || 0.2.1 || 0.2.2'

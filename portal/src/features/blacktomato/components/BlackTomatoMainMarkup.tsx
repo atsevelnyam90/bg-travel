@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { BlackTomatoBookingBudgetSection } from "./BlackTomatoBookingBudgetSection";
 import { BlackTomatoContentSpacerSectionMarkup } from "./BlackTomatoContentSpacerSectionMarkup";
 import { BlackTomatoCustomerTestimonialsSectionMarkup } from "./BlackTomatoCustomerTestimonialsSectionMarkup";
 import { BlackTomatoHeroSectionMarkup } from "./BlackTomatoHeroSectionMarkup";
 import { BlackTomatoJourneySection } from "./BlackTomatoJourneySection";
+import { BlackTomatoJourneySectionVariant } from "./BlackTomatoJourneySectionVariant";
 import { BlackTomatoLuxuryTravelGuideSectionMarkup } from "./BlackTomatoLuxuryTravelGuideSectionMarkup";
 import { BlackTomatoPressTestimonialsSectionMarkup } from "./BlackTomatoPressTestimonialsSectionMarkup";
 import { BlackTomatoPursuitOfFeelingSectionMarkup } from "./BlackTomatoPursuitOfFeelingSectionMarkup";
@@ -14,9 +16,17 @@ export function BlackTomatoMainMarkup() {
   return (
     <div>
       <BlackTomatoHeroSectionMarkup />
-      <BlackTomatoBookingBudgetSection variant="drawer" />
       <BlackTomatoCustomerTestimonialsSectionMarkup />
-      <BlackTomatoJourneySection />
+      <Suspense
+        fallback={
+          <>
+            <BlackTomatoBookingBudgetSection variant="drawer" />
+            <BlackTomatoJourneySection />
+          </>
+        }
+      >
+        <BlackTomatoJourneySectionVariant />
+      </Suspense>
       <BlackTomatoPressTestimonialsSectionMarkup />
       <BlackTomatoContentSpacerSectionMarkup />
       {/* <BlackTomatoWhatWeDoSectionMarkup /> */}
