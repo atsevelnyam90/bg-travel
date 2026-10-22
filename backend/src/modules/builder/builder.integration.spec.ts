@@ -28,6 +28,8 @@ const WEBSITE_SECTION_VIEW_ID = "44444444-4444-4444-8444-444444444453";
 const ORDER_FORM_ID = "55555555-5555-4555-8555-555555555551";
 const ORDER_LIST_ID = "55555555-5555-4555-8555-555555555552";
 const ORDER_VIEW_ID = "55555555-5555-4555-8555-555555555553";
+const ROLE_LIST_ID = "77777777-7777-4777-8777-777777777771";
+const ROLE_VIEW_ID = "77777777-7777-4777-8777-777777777772";
 
 async function seedProductBuilderView() {
   await prisma.builderDefinition.createMany({
@@ -386,6 +388,104 @@ describe("builder runtime view", () => {
     expect(response.body.schema.columns[0].key).toBe("name");
   });
 
+  it("admin form, list, view actions нь create/update/replicate/delete бүрэн ажиллана", async () => {
+    const form = await api()
+      .post(`${PREFIX}/builder/forms`)
+      .set(bearer(token))
+      .send({
+        title: "CRUD form",
+        source: { type: "dbTable", tableName: "website_pages" },
+        schema: { fields: [{ key: "type", label: "Type", type: "text", required: true }] },
+        triggers: [],
+      })
+      .expect(201);
+    const updatedForm = await api()
+      .patch(`${PREFIX}/builder/forms/${form.body.id}`)
+      .set(bearer(token))
+      .send({ ...form.body, title: "CRUD form updated" })
+      .expect(200);
+    const replicatedForm = await api()
+      .post(`${PREFIX}/builder/forms/${form.body.id}/replicate`)
+      .set(bearer(token))
+      .send({ title: "CRUD form copy" })
+      .expect(201);
+
+    expect(updatedForm.body).toMatchObject({ title: "CRUD form updated", version: 1 });
+    expect(replicatedForm.body).toMatchObject({ title: "CRUD form copy", version: 0 });
+
+    const list = await api()
+      .post(`${PREFIX}/builder/lists`)
+      .set(bearer(token))
+      .send({
+        title: "CRUD list",
+        source: { type: "dbTable", tableName: "website_pages" },
+        schema: { columns: [{ key: "type", label: "Type", sortable: true }] },
+        triggers: [],
+      })
+      .expect(201);
+    const updatedList = await api()
+      .patch(`${PREFIX}/builder/lists/${list.body.id}`)
+      .set(bearer(token))
+      .send({ ...list.body, title: "CRUD list updated" })
+      .expect(200);
+    const replicatedList = await api()
+      .post(`${PREFIX}/builder/lists/${list.body.id}/replicate`)
+      .set(bearer(token))
+      .send({ title: "CRUD list copy" })
+      .expect(201);
+
+    expect(updatedList.body).toMatchObject({ title: "CRUD list updated", version: 1 });
+    expect(replicatedList.body).toMatchObject({ title: "CRUD list copy", version: 0 });
+
+    const view = await api()
+      .post(`${PREFIX}/builder/views`)
+      .set(bearer(token))
+      .send({
+        title: "CRUD view",
+        formId: form.body.id,
+        listId: list.body.id,
+        permissionRead: "org:manage",
+        permissionWrite: "org:manage",
+        triggers: [],
+      })
+      .expect(201);
+    const updatedView = await api()
+      .patch(`${PREFIX}/builder/views/${view.body.id}`)
+      .set(bearer(token))
+      .send({ ...view.body, title: "CRUD view updated" })
+      .expect(200);
+    const replicatedView = await api()
+      .post(`${PREFIX}/builder/views/${view.body.id}/replicate`)
+      .set(bearer(token))
+      .send({ title: "CRUD view copy" })
+      .expect(201);
+
+    expect(updatedView.body).toMatchObject({ title: "CRUD view updated", version: 1 });
+    expect(replicatedView.body).toMatchObject({ title: "CRUD view copy", version: 0 });
+
+    await api().delete(`${PREFIX}/builder/views/${view.body.id}`).set(bearer(token)).expect(204);
+    await api().delete(`${PREFIX}/builder/forms/${form.body.id}`).set(bearer(token)).expect(204);
+    await api().delete(`${PREFIX}/builder/lists/${list.body.id}`).set(bearer(token)).expect(204);
+
+    expect(await prisma.builderView.findFirst({ where: { id: view.body.id } })).toBeNull();
+    expect(await prisma.builderDefinition.findFirst({ where: { id: form.body.id } })).toBeNull();
+    expect(await prisma.builderDefinition.findFirst({ where: { id: list.body.id } })).toBeNull();
+    expect(
+      await prisma.auditLog.count({
+        where: {
+          OR: [
+            { action: "create", resource: "builder-form", resourceId: replicatedForm.body.id },
+            { action: "create", resource: "builder-list", resourceId: replicatedList.body.id },
+            { action: "create", resource: "builder-view", resourceId: replicatedView.body.id },
+            { action: "delete", resource: "builder-form", resourceId: form.body.id },
+            { action: "delete", resource: "builder-list", resourceId: list.body.id },
+            { action: "delete", resource: "builder-view", resourceId: view.body.id },
+          ],
+        },
+      }),
+    ).toBe(6);
+  });
+
   it("viewId-аар Product Form + List metadata болон product rows уншина", async () => {
     await prisma.product.create({
       data: { name: "Keyboard", slug: "keyboard", priceMinor: 320000, status: "PUBLISHED" },
@@ -449,6 +549,18 @@ describe("builder runtime view", () => {
       viewId: PRODUCT_VIEW_ID,
       changes: { priceMinor: { from: 89000, to: 99000 } },
     });
+
+    await api()
+      .delete(`${PREFIX}/builder/runtime/views/${PRODUCT_VIEW_ID}/entries/${created.body.id}`)
+      .set(bearer(token))
+      .expect(204);
+
+    expect(await prisma.product.findFirst({ where: { id: created.body.id } })).toBeNull();
+    expect(
+      await prisma.auditLog.findFirst({
+        where: { action: "delete", resource: "product", resourceId: created.body.id },
+      }),
+    ).not.toBeNull();
   });
 
   it("generic dbTable runtime нь website page үүсгээд засаж чадна", async () => {
@@ -505,6 +617,132 @@ describe("builder runtime view", () => {
 
     expect(section.body.values.pageId).toBe(created.body.id);
     expect(section.body.values.sortOrder).toBe(0);
+
+    await api()
+      .delete(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries/${created.body.id}`)
+      .set(bearer(token))
+      .expect(204);
+
+    expect(await prisma.websitePage.findFirst({ where: { id: created.body.id } })).toBeNull();
+    expect(
+      await prisma.auditLog.findFirst({
+        where: {
+          action: "delete",
+          resource: "builder:website_pages",
+          resourceId: created.body.id,
+        },
+      }),
+    ).not.toBeNull();
+  });
+
+  it("generic runtime DB constraint зөрчлийг дотоод алдаа болгохгүй", async () => {
+    await seedWebsitePageBuilderView();
+
+    await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({ values: { type: "home", status: "draft", sortOrder: 0 } })
+      .expect(201);
+
+    const duplicate = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({ values: { type: "home", status: "draft", sortOrder: 1 } })
+      .expect(409);
+
+    expect(duplicate.body).toMatchObject({ code: "CONFLICT" });
+    expect(duplicate.body.message).not.toBe("Дотоод алдаа гарлаа");
+
+    const second = await api()
+      .post(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({ values: { type: "loan", status: "draft", sortOrder: 2 } })
+      .expect(201);
+
+    const duplicateUpdate = await api()
+      .patch(`${PREFIX}/builder/runtime/views/${WEBSITE_PAGE_VIEW_ID}/entries/${second.body.id}`)
+      .set(bearer(token))
+      .send({
+        version: second.body.version,
+        values: { type: "home", status: "draft", sortOrder: 2 },
+      })
+      .expect(409);
+
+    expect(duplicateUpdate.body).toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("generic runtime missing required DB value-г 400 алдаа болгоно", async () => {
+    await seedOrderBuilderView();
+
+    const response = await api()
+      .post(`${PREFIX}/builder/runtime/views/${ORDER_VIEW_ID}/entries`)
+      .set(bearer(token))
+      .send({
+        values: {
+          public_order_id: "ORD-MISSING-ADDRESS",
+          first_name: "Bold",
+          last_name: "Tester",
+          phone: "99999999",
+          email: "missing-address@example.mn",
+          service_code: "tour-1",
+          transport_type: "GROUND",
+          travel_date: "2026-10-14",
+          traveler_count: 1,
+          service_name_snapshot: "Test tour",
+          transport_name_snapshot: "Газраар",
+          unit_price_minor: 1000,
+          total_price_minor: 1000,
+          status: "AWAITING_PAYMENT",
+          idempotency_key: "order-missing-address",
+        },
+      })
+      .expect(400);
+
+    expect(response.body).toMatchObject({
+      code: "BAD_REQUEST",
+      message: "Заавал бөглөх талбар дутуу байна",
+    });
+  });
+
+  it("generic runtime холбоотой мөрийг устгахад 409 буцаана", async () => {
+    const ownerRole = await prisma.role.findFirstOrThrow({ where: { name: "owner" } });
+    await prisma.invitation.create({
+      data: {
+        email: "pending-role-user@example.mn",
+        roleId: ownerRole.id,
+        tokenHash: "builder-role-delete-constraint",
+        expiresAt: new Date("2099-01-01T00:00:00.000Z"),
+      },
+    });
+    await prisma.builderDefinition.create({
+      data: {
+        id: ROLE_LIST_ID,
+        type: "list",
+        title: "Role list",
+        source: { type: "dbTable", tableName: "roles" },
+        schema: { columns: [{ key: "name", label: "Name", sortable: true }] },
+      },
+    });
+    await prisma.builderView.create({
+      data: {
+        id: ROLE_VIEW_ID,
+        title: "Roles",
+        listId: ROLE_LIST_ID,
+        permissionRead: "org:manage",
+        permissionWrite: "org:manage",
+        triggers: [],
+      },
+    });
+
+    const response = await api()
+      .delete(`${PREFIX}/builder/runtime/views/${ROLE_VIEW_ID}/entries/${ownerRole.id}`)
+      .set(bearer(token))
+      .expect(409);
+
+    expect(response.body).toMatchObject({
+      code: "CONFLICT",
+      message: "Энэ мөр бусад өгөгдөлтэй холбоотой тул устгах боломжгүй байна",
+    });
   });
 
   it("order PAID болох үед баталгаажуулсан хэрэглэгчийг trigger автоматаар бөглөнө", async () => {

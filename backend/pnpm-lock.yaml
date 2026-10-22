@@ -15,8 +15,8 @@ importers:
         specifier: ^3.1113.0
         version: 3.1113.0
       '@duke333/builder-backend':
-        specifier: 0.2.4
-        version: 0.2.4(express@5.2.1)
+        specifier: 0.2.5
+        version: 0.2.5(express@5.2.1)
       '@duke333/builder-contracts':
         specifier: 0.2.2
         version: 0.2.2
@@ -281,8 +281,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@duke333/builder-backend@0.2.4':
-    resolution: {integrity: sha512-Qg6W6t+Y5CAyU45hkLghfqSoLP71KXHp4oswUWLeNNT1uAOdkinMb1G0BJtbwiDhBkWN6Jjb7FLfRRANMGYxfw==}
+  '@duke333/builder-backend@0.2.5':
+    resolution: {integrity: sha512-5oZBRoIargieo2tmqR+D3I6uHRELXhSZrLprCElKJClcGHmXz/39cJ79BvmvdU8IHwKc8CZCVHiOrTu715wg6w==}
     peerDependencies:
       express: ^5.1.0
 
@@ -2733,7 +2733,7 @@ snapshots:
   '@biomejs/cli-win32-x64@2.5.9':
     optional: true
 
-  '@duke333/builder-backend@0.2.4(express@5.2.1)':
+  '@duke333/builder-backend@0.2.5(express@5.2.1)':
     dependencies:
       '@aws-sdk/client-s3': 3.1113.0
       '@aws-sdk/s3-request-presigner': 3.1113.0

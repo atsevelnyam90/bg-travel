@@ -215,6 +215,18 @@ describe("travel builder", () => {
     const updatedDetail = await prisma.travelDetail.findFirstOrThrow({ where: { travelId } });
     expect(updatedDetail.title).toBe("Шинэчилсэн эхний өдөр");
     expect(await prisma.auditLog.count({ where: { resourceId: travelId } })).toBeGreaterThan(0);
+
+    await api()
+      .delete(`${root}/${ids.travelView}/entries/${travelId}`)
+      .set(bearer(token))
+      .expect(204);
+
+    expect(await prisma.travel.findFirst({ where: { id: travelId } })).toBeNull();
+    expect(
+      await prisma.auditLog.findFirst({
+        where: { action: "delete", resource: "builder:travels", resourceId: travelId },
+      }),
+    ).not.toBeNull();
   });
 
   it("saves multiple server-uploaded images through the parent composite update", async () => {
