@@ -1,5 +1,9 @@
 /* Palette values live here so the imported legacy styles and feature modules
    share one brand language without changing the shadcn foundations. */
+.theme {
+  --travel-filter-primary: #9d4586;
+}
+
 .theme:not([data-travel-theme="original"]) {
   --travel-bg: #fff8ed;
   --travel-surface: #fffdf8;
@@ -7,6 +11,7 @@
   --travel-ink: #482339;
   --travel-muted: #795c69;
   --travel-primary: #91256b;
+  --travel-filter-primary: var(--travel-primary);
   --travel-secondary: #c24d32;
   --travel-gold: #ffc56c;
   --travel-line: #dfc9c6;

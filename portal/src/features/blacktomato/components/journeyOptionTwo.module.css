@@ -2,19 +2,28 @@
   background:
     linear-gradient(
       135deg,
-      color-mix(in srgb, var(--travel-primary) 8%, transparent),
+      color-mix(
+        in srgb,
+        var(--travel-filter-primary, var(--travel-primary, var(--color-pink-600))) 8%,
+        transparent
+      ),
       transparent 42%
     ),
     var(--travel-bg, var(--color-neutral-50));
   box-sizing: border-box;
   min-height: 100dvh;
-  overflow: hidden;
-  padding: 24px 0;
+  overflow: clip;
+  padding: 0;
   scroll-margin-top: 0;
 }
 
+html:has(.section),
+body:has(.section) {
+  overscroll-behavior-y: none;
+}
+
 .section.section {
-  padding: 24px 0;
+  padding: 0;
 }
 
 .container {
@@ -30,7 +39,7 @@
 
 .content {
   background: transparent;
-  height: calc(100dvh - 48px);
+  height: 100dvh;
   margin: 0;
   min-height: 0;
   padding: 0;
@@ -41,39 +50,54 @@
 }
 
 .blocks.blocks {
+  box-sizing: border-box;
   gap: calc(var(--spacing) * 4);
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: 96px minmax(0, 1fr);
   height: 100%;
 }
 
+.section:has(.explorer[data-journey-step="categories"]) .blocks.blocks {
+  padding-bottom: clamp(24px, 5dvh, 48px);
+}
+
 .searchBar {
+  --search-bar-deep: var(
+    --travel-dark,
+    color-mix(in srgb, var(--search-bar-primary) 64%, var(--color-black))
+  );
+  --search-bar-foreground: var(--travel-on-primary, var(--color-white));
+  --search-bar-primary: var(--travel-filter-primary, var(--travel-primary, var(--color-pink-600)));
+
   align-self: stretch;
+  backdrop-filter: blur(18px) saturate(1.08);
   background: linear-gradient(
     112deg,
-    color-mix(in srgb, var(--travel-primary) 10%, var(--travel-dark, var(--color-neutral-950))),
-    var(--travel-dark, var(--color-neutral-950)) 44%,
-    color-mix(in srgb, var(--travel-primary) 5%, var(--travel-dark, var(--color-neutral-950)))
+    color-mix(in srgb, var(--search-bar-primary) 88%, var(--search-bar-deep)),
+    var(--search-bar-primary) 48%,
+    color-mix(in srgb, var(--search-bar-primary) 74%, var(--search-bar-deep))
   );
-  border: 1px solid color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--search-bar-foreground) 24%, transparent);
   border-radius: calc(var(--radius-lg) + 6px);
   box-shadow:
     0 24px 58px color-mix(in srgb, var(--color-black) 22%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-white) 9%, transparent);
-  color: var(--travel-on-dark, var(--color-white));
+  color: var(--search-bar-foreground);
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   min-width: 0;
   overflow: hidden;
   padding: calc(var(--spacing) * 2);
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .searchField {
   align-items: center;
   background: transparent;
   border: 0;
-  border-right: 1px solid
-    color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 13%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--search-bar-foreground) 18%, transparent);
   color: inherit;
   cursor: pointer;
   display: grid;
@@ -95,14 +119,14 @@
 }
 
 .searchField:hover {
-  background: color-mix(in srgb, var(--color-white) 6%, transparent);
+  background: color-mix(in srgb, var(--search-bar-foreground) 9%, transparent);
 }
 
 .searchField:focus-visible,
 .searchField[aria-expanded="true"],
 .searchField[data-selected] {
   background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 12%, transparent);
-  box-shadow: inset 0 -2px 0 var(--travel-primary, var(--color-green-700));
+  box-shadow: inset 0 -2px 0 var(--search-bar-primary);
 }
 
 .searchField[data-selected]:hover {
@@ -111,7 +135,7 @@
 
 .searchIcon {
   align-items: center;
-  color: var(--travel-gold, var(--color-green-500));
+  color: var(--search-bar-foreground);
   display: inline-flex;
   flex: 0 0 auto;
   justify-content: center;
@@ -133,7 +157,7 @@
 }
 
 .searchFieldBody small {
-  color: var(--travel-dark-muted, var(--color-neutral-400));
+  color: color-mix(in srgb, var(--search-bar-foreground) 72%, transparent);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -145,7 +169,7 @@
 }
 
 .searchFieldMeta {
-  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 48%, transparent);
+  color: color-mix(in srgb, var(--search-bar-foreground) 68%, transparent);
   flex: 0 1 auto;
   font-size: 8px;
   font-weight: 600;
@@ -175,12 +199,12 @@
 }
 
 .searchFieldValue > span[data-placeholder] {
-  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 58%, transparent);
+  color: color-mix(in srgb, var(--search-bar-foreground) 82%, transparent);
   font-weight: 600;
 }
 
 .searchFieldValue svg {
-  color: var(--travel-dark-muted, var(--color-neutral-400));
+  color: color-mix(in srgb, var(--search-bar-foreground) 68%, transparent);
   pointer-events: none;
   transition: transform 180ms ease;
 }
@@ -201,6 +225,63 @@
   min-width: min(340px, calc(100vw - 32px));
   padding: calc(var(--spacing) * 1.5);
   width: var(--radix-popover-trigger-width);
+  z-index: 10060;
+}
+
+[data-slot="popover-content"].datePopover {
+  min-width: min(380px, calc(100vw - 32px));
+  width: min(380px, calc(100vw - 32px));
+}
+
+.dateMonthSwitcher {
+  display: flex;
+  gap: calc(var(--spacing) * 1.5);
+  overflow-x: auto;
+  padding: calc(var(--spacing) * 1.5);
+  scrollbar-width: none;
+}
+
+.dateMonthSwitcher::-webkit-scrollbar {
+  display: none;
+}
+
+.dateMonthButton {
+  background: color-mix(in srgb, var(--color-white) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 12%, transparent);
+  border-radius: var(--radius-full);
+  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 66%, transparent);
+  cursor: pointer;
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2.5);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.dateMonthButton:hover,
+.dateMonthButton:focus-visible {
+  background: color-mix(in srgb, var(--color-white) 9%, transparent);
+  color: var(--travel-on-dark, var(--color-white));
+  outline: none;
+}
+
+.dateMonthButton[data-active] {
+  background: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 24%, transparent);
+  border-color: color-mix(in srgb, var(--travel-primary, var(--color-pink-700)) 62%, transparent);
+  color: var(--travel-on-dark, var(--color-white));
+}
+
+[data-slot="popover-content"].datePopover [cmdk-group-heading] {
+  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 46%, transparent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding-block: calc(var(--spacing) * 2);
+  text-transform: uppercase;
 }
 
 [data-slot="popover-content"].searchPopover [data-slot="command"] {
@@ -259,6 +340,35 @@
   color: var(--travel-dark-muted, var(--color-neutral-400));
 }
 
+[data-slot="popover-content"].searchPopover .dateOption {
+  justify-content: space-between;
+  min-height: 58px;
+  padding-block: calc(var(--spacing) * 2);
+}
+
+.dateOptionCopy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dateOptionCopy strong {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dateOptionCopy small {
+  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 48%, transparent);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+[data-slot="popover-content"].searchPopover .dateOption[data-checked="true"] small {
+  color: color-mix(in srgb, var(--travel-on-dark, var(--color-white)) 68%, transparent);
+}
+
 .searchSubmit:disabled {
   box-shadow: none;
   cursor: not-allowed;
@@ -271,14 +381,13 @@
   align-items: center;
   background: linear-gradient(
     135deg,
-    var(--travel-primary, var(--color-green-700)),
-    color-mix(in srgb, var(--travel-primary, var(--color-green-700)) 72%, var(--color-black))
+    var(--search-bar-deep),
+    color-mix(in srgb, var(--search-bar-deep) 82%, var(--search-bar-primary))
   );
   border: 0;
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 28px
-    color-mix(in srgb, var(--travel-primary, var(--color-green-700)) 28%, transparent);
-  color: var(--travel-on-primary, var(--color-white));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--search-bar-primary) 28%, transparent);
+  color: var(--travel-on-dark, var(--color-white));
   cursor: pointer;
   display: flex;
   font-size: 11px;
@@ -296,10 +405,15 @@
 
 .searchSubmit:hover,
 .searchSubmit:focus-visible {
-  box-shadow: 0 14px 34px
-    color-mix(in srgb, var(--travel-primary, var(--color-green-700)) 42%, transparent);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--search-bar-primary) 42%, transparent);
   outline: none;
   transform: translateY(-1px);
+}
+
+.mobileSearchHeader,
+.mobileSearchBackdrop,
+.mobileFilterButton {
+  display: none;
 }
 
 .explorer.explorer {
@@ -373,13 +487,64 @@
   inset: 0;
 }
 
+.section:has(.explorer[data-journey-step="trips"]) .content,
+.section:has(.explorer[data-journey-step="trips"]) .tab,
+.section:has(.explorer[data-journey-step="trips"]) .blocks.blocks {
+  height: auto;
+}
+
+.section:has(.explorer[data-journey-step="trips"]) .content,
+.section:has(.explorer[data-journey-step="trips"]) .blocks.blocks {
+  min-height: 100dvh;
+}
+
+.section:has(.explorer[data-journey-step="trips"]) .blocks.blocks {
+  grid-template-rows: 96px auto;
+}
+
+.explorer.explorer[data-journey-step="trips"] {
+  height: auto;
+  min-height: calc(100dvh - 96px - var(--spacing) * 4);
+}
+
+.explorer[data-journey-step="trips"] .tripPanel {
+  display: block;
+  inset: auto;
+  min-height: calc(100dvh - 96px - var(--spacing) * 4);
+  position: relative;
+}
+
+.explorer[data-journey-step="trips"] [data-option-two-trip-carousel] {
+  overflow: visible;
+}
+
+.explorer[data-journey-step="trips"] [data-option-two-trip-viewport] {
+  height: auto;
+  overflow: visible;
+  overscroll-behavior-x: auto;
+  overscroll-behavior-y: auto;
+  scroll-snap-type: none;
+}
+
+.explorer[data-journey-step="trips"] [data-option-two-trip-grid] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: auto;
+}
+
+.explorer.explorer[data-journey-step="trips"] .tripPanel.tripPanel [data-option-two-trip-card] {
+  flex: none;
+  scroll-snap-align: none;
+  width: 100%;
+}
+
 @media (max-width: 1100px) {
   .section.section {
-    padding: 20px 0;
+    padding: 0;
   }
 
   .content {
-    height: calc(100dvh - 40px);
+    height: 100dvh;
   }
 
   .blocks.blocks {
@@ -407,11 +572,24 @@
     grid-row: 2;
     margin: 0;
   }
+
+  .explorer[data-journey-step="trips"] [data-option-two-trip-grid] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section:has(.explorer[data-journey-step="trips"]) .blocks.blocks {
+    grid-template-rows: 86px auto;
+  }
+
+  .explorer.explorer[data-journey-step="trips"],
+  .explorer[data-journey-step="trips"] .tripPanel {
+    min-height: calc(100dvh - 86px - var(--spacing) * 3);
+  }
 }
 
 @media (max-width: 767px) {
   .section.section {
-    padding: 12px 16px 16px;
+    padding: 0 16px;
   }
 
   .container {
@@ -419,7 +597,7 @@
   }
 
   .content {
-    height: calc(100dvh - 28px);
+    height: 100dvh;
   }
 
   .blocks.blocks {
@@ -433,6 +611,82 @@
     grid-template-rows: repeat(2, minmax(0, 1fr));
     overflow: hidden;
     padding: calc(var(--spacing) * 1.5);
+    position: relative;
+    top: auto;
+    z-index: 3;
+  }
+
+  .mobileFilterButton {
+    align-items: center;
+    background: var(--travel-filter-primary, var(--travel-primary, var(--color-pink-600)));
+    border: 0;
+    border-radius: 50%;
+    color: var(--travel-on-primary, var(--color-white));
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 42px;
+    height: 42px;
+    justify-content: center;
+    margin-left: auto;
+    width: 42px;
+  }
+
+  .mobileFilterButton:focus-visible {
+    outline: 2px solid var(--travel-filter-primary, var(--travel-primary, var(--color-pink-600)));
+    outline-offset: 2px;
+  }
+
+  .mobileSearchBackdrop {
+    background: color-mix(in srgb, var(--color-black) 55%, transparent);
+    border: 0;
+    cursor: pointer;
+    display: block;
+    inset: 0;
+    position: fixed;
+    touch-action: none;
+    z-index: 10040;
+  }
+
+  .searchBar[data-mobile-open] {
+    border-radius: calc(var(--radius-lg) + 4px);
+    bottom: 12px;
+    box-shadow: 0 28px 80px color-mix(in srgb, var(--color-black) 44%, transparent);
+    grid-template-rows: 38px repeat(2, minmax(0, 1fr));
+    height: 210px;
+    left: 12px;
+    position: fixed;
+    right: 12px;
+    top: auto;
+    width: auto;
+    z-index: 10050;
+  }
+
+  .mobileSearchHeader {
+    align-items: center;
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-content: space-between;
+    padding: 0 calc(var(--spacing) * 2);
+  }
+
+  .mobileSearchHeader strong {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .mobileSearchHeader button {
+    align-items: center;
+    background: color-mix(in srgb, var(--search-bar-foreground) 12%, transparent);
+    border: 0;
+    border-radius: 50%;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    height: 32px;
+    justify-content: center;
+    width: 32px;
   }
 
   .searchField {
@@ -494,6 +748,17 @@
     padding: 0 calc(var(--spacing) * 2);
   }
 
+  .searchBar[data-mobile-open] .tripField,
+  .searchBar[data-mobile-open] .searchSubmit {
+    grid-row: 2;
+  }
+
+  .searchBar[data-mobile-open] .dateField,
+  .searchBar[data-mobile-open] .transportField,
+  .searchBar[data-mobile-open] .priceField {
+    grid-row: 3;
+  }
+
   .categoryCards {
     gap: calc(var(--spacing) * 2);
   }
@@ -509,6 +774,19 @@
   .explorer.explorer {
     margin: 0;
     min-height: 0;
+  }
+
+  .explorer[data-journey-step="trips"] [data-option-two-trip-grid] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .section:has(.explorer[data-journey-step="trips"]) .blocks.blocks {
+    grid-template-rows: 112px auto;
+  }
+
+  .explorer.explorer[data-journey-step="trips"],
+  .explorer[data-journey-step="trips"] .tripPanel {
+    min-height: calc(100dvh - 112px - var(--spacing) * 3);
   }
 }
 

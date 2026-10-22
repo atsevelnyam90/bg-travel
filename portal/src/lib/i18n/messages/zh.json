@@ -275,6 +275,7 @@
   },
   "publicBooking": {
     "sectionLabel": "预订",
+    "filters": "筛选",
     "close": "关闭",
     "selectTrip": "选择行程",
     "searchTrip": "搜索行程",
@@ -296,6 +297,7 @@
     "selectTransport": "选择交通方式",
     "searchTransport": "搜索交通方式",
     "clearSelection": "清除选择",
+    "dateOptionMeta": "{days} 天 · {seats} 个名额",
     "perPerson": "{price} / 人",
     "price": "价格",
     "selectPrice": "选择价格",

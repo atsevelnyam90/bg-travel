@@ -302,6 +302,7 @@
   },
   "publicBooking": {
     "sectionLabel": "예약",
+    "filters": "필터",
     "close": "닫기",
     "selectTrip": "여행 선택",
     "searchTrip": "여행 검색",
@@ -323,6 +324,7 @@
     "selectTransport": "교통편 선택",
     "searchTransport": "교통편 검색",
     "clearSelection": "선택 지우기",
+    "dateOptionMeta": "{days}일 · 좌석 {seats}개",
     "perPerson": "1인 {price}",
     "price": "가격",
     "selectPrice": "가격 선택",

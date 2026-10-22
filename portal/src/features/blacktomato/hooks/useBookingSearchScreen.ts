@@ -15,16 +15,30 @@ type SearchOption = {
   value: string;
 };
 
+export type BookingDateSearchOption = SearchOption & {
+  departureDate: string;
+  durationDays: number;
+  remainingSeats: number;
+  returnDate: string;
+};
+
 type SlotMatch = {
   dateKey: string;
   slot: TravelSlot;
   tripPublicId: string;
 };
 
+function getDurationDays(departureDate: string, returnDate: string) {
+  const departure = Date.parse(`${departureDate}T00:00:00.000Z`);
+  const returning = Date.parse(`${returnDate}T00:00:00.000Z`);
+  return Math.max(1, Math.round((returning - departure) / 86_400_000) + 1);
+}
+
 export function useBookingSearchScreen(screen: BookingBudgetScreen) {
   const [activeFacet, setActiveFacet] = useState<BookingSearchFacet | null>(null);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [requestedDateMonth, setRequestedDateMonth] = useState<string | null>(null);
   const [selectedTransportType, setSelectedTransportType] = useState<
     TravelSlot["transportType"] | null
   >(null);
@@ -57,19 +71,31 @@ export function useBookingSearchScreen(screen: BookingBudgetScreen) {
     [screen.travelOptions, selectedDateKey, selectedPriceMinor, selectedTransportType],
   );
 
-  const dateOptions = useMemo<SearchOption[]>(() => {
-    const uniqueDates = new Map<string, SearchOption>();
+  const dateOptions = useMemo<BookingDateSearchOption[]>(() => {
+    const uniqueDates = new Map<string, BookingDateSearchOption>();
     for (const match of slotMatches) {
       if (selectedTripId && match.tripPublicId !== selectedTripId) continue;
       if (selectedTransportType && match.slot.transportType !== selectedTransportType) continue;
       if (selectedPriceMinor !== null && match.slot.unitPriceMinor !== selectedPriceMinor) continue;
-      if (uniqueDates.has(match.dateKey)) continue;
+      const existing = uniqueDates.get(match.dateKey);
+      if (existing) {
+        existing.remainingSeats += match.slot.remainingSeats;
+        continue;
+      }
       uniqueDates.set(match.dateKey, {
+        departureDate: match.slot.departureDate,
+        durationDays: getDurationDays(match.slot.departureDate, match.slot.returnDate),
         label: screen.formatTravelDate(match.slot.departureDate, match.slot.returnDate),
+        remainingSeats: match.slot.remainingSeats,
+        returnDate: match.slot.returnDate,
         value: match.dateKey,
       });
     }
-    return [...uniqueDates.values()];
+    return [...uniqueDates.values()].sort(
+      (left, right) =>
+        left.departureDate.localeCompare(right.departureDate) ||
+        left.returnDate.localeCompare(right.returnDate),
+    );
   }, [
     screen.formatTravelDate,
     selectedPriceMinor,
@@ -77,6 +103,20 @@ export function useBookingSearchScreen(screen: BookingBudgetScreen) {
     selectedTripId,
     slotMatches,
   ]);
+
+  const dateMonths = useMemo(
+    () => [...new Set(dateOptions.map((option) => option.departureDate.slice(0, 7)))],
+    [dateOptions],
+  );
+  const activeDateMonth =
+    dateOptions.length > 6
+      ? requestedDateMonth && dateMonths.includes(requestedDateMonth)
+        ? requestedDateMonth
+        : (dateMonths[0] ?? null)
+      : null;
+  const visibleDateOptions = activeDateMonth
+    ? dateOptions.filter((option) => option.departureDate.startsWith(activeDateMonth))
+    : dateOptions;
 
   const transportOptions = useMemo<SearchOption[]>(() => {
     const uniqueTransports = new Map<string, SearchOption>();
@@ -137,6 +177,7 @@ export function useBookingSearchScreen(screen: BookingBudgetScreen) {
 
   function selectDate(value: string | null) {
     setSelectedDateKey(value);
+    if (value) setRequestedDateMonth(value.slice(0, 7));
     setActiveFacet(null);
   }
 
@@ -170,11 +211,14 @@ export function useBookingSearchScreen(screen: BookingBudgetScreen) {
 
   return {
     activeFacet,
+    activeDateMonth,
     bookSelection,
     canBook: Boolean(selectedSlot?.remainingSeats),
+    dateMonths,
     dateOptions,
     priceOptions,
     selectDate,
+    selectDateMonth: setRequestedDateMonth,
     selectPrice,
     selectedDate,
     selectedPrice,
@@ -186,5 +230,6 @@ export function useBookingSearchScreen(screen: BookingBudgetScreen) {
     setActiveFacet,
     transportOptions,
     tripOptions,
+    visibleDateOptions,
   };
 }

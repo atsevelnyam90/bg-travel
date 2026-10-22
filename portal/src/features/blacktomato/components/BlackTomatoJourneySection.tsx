@@ -28,6 +28,7 @@ export function BlackTomatoJourneySection({
           ? `section section--filtered_tiles bg-light ${journeyStyles.journey} ${optionTwoStyles.section}`
           : `section section--filtered_tiles pt-xl sm:pt-xl pb-lg bg-light ${journeyStyles.journey}`
       }
+      data-journey-variant={isOptionTwo ? "option2" : undefined}
       id="journey-start"
     >
       <div className={`container${isOptionTwo ? ` ${optionTwoStyles.container}` : ""}`}>

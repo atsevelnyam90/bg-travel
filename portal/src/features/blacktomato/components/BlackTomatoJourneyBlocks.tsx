@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Clock3,
   Plane,
+  SlidersHorizontal,
   Wallet,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -31,6 +32,7 @@ export function BlackTomatoJourneyBlocks({
   variant = "default",
 }: BlackTomatoJourneyBlocksProps = {}) {
   const t = useTranslations("publicJourney.ui");
+  const bookingT = useTranslations("publicBooking");
   const { locale } = usePublicLocale();
   const screen = useJourneyExplorerScreen();
   const travelsQuery = usePublicTravels();
@@ -47,7 +49,11 @@ export function BlackTomatoJourneyBlocks({
     <div className={`${styles.blocks}${isOptionTwo ? ` ${optionTwoStyles.blocks}` : ""}`}>
       {isOptionTwo ? (
         bookingScreen ? (
-          <BlackTomatoBookingSearchBar screen={bookingScreen} />
+          <BlackTomatoBookingSearchBar
+            mobilePanelOpen={screen.isMobileFilterOpen}
+            onMobilePanelClose={screen.closeMobileFilter}
+            screen={bookingScreen}
+          />
         ) : null
       ) : (
         <div className={styles.bookingColumn} id="journey-booking">
@@ -58,6 +64,15 @@ export function BlackTomatoJourneyBlocks({
       <div
         className={`${styles.explorer} ${screen.isCategoryOpen ? styles.explorerOpen : ""} ${screen.selectedTripId ? styles.explorerDetail : ""}${isOptionTwo ? ` ${optionTwoStyles.explorer}` : ""}`}
         data-journey-open={screen.isCategoryOpen ? "" : undefined}
+        data-journey-step={
+          isOptionTwo
+            ? selectedTrip
+              ? "detail"
+              : screen.isCategoryOpen
+                ? "trips"
+                : "categories"
+            : undefined
+        }
         data-selected-category={selectedCategory?.id}
         id="journey-explorer"
       >
@@ -130,7 +145,9 @@ export function BlackTomatoJourneyBlocks({
                     : screen.closeCategory
                 }
                 onOpenCategories={screen.closeCategory}
+                onOpenFilter={isOptionTwo ? screen.openMobileFilter : undefined}
                 onOpenTrips={screen.closeTrip}
+                filterLabel={bookingT("filters")}
                 tripTitle={selectedTrip?.title}
               />
 
@@ -162,18 +179,24 @@ export function BlackTomatoJourneyBlocks({
               <div
                 aria-hidden={screen.selectedTripId !== null}
                 className={styles.tripCarousel}
+                data-option-two-trip-carousel={isOptionTwo ? "" : undefined}
                 inert={screen.selectedTripId !== null}
               >
                 <div
                   className={styles.tripViewport}
+                  data-option-two-trip-viewport={isOptionTwo ? "" : undefined}
                   onScroll={screen.syncTripNavigation}
                   ref={screen.tripViewportRef}
                 >
-                  <div className={styles.tripGrid}>
+                  <div
+                    className={styles.tripGrid}
+                    data-option-two-trip-grid={isOptionTwo ? "" : undefined}
+                  >
                     {selectedCategory.trips.map((trip) => (
                       <button
                         aria-expanded={screen.selectedTripId === trip.id}
                         className={`card card--standard ${styles.tripCard}`}
+                        data-option-two-trip-card={isOptionTwo ? "" : undefined}
                         data-v-5181d785=""
                         key={trip.id}
                         onClick={() => screen.openTrip(trip.id)}
@@ -223,7 +246,7 @@ export function BlackTomatoJourneyBlocks({
                   </div>
                 </div>
 
-                {selectedCategory.trips.length > (screen.isMobile ? 1 : 3) ? (
+                {!isOptionTwo && selectedCategory.trips.length > (screen.isMobile ? 1 : 3) ? (
                   <div className={styles.tripNavigation}>
                     <button
                       aria-label={t("previousTrips")}
@@ -262,10 +285,12 @@ type MobileJourneyNavigationProps = {
   backLabel: string;
   breadcrumbLabel: string;
   categoryTitle: string;
+  filterLabel: string;
   isActive: boolean;
   journeysLabel: string;
   onBack: () => void;
   onOpenCategories: () => void;
+  onOpenFilter?: () => void;
   onOpenTrips: () => void;
   tripTitle?: string;
 };
@@ -274,10 +299,12 @@ function MobileJourneyNavigation({
   backLabel,
   breadcrumbLabel,
   categoryTitle,
+  filterLabel,
   isActive,
   journeysLabel,
   onBack,
   onOpenCategories,
+  onOpenFilter,
   onOpenTrips,
   tripTitle,
 }: MobileJourneyNavigationProps) {
@@ -317,6 +344,17 @@ function MobileJourneyNavigation({
           </li>
         ) : null}
       </ol>
+      {onOpenFilter ? (
+        <button
+          aria-label={filterLabel}
+          className={optionTwoStyles.mobileFilterButton}
+          onClick={onOpenFilter}
+          tabIndex={tabIndex}
+          type="button"
+        >
+          <SlidersHorizontal aria-hidden="true" size={18} />
+        </button>
+      ) : null}
     </nav>
   );
 }

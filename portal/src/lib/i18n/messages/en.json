@@ -309,6 +309,7 @@
   },
   "publicBooking": {
     "sectionLabel": "Booking",
+    "filters": "Filters",
     "close": "Close",
     "selectTrip": "Choose a trip",
     "searchTrip": "Search trips",
@@ -330,6 +331,7 @@
     "selectTransport": "Choose transport",
     "searchTransport": "Search transport",
     "clearSelection": "Clear selection",
+    "dateOptionMeta": "{days, plural, one {# day} other {# days}} · {seats, plural, one {# seat} other {# seats}}",
     "perPerson": "{price} / person",
     "price": "Price",
     "selectPrice": "Choose a price",

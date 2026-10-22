@@ -11,6 +11,7 @@ export function useJourneyExplorerScreen() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(null);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [closingTripId, setClosingTripId] = useState<string | null>(null);
+  const [isMobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [canScrollTripsBack, setCanScrollTripsBack] = useState(false);
   const [canScrollTripsForward, setCanScrollTripsForward] = useState(false);
   const openingFrameRef = useRef<number | null>(null);
@@ -36,6 +37,17 @@ export function useJourneyExplorerScreen() {
     },
     [],
   );
+
+  useEffect(() => {
+    if (!isMobileFilterOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileFilterOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isMobileFilterOpen]);
 
   useEffect(() => {
     if (selectedCategoryId === null) {
@@ -93,8 +105,10 @@ export function useJourneyExplorerScreen() {
       setCategoryOpen(false);
       setSelectedTripId(null);
       setClosingTripId(null);
+      setMobileFilterOpen(false);
       scrollToExplorerLevel("journey-explorer", isMobile ? 68 : 84);
     },
+    closeMobileFilter: () => setMobileFilterOpen(false),
     closeTrip: () => {
       if (!selectedTripId || closingTripId) {
         return;
@@ -117,7 +131,9 @@ export function useJourneyExplorerScreen() {
     },
     isCategoryOpen,
     isMobile,
+    isMobileFilterOpen,
     isTripClosing: closingTripId !== null,
+    openMobileFilter: () => setMobileFilterOpen(true),
     openCategory: (categoryId: JourneyCategoryId, tripCount: number) => {
       cancelPendingOpen();
       setCategoryOpen(false);

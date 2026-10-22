@@ -109,6 +109,7 @@ function bindPageScroll(root: ParentNode) {
 function bindAutoHidingHeader(root: ParentNode) {
   const header = root.querySelector<HTMLElement>("[data-public-header]");
   if (!header) return () => undefined;
+  const isTopOnlyHeader = Boolean(root.querySelector('[data-journey-variant="option2"]'));
 
   let previousScrollY = Math.max(0, window.scrollY);
   let animationFrame: number | null = null;
@@ -117,10 +118,12 @@ function bindAutoHidingHeader(root: ParentNode) {
     const currentScrollY = Math.max(0, window.scrollY);
     const scrollDelta = currentScrollY - previousScrollY;
 
-    if (currentScrollY <= 16 || scrollDelta < 0) {
+    if (currentScrollY <= 16) {
       header.removeAttribute("data-scroll-hidden");
-    } else if (scrollDelta > 0) {
+    } else if (isTopOnlyHeader || scrollDelta > 0) {
       header.dataset.scrollHidden = "true";
+    } else if (scrollDelta < 0) {
+      header.removeAttribute("data-scroll-hidden");
     }
 
     previousScrollY = currentScrollY;
@@ -134,6 +137,7 @@ function bindAutoHidingHeader(root: ParentNode) {
   };
 
   const handleWheel = (event: WheelEvent) => {
+    if (isTopOnlyHeader) return;
     if (event.deltaY > 0) {
       header.dataset.scrollHidden = "true";
     } else if (event.deltaY < 0) {
@@ -143,6 +147,7 @@ function bindAutoHidingHeader(root: ParentNode) {
 
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("wheel", handleWheel, { passive: true });
+  updateHeader();
 
   return () => {
     window.removeEventListener("scroll", handleScroll);
@@ -156,7 +161,12 @@ function bindAutoHidingHeader(root: ParentNode) {
 function openBookingDrawer(trigger: HTMLElement | null) {
   bookingDrawerTrigger = trigger;
   startPage();
-  document.querySelector("[data-public-header]")?.removeAttribute("data-scroll-hidden");
+  const header = document.querySelector<HTMLElement>("[data-public-header]");
+  if (document.querySelector('[data-journey-variant="option2"]') && window.scrollY > 16) {
+    if (header) header.dataset.scrollHidden = "true";
+  } else {
+    header?.removeAttribute("data-scroll-hidden");
+  }
   document
     .querySelector(".blacktomato-shell")
     ?.classList.add("blacktomato-shell--started", "blacktomato-shell--booking-open");

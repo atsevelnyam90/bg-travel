@@ -306,6 +306,7 @@
   },
   "publicBooking": {
     "sectionLabel": "Захиалгын хэсэг",
+    "filters": "Шүүлтүүр",
     "close": "Хаах",
     "selectTrip": "Аялал сонгох",
     "searchTrip": "Аялал хайх",
@@ -327,6 +328,7 @@
     "selectTransport": "Тээвэр сонгох",
     "searchTransport": "Тээвэр хайх",
     "clearSelection": "Сонголтыг арилгах",
+    "dateOptionMeta": "{days} өдөр · {seats} суудал",
     "perPerson": "{price} / хүн",
     "price": "Үнэ",
     "selectPrice": "Үнэ сонгох",

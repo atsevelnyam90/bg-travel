@@ -103,4 +103,50 @@ describe("useBookingSearchScreen", () => {
       "DIRECT_FLIGHT",
     ]);
   });
+
+  it("groups larger departure sets by month and aggregates matching slot availability", () => {
+    const novemberRange = {
+      ...createSlot("slot-range-one", "2026-11-08", "GROUND"),
+      remainingSeats: 3,
+      returnDate: "2026-11-10",
+    };
+    const duplicateRange = {
+      ...createSlot("slot-range-two", "2026-11-08", "DIRECT_FLIGHT"),
+      remainingSeats: 4,
+      returnDate: "2026-11-10",
+    };
+    const screen = {
+      applySearchSelection: vi.fn(),
+      formatTravelDate: (departureDate: string, returnDate: string) =>
+        `${departureDate} – ${returnDate}`,
+      transportLabel: (transportType: TravelSlot["transportType"]) => transportType,
+      travelOptions: [
+        createTrip("trip-one", "Trip One", [
+          novemberRange,
+          ...[11, 12, 13, 14, 15].map((day) =>
+            createSlot(`slot-${day}`, `2026-11-${day}`, "GROUND"),
+          ),
+          createSlot("slot-december", "2026-12-02", "GROUND"),
+        ]),
+        createTrip("trip-two", "Trip Two", [duplicateRange]),
+      ],
+    } as unknown as BookingBudgetScreen;
+    const { result } = renderHook(() => useBookingSearchScreen(screen));
+
+    expect(result.current.dateMonths).toEqual(["2026-11", "2026-12"]);
+    expect(result.current.activeDateMonth).toBe("2026-11");
+    expect(result.current.visibleDateOptions).toHaveLength(6);
+    expect(result.current.dateOptions[0]).toMatchObject({
+      durationDays: 3,
+      remainingSeats: 7,
+      value: "2026-11-08|2026-11-10",
+    });
+
+    act(() => result.current.selectDateMonth("2026-12"));
+
+    expect(result.current.activeDateMonth).toBe("2026-12");
+    expect(result.current.visibleDateOptions.map((option) => option.departureDate)).toEqual([
+      "2026-12-02",
+    ]);
+  });
 });
