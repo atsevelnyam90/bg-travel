@@ -23,8 +23,9 @@ cd backend
 cp .env.example .env
 docker compose up -d     # Postgres :5433, Redis :6380
 pnpm install
+pnpm db:prepare          # migration deploy + Prisma client generate
 pnpm db:seed             # байгууллага + role + owner
-pnpm dev                 # migration + generate хийгээд http://localhost:4000/api/v1/health
+pnpm dev                 # http://localhost:4000/api/v1/health
 
 # 2-р терминал — portal
 cd portal
@@ -78,6 +79,9 @@ pnpm test:run
 | Redis | **6380** | Ирээдүйн queue/cache (одоогоор ашиглагдаагүй) |
 | Mailpit | 1025 / **8025** | Dev SMTP — и-мэйл гадагш явахгүй, UI дээр харагдана |
 | MinIO | 9000 / **9001** | S3-тэй нийцтэй файл хадгалалт |
+
+Локал MinIO нь `cgr.dev/chainguard/minio:latest` image ашиглана. Хуучин
+`minio/minio` Docker Hub repository байхгүй болсон тул түүнийг буцааж бүү ашигла.
 
 > Портууд default-аас өөр байгаа шалтгаан: хөгжүүлэгчийн машин дээр аль хэдийн
 > Postgres (5432) ажиллаж байх нь элбэг. Түүнийг булаахгүйн тулд шилжүүлсэн.

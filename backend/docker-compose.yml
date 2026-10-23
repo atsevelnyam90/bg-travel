@@ -61,7 +61,7 @@ services:
   # DigitalOcean Spaces — API ижил, зөвхөн endpoint солигдоно.
   # Консол: http://localhost:9001 (minioadmin / minioadmin)
   minio:
-    image: minio/minio:latest
+    image: cgr.dev/chainguard/minio:latest
     container_name: starter-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -74,7 +74,9 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      # Chainguard-ийн minimal image-д `mc`, `curl`, `wget` байхгүй.
+      # Shell-ийн TCP probe нь нэмэлт binary шаардахгүйгээр API port-ыг шалгана.
+      test: ["CMD-SHELL", ": > /dev/tcp/127.0.0.1/9000"]
       interval: 5s
       timeout: 3s
       retries: 15
