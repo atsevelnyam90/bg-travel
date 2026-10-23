@@ -61,19 +61,21 @@ function buildColumns(
   extendColumns?: AppBuilderViewExtension,
 ) {
   const columns: AppBuilderColumn[] =
-    view.list?.schema.columns.filter((column) => !column.hidden).map((column) => ({
-      id: column.key,
-      header: column.label,
-      meta: { sortable: column.sortable, label: column.label, align: column.align },
-      cell: ({ row }) => (
-        <span className={column.align === "right" ? "tabular-nums" : undefined}>
-          {formatBuilderField(
-            row.original.values[column.key],
-            view.form?.schema.fields.find((field) => field.key === column.key),
-          )}
-        </span>
-      ),
-    })) ?? [];
+    view.list?.schema.columns
+      .filter((column) => !column.hidden)
+      .map((column) => ({
+        id: column.key,
+        header: column.label,
+        meta: { sortable: column.sortable, label: column.label, align: column.align },
+        cell: ({ row }) => (
+          <span className={column.align === "right" ? "tabular-nums" : undefined}>
+            {formatBuilderField(
+              row.original.values[column.key],
+              view.form?.schema.fields.find((field) => field.key === column.key),
+            )}
+          </span>
+        ),
+      })) ?? [];
 
   extendColumns?.({ view, columns, actions });
 

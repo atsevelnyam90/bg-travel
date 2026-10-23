@@ -4,8 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { ensureBucket } from "@/lib/storage/s3";
 import { createServer } from "@/server";
 
-// Хөгжүүлэлтэд bucket байхгүй бол үүсгэнэ (production-д IaC).
-void ensureBucket();
+// Create the bucket during development; the deployment script provisions it in production.
+if (env.NODE_ENV === "development") void ensureBucket();
 
 const app = createServer();
 const server = app.listen(env.PORT, () => {

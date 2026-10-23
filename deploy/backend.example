@@ -1,0 +1,24 @@
+# Copy to backend.env on the VPS. Values below are examples, not credentials.
+NODE_ENV=production
+PORT=4000
+DATABASE_URL=postgresql://bgtravel:replace-with-url-encoded-password@postgres:5432/bgtravel?schema=public
+SESSION_SECRET=replace-with-at-least-32-random-characters
+CORS_ORIGINS=https://www.bgtravel.mn
+APP_URL=https://www.bgtravel.mn
+MAIL_FROM=BG Travel <no-reply@bgtravel.mn>
+SMTP_HOST=replace-with-real-smtp-host
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=replace-with-smtp-user
+SMTP_PASSWORD=replace-with-smtp-password
+S3_ENDPOINT=https://www.bgtravel.mn
+S3_REGION=us-east-1
+S3_BUCKET=bgtravel-media
+S3_ACCESS_KEY_ID=replace-with-MINIO_ROOT_USER
+S3_SECRET_ACCESS_KEY=replace-with-MINIO_ROOT_PASSWORD
+S3_FORCE_PATH_STYLE=true
+S3_PUBLIC_URL=https://www.bgtravel.mn/bgtravel-media
+SEED_ORG_SLUG=bgtravel
+SEED_ORG_NAME=BG Travel
+SEED_OWNER_EMAIL=replace-with-owner-email
+SEED_OWNER_PASSWORD=replace-with-strong-random-password

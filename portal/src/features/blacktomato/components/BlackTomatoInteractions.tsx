@@ -212,21 +212,27 @@ function trapBookingDrawerFocus(event: KeyboardEvent) {
   }
 }
 
-function bindBookingDrawer(root: ParentNode) {
-  root.querySelectorAll(".js-close-booking-drawer").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      closeBookingDrawer();
-    });
-  });
-
-  window.addEventListener("keydown", (event) => {
+function bindBookingDrawer(root: Document) {
+  // Suspense can replace the initial drawer after this effect runs, so listen on the document.
+  const handleClick = (event: MouseEvent) => {
+    if (!closestElement(event.target, ".js-close-booking-drawer")) return;
+    event.preventDefault();
+    closeBookingDrawer();
+  };
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       closeBookingDrawer();
       return;
     }
     trapBookingDrawerFocus(event);
-  });
+  };
+
+  root.addEventListener("click", handleClick);
+  window.addEventListener("keydown", handleKeyDown);
+  return () => {
+    root.removeEventListener("click", handleClick);
+    window.removeEventListener("keydown", handleKeyDown);
+  };
 }
 
 function bindBookingDrawerRequest() {
@@ -350,12 +356,12 @@ export function BlackTomatoInteractions() {
     const root = document;
     const unbindAutoHidingHeader = bindAutoHidingHeader(root);
     const unbindBookingDrawerRequest = bindBookingDrawerRequest();
+    const unbindBookingDrawer = bindBookingDrawer(root);
 
     preventLocalFormSubmit(root);
     bindDismissButtons(root);
     bindJourneyStart(root);
     bindPageScroll(root);
-    bindBookingDrawer(root);
     bindMobileMenu(root);
     bindTabs(root);
     bindAccordions(root);
@@ -364,6 +370,7 @@ export function BlackTomatoInteractions() {
     return () => {
       unbindAutoHidingHeader();
       unbindBookingDrawerRequest();
+      unbindBookingDrawer();
     };
   }, []);
 

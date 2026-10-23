@@ -14,7 +14,9 @@ export function useLogin() {
       // Platform adapter web дээр token-ийг үлдээхгүй; httpOnly session cookie ашиглана.
       // Native adapter дээр Bearer token хадгалагдана.
       await setTokens(tokens);
-      await queryClient.invalidateQueries({ queryKey: sessionKeys.me });
+      // The login page may hold an inactive cached 401 from the admin guard.
+      // Refresh it before navigating, so the guard sees the new session.
+      await queryClient.invalidateQueries({ queryKey: sessionKeys.me, refetchType: "all" });
     },
   });
 }

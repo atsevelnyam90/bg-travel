@@ -1,2 +1,10 @@
 .DS_Store
+.env
+deploy/stack.env
+deploy/backend.env
+deploy/certs/
+deploy/pki-validation/
+deploy/.deployed-tag
+deploy/.private/
+.pnpm-store/
 *.pem

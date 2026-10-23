@@ -1,3 +1,4 @@
+/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules supports :global. */
 .journey:global(#journey-start) {
   min-height: 100dvh;
   overflow: visible;

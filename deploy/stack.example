@@ -1,0 +1,7 @@
+# Copy to stack.env on the VPS. Keep this file and its values off Git.
+IMAGE_PREFIX=ghcr.io/atsevelnyam90/bg-travel
+IMAGE_TAG=replace-with-commit-sha
+POSTGRES_PASSWORD=replace-with-long-random-value
+MINIO_ROOT_USER=replace-with-random-access-key
+MINIO_ROOT_PASSWORD=replace-with-long-random-secret
+NGINX_CONFIG=https.conf

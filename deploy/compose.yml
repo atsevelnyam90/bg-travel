@@ -1,0 +1,75 @@
+name: bgtravel
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bgtravel
+      POSTGRES_USER: bgtravel
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in stack.env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bgtravel -d bgtravel"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?set MINIO_ROOT_USER in stack.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in stack.env}
+    volumes:
+      - minio-data:/data
+
+  api:
+    image: ${IMAGE_PREFIX:?set IMAGE_PREFIX in stack.env}-api:${IMAGE_TAG:?set IMAGE_TAG}
+    restart: unless-stopped
+    env_file: backend.env
+    volumes:
+      - builder-files:/app/backend/storage/builder-files
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  portal:
+    image: ${IMAGE_PREFIX:?set IMAGE_PREFIX in stack.env}-portal:${IMAGE_TAG:?set IMAGE_TAG}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  proxy:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    depends_on:
+      portal:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/${NGINX_CONFIG:-http.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./pki-validation:/var/www/pki-validation:ro
+
+volumes:
+  postgres-data:
+  minio-data:
+  builder-files:

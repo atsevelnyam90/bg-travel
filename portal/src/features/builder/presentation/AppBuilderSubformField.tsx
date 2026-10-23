@@ -35,16 +35,18 @@ type BuilderViewEntry = ReadyBuilderContracts["BuilderViewEntry"];
 
 function buildSubformColumns(view: BuilderView): DataTableColumnDef<BuilderViewEntry>[] {
   return (
-    view.list?.schema.columns.filter((column) => !column.hidden).map((column) => ({
-      id: column.key,
-      header: column.label,
-      meta: { sortable: column.sortable, label: column.label, align: column.align },
-      cell: ({ row }) =>
-        formatBuilderField(
-          row.original.values[column.key],
-          view.form?.schema.fields.find((field) => field.key === column.key),
-        ),
-    })) ?? []
+    view.list?.schema.columns
+      .filter((column) => !column.hidden)
+      .map((column) => ({
+        id: column.key,
+        header: column.label,
+        meta: { sortable: column.sortable, label: column.label, align: column.align },
+        cell: ({ row }) =>
+          formatBuilderField(
+            row.original.values[column.key],
+            view.form?.schema.fields.find((field) => field.key === column.key),
+          ),
+      })) ?? []
   );
 }
 

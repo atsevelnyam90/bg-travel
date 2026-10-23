@@ -36,6 +36,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm, cache-dependency-path: backend/pnpm-lock.yaml }
       - run: pnpm install --frozen-lockfile
@@ -60,12 +62,17 @@ jobs:
 
   portal:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000/api/v1
+      NEXT_PUBLIC_APP_NAME: BG Travel
     defaults:
       run:
         working-directory: portal
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm, cache-dependency-path: portal/pnpm-lock.yaml }
       - run: pnpm install --frozen-lockfile

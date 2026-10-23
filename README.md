@@ -1,5 +1,7 @@
 # winu-starter
 
+BG Travel production deployment on a Datacom VPS: [Docker and GitHub Actions guide](./docs/deployment/datacom-vps.md).
+
 Шинэ клиентийн төслийг эхлүүлэх суурь. Төлөвлөгөө: `~/Desktop/docs/` (00–09).
 
 `backend/` болон `portal/` нь **тус тусдаа бие даасан төсөл** — winu шиг folder-ыг нь

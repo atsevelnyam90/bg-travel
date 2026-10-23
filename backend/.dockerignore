@@ -1,0 +1,8 @@
+node_modules
+dist
+.env*
+!.env.example
+coverage
+src/generated
+*.pem
+*.key
