@@ -84,6 +84,7 @@ public_paths=(
   /
   /admin
   /auth/login
+  '/trip-detail?fromCategory=international&slug=vietnam-three-cities'
   /wp-content/themes/blacktomato/dist/css/base.css
   /wp-content/themes/blacktomato/dist/css/current.css
   /wp-content/themes/blacktomato/dist/css/home-inline.css
@@ -95,6 +96,12 @@ for path in "${public_paths[@]}"; do
     exit 1
   fi
 done
+
+if ! compose exec -T portal node --input-type=module < ./check-trip-styles.mjs; then
+  echo "Trip stylesheet smoke check failed" >&2
+  restore_previous_images
+  exit 1
+fi
 
 printf '%s\n' "$image_tag" > .deployed-tag
 echo "Deployed $image_tag"
