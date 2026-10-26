@@ -33,6 +33,7 @@ const root = `${PREFIX}/builder/runtime/views`;
 
 describe("travel builder", () => {
   let token: string;
+  let adminToken: string;
   let viewerToken: string;
 
   beforeEach(async () => {
@@ -44,11 +45,17 @@ describe("travel builder", () => {
       roleId: roles.owner,
     });
     await createUser({
+      email: "travel-admin@example.com",
+      password: "test-password-123",
+      roleId: roles.admin,
+    });
+    await createUser({
       email: "travel-viewer@example.com",
       password: "test-password-123",
       roleId: roles.viewer,
     });
     token = await login("travel-owner@example.com", "test-password-123");
+    adminToken = await login("travel-admin@example.com", "test-password-123");
     viewerToken = await login("travel-viewer@example.com", "test-password-123");
     await setupTravelBuilder();
   });
@@ -142,7 +149,21 @@ describe("travel builder", () => {
     ).toBe("Аялал — form");
   });
 
-  it("requires authentication and org:manage for both views and mutations", async () => {
+  it("allows admins to read and write trips without org:manage", async () => {
+    const admin = await prisma.role.findUniqueOrThrow({ where: { name: "admin" } });
+    expect(admin.permissions).not.toContain("org:manage");
+
+    for (const id of [ids.travelView, ids.departureView, ids.sectionView, ids.detailView]) {
+      await api().get(`${root}/${id}`).set(bearer(adminToken)).expect(200);
+    }
+    await api()
+      .post(`${root}/${ids.travelView}/composite-entries`)
+      .set(bearer(adminToken))
+      .send({ data: { travels: travelValues, travel_departures: [departureValues] } })
+      .expect(201);
+  });
+
+  it("requires authentication and travel permissions for views and mutations", async () => {
     for (const id of [ids.travelView, ids.departureView, ids.sectionView, ids.detailView]) {
       await api().get(`${root}/${id}`).expect(401);
       await api().get(`${root}/${id}`).set(bearer(viewerToken)).expect(403);

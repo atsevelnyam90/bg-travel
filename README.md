@@ -153,6 +153,10 @@ For a one-time change to existing production rows:
 
 Permission-list changes are a separate case: `AGENTS.md` requires `pnpm db:seed` to update stored roles after adding permissions. Review any customized role and Builder settings first; do not make this an unconditional deploy step.
 
+The travel permissions change uses the versioned `20261026210000_travel_permissions` migration to add `travel:read` and `travel:write` to existing `admin` and `owner` roles and update the four travel Builder views. The `20261026220000_builder_admin_permission` migration separately grants `builder:manage` to those system roles. Builder administration and views without an explicit permission now require `builder:manage`; organization settings still require `org:manage`. The migrations preserve unrelated role permissions and custom view permissions. New installations receive the same role permissions from the seed. A missing Trips menu item or Builder form list for an admin is a permission issue; their data can exist even when the UI cannot load it.
+
+The `20261026230000_website_builder_definitions` migration adds forms and lists for WebSite pages and sections, matching the four additional definition types shown in the development screenshots. It also creates two linked runtime views. The seed creates the same metadata for new installations, giving Builder 9 forms, 9 lists, and 9 views. Both paths leave existing Builder edits in place; they do not create website page content.
+
 ## Production deployment and VPS verification
 
 A successful push to `main` runs CI, builds commit-tagged API and portal images, then deploys that exact commit to the VPS when `DEPLOY_ENABLED=true`. The workflow copies `deploy/` to `/opt/bgtravel/` and runs `deploy.sh`. The script pulls application images, creates and validates a **pre-migration PostgreSQL dump**, retains only the newest automatic dump, applies Prisma and Builder migrations, starts the containers, and runs HTTP smoke checks. If the backup fails, migrations do not run. Application-image rollback does **not** roll back database migrations, so migrations must remain compatible with the previous application version.

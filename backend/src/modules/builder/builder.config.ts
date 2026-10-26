@@ -24,7 +24,7 @@ import { auditFromRequest } from "@/modules/audit/writeAudit";
 import { productBuilderRuntimeAdapter } from "@/modules/products/productBuilderRuntime";
 import { userBuilderRuntimeAdapter } from "@/modules/users/userBuilderRuntime";
 
-export const BUILDER_ADMIN_PERMISSION = "org:manage" satisfies Permission;
+export const BUILDER_ADMIN_PERMISSION = "builder:manage" satisfies Permission;
 export const BUILDER_DEFAULT_VIEW_PERMISSION = BUILDER_ADMIN_PERMISSION;
 
 const errors = { badRequest, unauthorized, forbidden, notFound, conflict };

@@ -29,7 +29,7 @@ export const navSections: NavSection[] = [
         icon: LayoutDashboard,
       },
       { label: "Захиалга", href: "/admin/orders", icon: ShoppingCart, permission: "order:read" },
-      { label: "Аялал", href: "/admin/travels", icon: MapIcon, permission: "org:manage" },
+      { label: "Аялал", href: "/admin/travels", icon: MapIcon, permission: "travel:read" },
     ],
   },
 ];

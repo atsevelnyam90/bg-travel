@@ -74,7 +74,7 @@ const builderAdmin = createBuilderAdminPages<ReadyBuilderContracts>({
     label: value,
   })),
   permissionOptions: PERMISSIONS.map((value) => ({ value, label: value })),
-  defaultPermission: "org:manage",
+  defaultPermission: "builder:manage",
   parseViewTriggers: (value) =>
     builderContract.builderTriggerSchema.array().parse(JSON.parse(value)),
   notifySuccess: toast.success,
