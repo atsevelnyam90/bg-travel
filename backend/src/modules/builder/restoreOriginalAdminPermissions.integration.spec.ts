@@ -5,8 +5,6 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { setupTravelBuilder } from "@/modules/travels/setupTravelBuilder";
 import { TRAVEL_BUILDER_IDS as travelIds } from "@/modules/travels/travelBuilderDefinitions";
-import { setupWebsiteBuilder } from "@/modules/website/setupWebsiteBuilder";
-import { WEBSITE_BUILDER_IDS as websiteIds } from "@/modules/website/websiteBuilderDefinitions";
 import { resetDatabase, seedRoles } from "@/test/helpers";
 
 const migrationSql = readFileSync(
@@ -16,13 +14,22 @@ const migrationSql = readFileSync(
   ),
   "utf8",
 );
-const temporaryPermissions = ["travel:read", "travel:write", "builder:manage"];
+const historicalMigrations = [
+  "20261026210000_travel_permissions",
+  "20261026220000_builder_admin_permission",
+  "20261026230000_website_builder_definitions",
+].map((name) =>
+  readFileSync(
+    new URL(`../../../prisma/migrations/${name}/migration.sql`, import.meta.url),
+    "utf8",
+  ),
+);
 
-async function runMigration(): Promise<void> {
+async function runMigration(sql = migrationSql): Promise<void> {
   const client = new Client({ connectionString: env.DATABASE_URL });
   await client.connect();
   try {
-    await client.query(migrationSql);
+    await client.query(sql);
   } finally {
     await client.end();
   }
@@ -34,48 +41,25 @@ describe("restore original admin permissions", () => {
   it("restores org:manage once while preserving custom settings and all definitions", async () => {
     await seedRoles();
     const originalRoles = await prisma.role.findMany({ orderBy: { name: "asc" } });
-    for (const name of ["owner", "admin"]) {
-      const role = await prisma.role.findUniqueOrThrow({ where: { name } });
-      await prisma.role.update({
-        where: { id: role.id },
-        data: {
-          permissions: [
-            ...role.permissions.filter(
-              (permission) => name !== "admin" || permission !== "org:manage",
-            ),
-            ...temporaryPermissions,
-          ],
-        },
-      });
-    }
+    const admin = await prisma.role.findUniqueOrThrow({ where: { name: "admin" } });
+    await prisma.role.update({
+      where: { id: admin.id },
+      data: { permissions: admin.permissions.filter((permission) => permission !== "org:manage") },
+    });
     const customRole = await prisma.role.create({
       data: { name: "custom-editor", permissions: ["product:read"] },
     });
     await setupTravelBuilder();
-    await setupWebsiteBuilder();
+    for (const sql of historicalMigrations) await runMigration(sql);
     const definitions = await prisma.builderDefinition.findMany({ orderBy: { id: "asc" } });
-    await prisma.builderView.updateMany({
-      where: {
-        id: {
-          in: [
-            travelIds.travelView,
-            travelIds.departureView,
-            travelIds.sectionView,
-            travelIds.detailView,
-          ],
-        },
-      },
-      data: { permissionRead: "travel:read", permissionWrite: "travel:write" },
-    });
-    await prisma.builderView.updateMany({
-      where: { id: { in: [websiteIds.pageView, websiteIds.sectionView] } },
-      data: { permissionRead: "builder:manage", permissionWrite: "builder:manage" },
-    });
     await prisma.builderView.update({
       where: { id: travelIds.detailView },
       data: { permissionRead: "product:read", title: "Custom itinerary title" },
     });
 
+    const versions = new Map(
+      (await prisma.builderView.findMany()).map((view) => [view.id, view.version]),
+    );
     const auditCount = await prisma.auditLog.count();
     await runMigration();
     await runMigration();
@@ -95,7 +79,7 @@ describe("restore original admin permissions", () => {
         view.id === travelIds.detailView ? "product:read" : "org:manage",
       );
       expect(view.permissionWrite).toBe("org:manage");
-      expect(view.version).toBe(1);
+      expect(view.version).toBe((versions.get(view.id) ?? 0) + 1);
     }
     expect(
       (await prisma.builderView.findUniqueOrThrow({ where: { id: travelIds.detailView } })).title,

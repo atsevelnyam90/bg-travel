@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { setupTravelBuilder } from "@/modules/travels/setupTravelBuilder";
-import { setupWebsiteBuilder } from "@/modules/website/setupWebsiteBuilder";
-import { WEBSITE_BUILDER_IDS } from "@/modules/website/websiteBuilderDefinitions";
 import { api, bearer, createUser, login, PREFIX, resetDatabase, seedRoles } from "@/test/helpers";
 
 describe("Builder administration permissions", () => {
@@ -25,7 +23,6 @@ describe("Builder administration permissions", () => {
     adminToken = await login("builder-admin@example.com", "test-password-123");
     viewerToken = await login("builder-viewer@example.com", "test-password-123");
     await setupTravelBuilder();
-    await setupWebsiteBuilder();
   });
 
   it("lets an admin list and create forms with the original org:manage permission", async () => {
@@ -39,23 +36,8 @@ describe("Builder administration permissions", () => {
     expect(forms.body.items.some((form: { title: string }) => form.title === "Аялал — form")).toBe(
       true,
     );
-    expect(
-      forms.body.items.some((form: { title: string }) => form.title === "WebSite Pages Form"),
-    ).toBe(true);
     await api().get(`${PREFIX}/builder/lists`).set(bearer(adminToken)).expect(200);
     await api().get(`${PREFIX}/builder/views`).set(bearer(adminToken)).expect(200);
-    await api()
-      .get(`${PREFIX}/builder/forms/${WEBSITE_BUILDER_IDS.pageForm}`)
-      .set(bearer(adminToken))
-      .expect(200);
-    await api()
-      .get(`${PREFIX}/builder/lists/${WEBSITE_BUILDER_IDS.pageList}`)
-      .set(bearer(adminToken))
-      .expect(200);
-    await api()
-      .get(`${PREFIX}/builder/runtime/views/${WEBSITE_BUILDER_IDS.pageView}`)
-      .set(bearer(adminToken))
-      .expect(200);
 
     const created = await api()
       .post(`${PREFIX}/builder/forms`)

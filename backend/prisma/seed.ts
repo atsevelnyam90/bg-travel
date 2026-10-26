@@ -9,7 +9,6 @@ import {
 import { seedTravelDemo } from "../src/modules/travels/seedTravelDemo";
 import { setupTravelBuilder } from "../src/modules/travels/setupTravelBuilder";
 import { USER_TEST_BEFORE_DELETE_TRIGGER } from "../src/modules/users/triggers";
-import { setupWebsiteBuilder } from "../src/modules/website/setupWebsiteBuilder";
 
 // Байгууллага (ганц мөр), системийн role-ууд, owner хэрэглэгч.
 // Дахин ажиллуулахад аюулгүй (upsert).
@@ -530,7 +529,6 @@ async function main() {
 
   const views = await seedBuilderDefinitions();
   const travelBuilder = await setupTravelBuilder();
-  const websiteBuilder = await setupWebsiteBuilder();
   const demoTravel =
     process.env.NODE_ENV !== "production" || process.env.SEED_DEMO_TRAVELS === "true"
       ? await seedTravelDemo()
@@ -543,9 +541,6 @@ async function main() {
   console.log(`✓ Builder User View: ${views.USER_VIEW_ID}`);
   console.log(`✓ Builder Order View: ${views.ORDER_VIEW_ID}`);
   console.log(`✓ Builder Travel View: ${travelBuilder.viewId}`);
-  console.log(
-    `✓ Builder WebSite Views: ${websiteBuilder.pageViewId}, ${websiteBuilder.sectionViewId}`,
-  );
   if (demoTravel) {
     console.log(
       `✓ Demo Travel: ${demoTravel.slug} (${demoTravel.created.travel} travel, ${demoTravel.created.departures} departures, ${demoTravel.created.details} details created)`,
