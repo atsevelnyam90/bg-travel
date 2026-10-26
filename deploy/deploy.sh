@@ -60,6 +60,7 @@ check_public_path() {
 compose pull postgres minio api portal proxy
 compose up -d --wait postgres minio
 compose run --rm -e S3_ENDPOINT=http://minio:9000 api node scripts/create-production-bucket.mjs
+bash ./backup-db.sh "$image_tag"
 compose run --rm api pnpm db:deploy
 compose run --rm api pnpm builder:migrate
 
