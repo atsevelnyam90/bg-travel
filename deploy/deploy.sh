@@ -44,7 +44,7 @@ restore_previous_images() {
   fi
 
   echo "Restoring previous application images" >&2
-  IMAGE_TAG="$previous_tag" docker compose --env-file stack.env -f compose.yml up -d --wait api portal proxy || true
+  IMAGE_TAG="$previous_tag" docker compose --env-file stack.env -f compose.yml up -d --wait --pull never api portal proxy || true
   # Nginx resolves the application container names when it starts.
   docker compose --env-file stack.env -f compose.yml restart proxy || true
 }
@@ -57,8 +57,8 @@ check_public_path() {
     "${site_scheme}://www.bgtravel.mn${path}" >/dev/null
 }
 
-compose pull postgres minio api portal proxy
-compose up -d --wait postgres minio
+compose pull api portal
+compose up -d --wait --pull never postgres minio
 compose run --rm -e S3_ENDPOINT=http://minio:9000 api node scripts/create-production-bucket.mjs
 bash ./backup-db.sh "$image_tag"
 compose run --rm api pnpm db:deploy
@@ -67,7 +67,7 @@ compose run --rm api pnpm builder:migrate
 # The validation-only Nginx occupies port 80 until the application proxy takes over.
 docker compose -f compose.validation.yml down
 
-if ! compose up -d --wait api portal proxy; then
+if ! compose up -d --wait --pull never api portal proxy; then
   echo "New containers failed health checks" >&2
   restore_previous_images
   exit 1
