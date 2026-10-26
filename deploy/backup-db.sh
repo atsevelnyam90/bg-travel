@@ -26,7 +26,21 @@ if [[ ! -s "$temporary_file" ]]; then
 fi
 docker compose --env-file stack.env -f compose.yml exec -T postgres \
   pg_restore --list < "$temporary_file" > /dev/null
+docker compose --env-file stack.env -f compose.yml exec -T postgres \
+  pg_restore --file=/dev/null < "$temporary_file"
 
 mv "$temporary_file" "$backup_file"
 trap - EXIT
+
+# Prune only dumps created by this deploy script, after the new archive is readable.
+shopt -s nullglob
+for old_backup in "$backup_dir"/pre-migration-*.dump; do
+  backup_name="${old_backup##*/}"
+  if [[ "$old_backup" != "$backup_file" &&
+    -f "$old_backup" && ! -L "$old_backup" &&
+    "$backup_name" =~ ^pre-migration-[0-9]{8}T[0-9]{6}Z-[a-f0-9]{40}-[0-9]+\.dump$ ]]; then
+    rm -- "$old_backup"
+  fi
+done
+
 echo "Pre-migration database backup: $backup_file"

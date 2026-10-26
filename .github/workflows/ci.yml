@@ -101,6 +101,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify production backup rotation
+        run: bash deploy/backup-db.test.sh
       # Capacitor static build нь server action-той нийцэхгүй.
       - name: '"use server" ашиглаагүй эсэх'
         run: |
