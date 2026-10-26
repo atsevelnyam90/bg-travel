@@ -149,9 +149,9 @@ describe("travel builder", () => {
     ).toBe("Аялал — form");
   });
 
-  it("allows admins to read and write trips without org:manage", async () => {
+  it("allows admins to read and write trips with org:manage", async () => {
     const admin = await prisma.role.findUniqueOrThrow({ where: { name: "admin" } });
-    expect(admin.permissions).not.toContain("org:manage");
+    expect(admin.permissions).toContain("org:manage");
 
     for (const id of [ids.travelView, ids.departureView, ids.sectionView, ids.detailView]) {
       await api().get(`${root}/${id}`).set(bearer(adminToken)).expect(200);
@@ -163,7 +163,7 @@ describe("travel builder", () => {
       .expect(201);
   });
 
-  it("requires authentication and travel permissions for views and mutations", async () => {
+  it("requires authentication and org:manage for views and mutations", async () => {
     for (const id of [ids.travelView, ids.departureView, ids.sectionView, ids.detailView]) {
       await api().get(`${root}/${id}`).expect(401);
       await api().get(`${root}/${id}`).set(bearer(viewerToken)).expect(403);

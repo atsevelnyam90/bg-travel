@@ -160,16 +160,16 @@ export async function setupTravelBuilder() {
           existing.title !== view.title ||
           existing.formId !== view.formId ||
           existing.listId !== view.listId ||
-          existing.permissionRead !== "travel:read" ||
-          existing.permissionWrite !== "travel:write" ||
+          existing.permissionRead !== "org:manage" ||
+          existing.permissionWrite !== "org:manage" ||
           !isDeepStrictEqual(existing.triggers, []);
         if (!needsUpdate) continue;
         await tx.builderView.update({
           where: { id: view.id },
           data: {
             ...view,
-            permissionRead: "travel:read",
-            permissionWrite: "travel:write",
+            permissionRead: "org:manage",
+            permissionWrite: "org:manage",
             triggers: [],
             version: { increment: 1 },
           },
@@ -198,8 +198,8 @@ export async function setupTravelBuilder() {
       await tx.builderView.create({
         data: {
           ...view,
-          permissionRead: "travel:read",
-          permissionWrite: "travel:write",
+          permissionRead: "org:manage",
+          permissionWrite: "org:manage",
           triggers: [],
         },
       });

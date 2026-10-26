@@ -28,10 +28,9 @@ describe("Builder administration permissions", () => {
     await setupWebsiteBuilder();
   });
 
-  it("lets an admin list and create forms without organization management", async () => {
+  it("lets an admin list and create forms with the original org:manage permission", async () => {
     const adminRole = await prisma.role.findUniqueOrThrow({ where: { name: "admin" } });
-    expect(adminRole.permissions).toContain("builder:manage");
-    expect(adminRole.permissions).not.toContain("org:manage");
+    expect(adminRole.permissions).toContain("org:manage");
 
     const forms = await api()
       .get(`${PREFIX}/builder/forms?page=1&pageSize=20`)

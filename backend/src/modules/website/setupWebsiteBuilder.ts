@@ -87,8 +87,8 @@ export async function setupWebsiteBuilder() {
       await tx.builderView.create({
         data: {
           ...view,
-          permissionRead: "builder:manage",
-          permissionWrite: "builder:manage",
+          permissionRead: "org:manage",
+          permissionWrite: "org:manage",
           triggers: [],
         },
       });

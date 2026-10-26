@@ -18,8 +18,6 @@ export const PERMISSIONS = [
   "org:read",
   "org:manage",
 
-  "builder:manage",
-
   "audit:read",
 
   "product:read",
@@ -29,9 +27,6 @@ export const PERMISSIONS = [
   "order:read",
   "order:write",
   "order:delete",
-
-  "travel:read",
-  "travel:write",
 
   "report:read",
   "report:export",
@@ -53,8 +48,6 @@ export const SYSTEM_ROLES = {
     "order:read",
     "order:write",
     "order:delete",
-    "travel:read",
-    "travel:write",
     "user:read",
     "user:invite",
     "user:update",
@@ -62,7 +55,7 @@ export const SYSTEM_ROLES = {
     "role:read",
     "role:manage",
     "org:read",
-    "builder:manage",
+    "org:manage",
     "audit:read",
     "report:read",
     "report:export",

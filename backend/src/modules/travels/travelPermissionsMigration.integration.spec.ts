@@ -37,7 +37,12 @@ describe("travel permissions migration", () => {
       await prisma.role.update({
         where: { id: role.id },
         data: {
-          permissions: role.permissions.filter((permission) => !permission.startsWith("travel:")),
+          // Reproduce the role before the historical migration, not today's defaults.
+          permissions: role.permissions.filter(
+            (permission) =>
+              !permission.startsWith("travel:") &&
+              !(name === "admin" && permission === "org:manage"),
+          ),
         },
       });
     }
