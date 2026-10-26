@@ -23,16 +23,33 @@ describe("public travels", () => {
     const gobi = await prisma.travel.create({
       data: { name: "Gobi tour", slug: "gobi-tour", description: null, status: "PUBLISHED" },
     });
+    const kenyaSection = await prisma.travelItinerarySection.create({
+      data: {
+        travelId: kenya.id,
+        title: "НАЙРОБИ & МААСАЙ МАРА",
+        description: "Кени дэх эхний хоёр өдөр",
+        mapImage: "https://cdn.example.com/kenya-map.jpg",
+        images: ["https://cdn.example.com/kenya-section-1.jpg"],
+        sortOrder: 1,
+      },
+    });
     await prisma.travelDetail.createMany({
       data: [
         {
           travelId: kenya.id,
+          sectionId: kenyaSection.id,
           dayNumber: 2,
           title: "Маасай тосгон",
           content: "Өдрийн аялал",
           images: ["https://cdn.example.com/day-2.jpg"],
         },
-        { travelId: kenya.id, dayNumber: 1, title: "Найроби", content: null },
+        {
+          travelId: kenya.id,
+          sectionId: kenyaSection.id,
+          dayNumber: 1,
+          title: "Найроби",
+          content: null,
+        },
       ],
     });
     const openSlot = await prisma.travelDeparture.create({
@@ -107,6 +124,8 @@ describe("public travels", () => {
         publicId: kenya.publicId,
         slug: "kenya-private-safari",
         name: "Kenya Private Safari",
+        destinationLabel: null,
+        tagline: null,
         description: "Safari аялал",
         category: "INTERNATIONAL",
         coverImage: "https://cdn.example.com/kenya.jpg",
@@ -123,6 +142,28 @@ describe("public travels", () => {
             title: "Маасай тосгон",
             content: "Өдрийн аялал",
             images: ["https://cdn.example.com/day-2.jpg"],
+          },
+        ],
+        itinerarySections: [
+          {
+            title: "НАЙРОБИ & МААСАЙ МАРА",
+            description: "Кени дэх эхний хоёр өдөр",
+            mapImage: "https://cdn.example.com/kenya-map.jpg",
+            images: ["https://cdn.example.com/kenya-section-1.jpg"],
+            details: [
+              {
+                dayNumber: 1,
+                title: "Найроби",
+                content: null,
+                images: [],
+              },
+              {
+                dayNumber: 2,
+                title: "Маасай тосгон",
+                content: "Өдрийн аялал",
+                images: ["https://cdn.example.com/day-2.jpg"],
+              },
+            ],
           },
         ],
         slots: [
@@ -223,6 +264,14 @@ describe("public travels", () => {
       durationDays: 4,
       slots: [],
       details: [{ dayNumber: 1, title: "Ирэх өдөр" }],
+      itinerarySections: [
+        {
+          title: "Аяллын хөтөлбөр",
+          mapImage: null,
+          images: [],
+          details: [{ dayNumber: 1, title: "Ирэх өдөр" }],
+        },
+      ],
     });
 
     await prisma.travel.update({ where: { id: travel.id }, data: { status: "ARCHIVED" } });

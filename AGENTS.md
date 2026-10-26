@@ -187,13 +187,18 @@ pnpm build
 
 ## 4в. Public (нэвтрэлтгүй) хэсэг
 
-Route орон зай **урьдчилан хуваарилагдсан** — route group нь URL-д нэмэгддэггүй
-тул `(public)` ба `(app)` нэг орон зайг хуваалцана:
+Route group нь URL-д нэмэгддэггүй. Хандах эрхийг frontend URL-ийн ерөнхий
+префиксээр биш, тухайн route group-ийн layout-аар ялгана:
 
-| Префикс | Хэн үзэх | Хаана |
+| Route | Хэн үзэх | Хаана |
 |---|---|---|
-| `/market/**` | Хэн ч | `portal/src/app/(public)/` |
-| Бусад бүх | Нэвтэрсэн | `portal/src/app/(app)/` |
+| `/admin/**` | Нэвтэрсэн хэрэглэгч | `portal/src/app/(admin)/admin/` |
+| `/auth/**` | Зочин | `portal/src/app/(auth)/` |
+| Public website pages (`/`, `/trip-detail` г.м) | Хэн ч | `portal/src/app/(public)/` эсвэл public root page |
+
+Шинэ хамгаалалттай дэлгэцийг `/admin/**` дор нэмнэ. `(app)` доторх хуучин
+route-ууд нь `/admin/**` руу чиглүүлэх compatibility redirect бөгөөд шинэ route
+тэнд нэмэхгүй.
 
 Backend талд ч адил: `/api/v1/public/**` нь `routes/public.routes.ts`-д тусад нь.
 
@@ -212,7 +217,7 @@ Backend талд ч адил: `/api/v1/public/**` нь `routes/public.routes.ts`
 **Батлагдсан:** `[slug]` route-той үед `pnpm build` (web) амжилттай, харин
 `pnpm build:mobile` унана. CI-ийн portal job `build:mobile` ажиллуулдаг тул PR дээр баригдана.
 
-**Шийдэл:** query param — `/market/product?slug=…`. `useSearchParams()` нь
+**Шийдэл:** query param — `/trip-detail?slug=…`. `useSearchParams()` нь
 Suspense хүрээ шаарддагийг мартаж болохгүй.
 
 ## 4г. Мөнгө

@@ -5,18 +5,26 @@ import { useIsMobile } from "@/lib/useBreakpoint";
 
 export type JourneyCategoryId = "domestic" | "international" | "wedding";
 
-export function useJourneyExplorerScreen() {
+type JourneyExplorerOptions = {
+  initialCategoryId?: JourneyCategoryId | null;
+  onCategoryChange?: (categoryId: JourneyCategoryId | null) => void;
+  tripCounts: Record<JourneyCategoryId, number>;
+};
+
+export function useJourneyExplorerScreen({
+  initialCategoryId = null,
+  onCategoryChange,
+  tripCounts,
+}: JourneyExplorerOptions) {
   const isMobile = useIsMobile();
-  const [isCategoryOpen, setCategoryOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(null);
-  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
-  const [closingTripId, setClosingTripId] = useState<string | null>(null);
+  const [isCategoryOpen, setCategoryOpen] = useState(initialCategoryId !== null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<JourneyCategoryId | null>(
+    initialCategoryId,
+  );
   const [isMobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [canScrollTripsBack, setCanScrollTripsBack] = useState(false);
   const [canScrollTripsForward, setCanScrollTripsForward] = useState(false);
   const openingFrameRef = useRef<number | null>(null);
-  const tripCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const selectedTripCountRef = useRef(0);
   const tripViewportRef = useRef<HTMLDivElement>(null);
 
   const cancelPendingOpen = () => {
@@ -30,9 +38,6 @@ export function useJourneyExplorerScreen() {
     () => () => {
       if (openingFrameRef.current !== null) {
         cancelAnimationFrame(openingFrameRef.current);
-      }
-      if (tripCloseTimerRef.current !== null) {
-        clearTimeout(tripCloseTimerRef.current);
       }
     },
     [],
@@ -59,11 +64,11 @@ export function useJourneyExplorerScreen() {
         tripViewportRef.current.scrollLeft = 0;
       }
       setCanScrollTripsBack(false);
-      setCanScrollTripsForward(selectedTripCountRef.current > (isMobile ? 1 : 3));
+      setCanScrollTripsForward(tripCounts[selectedCategoryId] > (isMobile ? 1 : 3));
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [isMobile, selectedCategoryId]);
+  }, [isMobile, selectedCategoryId, tripCounts]);
 
   const syncTripNavigation = () => {
     const viewport = tripViewportRef.current;
@@ -98,48 +103,21 @@ export function useJourneyExplorerScreen() {
     canScrollTripsForward,
     closeCategory: () => {
       cancelPendingOpen();
-      if (tripCloseTimerRef.current !== null) {
-        clearTimeout(tripCloseTimerRef.current);
-        tripCloseTimerRef.current = null;
-      }
       setCategoryOpen(false);
-      setSelectedTripId(null);
-      setClosingTripId(null);
       setMobileFilterOpen(false);
+      onCategoryChange?.(null);
       scrollToExplorerLevel("journey-explorer", isMobile ? 68 : 84);
     },
     closeMobileFilter: () => setMobileFilterOpen(false),
-    closeTrip: () => {
-      if (!selectedTripId || closingTripId) {
-        return;
-      }
-
-      if (isMobile) {
-        setSelectedTripId(null);
-        setClosingTripId(null);
-        scrollToExplorerLevel("trip-list", 0);
-        return;
-      }
-
-      setClosingTripId(selectedTripId);
-      setSelectedTripId(null);
-      tripCloseTimerRef.current = setTimeout(() => {
-        tripCloseTimerRef.current = null;
-        setClosingTripId(null);
-        scrollToExplorerLevel("trip-list", 84);
-      }, 480);
-    },
     isCategoryOpen,
     isMobile,
     isMobileFilterOpen,
-    isTripClosing: closingTripId !== null,
     openMobileFilter: () => setMobileFilterOpen(true),
-    openCategory: (categoryId: JourneyCategoryId, tripCount: number) => {
+    openCategory: (categoryId: JourneyCategoryId) => {
       cancelPendingOpen();
       setCategoryOpen(false);
-      setSelectedTripId(null);
-      selectedTripCountRef.current = tripCount;
       setSelectedCategoryId(categoryId);
+      onCategoryChange?.(categoryId);
       openingFrameRef.current = requestAnimationFrame(() => {
         openingFrameRef.current = requestAnimationFrame(() => {
           openingFrameRef.current = null;
@@ -158,17 +136,7 @@ export function useJourneyExplorerScreen() {
         left: direction * viewport.clientWidth,
       });
     },
-    openTrip: (tripId: string) => {
-      if (tripCloseTimerRef.current !== null) {
-        clearTimeout(tripCloseTimerRef.current);
-        tripCloseTimerRef.current = null;
-      }
-      setClosingTripId(null);
-      setSelectedTripId(tripId);
-    },
-    closingTripId,
     selectedCategoryId,
-    selectedTripId,
     syncTripNavigation,
     tripViewportRef,
   };

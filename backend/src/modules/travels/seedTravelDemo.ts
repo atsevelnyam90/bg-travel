@@ -3,6 +3,8 @@ import { prismaUnfiltered } from "@/lib/prisma";
 const DEMO_TRAVEL = {
   name: "Вьетнам 3 хот аялал",
   slug: "vietnam-three-cities",
+  destinationLabel: "ХӨХХОТ · ХАНОЙ · КАТ БА · ХАЛОНГ",
+  tagline: "ХОТЫН СОЁЛ, АРЛЫН АМРАЛТ, БУЛАНГИЙН АДАЛ ЯВДАЛ",
   category: "INTERNATIONAL" as const,
   status: "PUBLISHED" as const,
   coverImage: "/images/trips/vietnam-three-cities/hanoi-old-quarter.jpg",
@@ -10,6 +12,44 @@ const DEMO_TRAVEL = {
   description:
     "Хөххот, Ханой, Кат Ба, Халонг чиглэлийн түүх, байгаль, далайн амралтыг хослуулсан найман өдрийн аялал.",
 };
+
+const DEMO_SECTIONS = [
+  {
+    title: "ХӨХХОТ & ХАНОЙ",
+    description:
+      "Хөххотоос аяллаа эхлүүлж, Ханойн түүхэн дурсгал, хуучны гудамж болон орчин үеийн хэмнэлийг танина.",
+    images: [
+      "/images/trips/vietnam-three-cities/hanoi-old-quarter.jpg",
+      "/images/trips/vietnam-three-cities/hanoi-mausoleum.jpg",
+      "/images/trips/vietnam-three-cities/one-pillar-pagoda.jpg",
+    ],
+    sortOrder: 1,
+    days: [1, 2, 3],
+  },
+  {
+    title: "КАТ БА & ХАЛОНГ",
+    description:
+      "Далайн эргийн амралт, шохойн чулуун арлууд, усан онгоцны аяллыг нэг хэсэгт төвлөрүүлнэ.",
+    images: [
+      "/images/trips/vietnam-three-cities/cat-ba-beach.jpg",
+      "/images/trips/vietnam-three-cities/halong-bay.jpg",
+      "/images/trips/vietnam-three-cities/halong-cruise.jpg",
+      "/images/trips/vietnam-three-cities/halong-cave.jpg",
+    ],
+    sortOrder: 2,
+    days: [4, 5, 6],
+  },
+  {
+    title: "БУЦАХ ЗАМ",
+    description: "Ханойгоос Хөххотоор дамжин Эрээнд хүрснээр аялал өндөрлөнө.",
+    images: [
+      "/images/trips/vietnam-three-cities/vietnam-travelers.jpg",
+      "/images/trips/vietnam-three-cities/flight-home.jpg",
+    ],
+    sortOrder: 3,
+    days: [7, 8],
+  },
+] as const;
 
 const DEMO_DEPARTURES = [
   {
@@ -210,7 +250,7 @@ const DEMO_DETAILS = [
 ];
 
 type SeedTravelDemoResult = {
-  created: { departures: number; details: number; travel: number };
+  created: { departures: number; details: number; sections: number; travel: number };
   skippedDeletedTravel: boolean;
   slug: string;
 };
@@ -218,7 +258,7 @@ type SeedTravelDemoResult = {
 export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
   // Seed дахин ажиллахдаа админаас soft-delete хийсэн demo-г сэргээхгүй байх ёстой.
   return prismaUnfiltered.$transaction(async (tx) => {
-    const created = { departures: 0, details: 0, travel: 0 };
+    const created = { departures: 0, details: 0, sections: 0, travel: 0 };
     let travel = await tx.travel.findUnique({ where: { slug: DEMO_TRAVEL.slug } });
 
     if (travel?.deletedAt) {
@@ -265,13 +305,60 @@ export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
       created.departures += 1;
     }
 
+    const sectionIdByDay = new Map<number, string>();
+    for (const section of DEMO_SECTIONS) {
+      let row = await tx.travelItinerarySection.findFirst({
+        where: { travelId: travel.id, title: section.title, deletedAt: null },
+      });
+      if (!row) {
+        row = await tx.travelItinerarySection.create({
+          data: {
+            travelId: travel.id,
+            title: section.title,
+            description: section.description,
+            images: [...section.images],
+            sortOrder: section.sortOrder,
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            action: "create",
+            resource: "travelItinerarySection",
+            resourceId: row.id,
+            meta: { source: "seedTravelDemo", travelId: travel.id },
+          },
+        });
+        created.sections += 1;
+      }
+      for (const day of section.days) sectionIdByDay.set(day, row.id);
+    }
+
     for (const detail of DEMO_DETAILS) {
       const existing = await tx.travelDetail.findFirst({
-        where: { travelId: travel.id, dayNumber: detail.dayNumber },
+        where: { travelId: travel.id, dayNumber: detail.dayNumber, deletedAt: null },
       });
-      if (existing) continue;
+      const sectionId = sectionIdByDay.get(detail.dayNumber);
+      if (existing) {
+        if (existing.sectionId !== sectionId) {
+          await tx.travelDetail.update({
+            where: { id: existing.id },
+            data: { sectionId, version: { increment: 1 } },
+          });
+          await tx.auditLog.create({
+            data: {
+              action: "update",
+              resource: "travelDetail",
+              resourceId: existing.id,
+              meta: { source: "seedTravelDemo", changedFields: ["sectionId"] },
+            },
+          });
+        }
+        continue;
+      }
 
-      const row = await tx.travelDetail.create({ data: { ...detail, travelId: travel.id } });
+      const row = await tx.travelDetail.create({
+        data: { ...detail, travelId: travel.id, sectionId },
+      });
       await tx.auditLog.create({
         data: {
           action: "create",

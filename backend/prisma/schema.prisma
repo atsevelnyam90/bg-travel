@@ -320,26 +320,50 @@ enum TravelStatus {
 }
 
 model Travel {
-  id           String         @id @default(uuid())
-  publicId     String         @unique @default(dbgenerated("(gen_random_uuid())::text"))
-  name         String
-  slug         String         @unique
-  category     TravelCategory @default(DOMESTIC)
-  status       TravelStatus   @default(PUBLISHED)
-  coverImage   String?
-  durationDays Int            @default(1)
-  description  String?
-  version      Int            @default(0)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  deletedAt    DateTime?
+  id               String         @id @default(uuid())
+  publicId         String         @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  name             String
+  slug             String         @unique
+  destinationLabel String?
+  tagline          String?
+  category         TravelCategory @default(DOMESTIC)
+  status           TravelStatus   @default(PUBLISHED)
+  coverImage       String?
+  durationDays     Int            @default(1)
+  description      String?
+  version          Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
+  deletedAt        DateTime?
 
-  departures TravelDeparture[]
-  details    TravelDetail[]
+  departures        TravelDeparture[]
+  itinerarySections TravelItinerarySection[]
+  details           TravelDetail[]
 
   @@index([name])
   @@index([status, category])
   @@map("travels")
+}
+
+model TravelItinerarySection {
+  id          String    @id @default(uuid())
+  travelId    String
+  title       String
+  description String?
+  mapImage    String?
+  images      String[]  @default([])
+  sortOrder   Int       @default(0)
+  version     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+
+  travel  Travel         @relation(fields: [travelId], references: [id], onDelete: Restrict)
+  details TravelDetail[] @relation("TravelItinerarySectionDetails")
+
+  @@unique([id, travelId])
+  @@index([travelId, sortOrder])
+  @@map("travel_itinerary_sections")
 }
 
 model TravelDeparture {
@@ -366,20 +390,23 @@ model TravelDeparture {
 }
 
 model TravelDetail {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   travelId  String
+  sectionId String?
   dayNumber Int
   title     String
   content   String?
-  images    String[] @default([])
-  version   Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  images    String[]  @default([])
+  version   Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
 
-  travel Travel @relation(fields: [travelId], references: [id], onDelete: Restrict)
+  travel  Travel                  @relation(fields: [travelId], references: [id], onDelete: Restrict)
+  section TravelItinerarySection? @relation("TravelItinerarySectionDetails", fields: [sectionId, travelId], references: [id, travelId], onDelete: Restrict)
 
   @@index([travelId, dayNumber])
+  @@index([sectionId])
   @@map("travel_details")
 }
 

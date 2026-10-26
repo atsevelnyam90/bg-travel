@@ -17,6 +17,8 @@ async function publicTravelRows(where?: {
       publicId: true,
       slug: true,
       name: true,
+      destinationLabel: true,
+      tagline: true,
       description: true,
       category: true,
       coverImage: true,
@@ -82,6 +84,7 @@ async function publicTravelRows(where?: {
     orderBy: [{ travelId: "asc" }, { dayNumber: "asc" }],
     select: {
       travelId: true,
+      sectionId: true,
       dayNumber: true,
       title: true,
       content: true,
@@ -89,28 +92,96 @@ async function publicTravelRows(where?: {
     },
   });
   const detailsByTravelId = new Map<string, travelsContract.PublicTravelDetail[]>();
+  const detailsBySectionId = new Map<string, travelsContract.PublicTravelDetail[]>();
+  const ungroupedDetailsByTravelId = new Map<string, travelsContract.PublicTravelDetail[]>();
   for (const detail of details) {
-    const rows = detailsByTravelId.get(detail.travelId) ?? [];
-    rows.push({
+    const publicDetail = {
       dayNumber: detail.dayNumber,
       title: detail.title,
       content: detail.content,
       images: detail.images,
-    });
+    };
+    const rows = detailsByTravelId.get(detail.travelId) ?? [];
+    rows.push(publicDetail);
     detailsByTravelId.set(detail.travelId, rows);
+
+    if (detail.sectionId) {
+      const sectionRows = detailsBySectionId.get(detail.sectionId) ?? [];
+      sectionRows.push(publicDetail);
+      detailsBySectionId.set(detail.sectionId, sectionRows);
+    } else {
+      const ungroupedRows = ungroupedDetailsByTravelId.get(detail.travelId) ?? [];
+      ungroupedRows.push(publicDetail);
+      ungroupedDetailsByTravelId.set(detail.travelId, ungroupedRows);
+    }
   }
 
-  return travels.map((travel) => ({
-    publicId: travel.publicId,
-    slug: travel.slug,
-    name: travel.name,
-    description: travel.description,
-    category: travel.category,
-    coverImage: travel.coverImage,
-    durationDays: travel.durationDays,
-    details: detailsByTravelId.get(travel.id) ?? [],
-    slots: slotsByTravelId.get(travel.id) ?? [],
-  }));
+  const sections = await prisma.travelItinerarySection.findMany({
+    where: { travelId: { in: travels.map((travel) => travel.id) } },
+    orderBy: [{ travelId: "asc" }, { sortOrder: "asc" }, { createdAt: "asc" }],
+    select: {
+      id: true,
+      travelId: true,
+      title: true,
+      description: true,
+      mapImage: true,
+      images: true,
+    },
+  });
+  const sectionIds = new Set(sections.map((section) => section.id));
+  for (const detail of details) {
+    if (!detail.sectionId || sectionIds.has(detail.sectionId)) continue;
+    const publicDetail = {
+      dayNumber: detail.dayNumber,
+      title: detail.title,
+      content: detail.content,
+      images: detail.images,
+    };
+    const rows = ungroupedDetailsByTravelId.get(detail.travelId) ?? [];
+    rows.push(publicDetail);
+    ungroupedDetailsByTravelId.set(detail.travelId, rows);
+  }
+  const sectionsByTravelId = new Map<string, travelsContract.PublicTravelItinerarySection[]>();
+  for (const section of sections) {
+    const rows = sectionsByTravelId.get(section.travelId) ?? [];
+    rows.push({
+      title: section.title,
+      description: section.description,
+      mapImage: section.mapImage,
+      images: section.images,
+      details: detailsBySectionId.get(section.id) ?? [],
+    });
+    sectionsByTravelId.set(section.travelId, rows);
+  }
+
+  return travels.map((travel) => {
+    const itinerarySections = [...(sectionsByTravelId.get(travel.id) ?? [])];
+    const ungroupedDetails = ungroupedDetailsByTravelId.get(travel.id) ?? [];
+    if (ungroupedDetails.length > 0) {
+      itinerarySections.push({
+        title: "Аяллын хөтөлбөр",
+        description: null,
+        mapImage: null,
+        images: [],
+        details: ungroupedDetails.sort((a, b) => a.dayNumber - b.dayNumber),
+      });
+    }
+
+    return {
+      publicId: travel.publicId,
+      slug: travel.slug,
+      name: travel.name,
+      destinationLabel: travel.destinationLabel,
+      tagline: travel.tagline,
+      description: travel.description,
+      category: travel.category,
+      coverImage: travel.coverImage,
+      durationDays: travel.durationDays,
+      details: detailsByTravelId.get(travel.id) ?? [],
+      itinerarySections,
+      slots: slotsByTravelId.get(travel.id) ?? [],
+    };
+  });
 }
 
 export async function listPublicTravels(): Promise<travelsContract.ListPublicTravelsResponse> {

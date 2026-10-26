@@ -7,6 +7,8 @@ import {
   detailFormSchema,
   detailListSchema,
   TRAVEL_BUILDER_IDS as ids,
+  sectionFormSchema,
+  sectionListSchema,
   travelFormSchema,
   travelListSchema,
 } from "./travelBuilderDefinitions";
@@ -33,6 +35,20 @@ export async function setupTravelBuilder() {
         title: "Аяллын гаралт — grid",
         tableName: "travel_departures",
         schema: departureListSchema,
+      },
+      {
+        id: ids.sectionForm,
+        type: "form",
+        title: "Аяллын хөтөлбөрийн бүлэг — form",
+        tableName: "travel_itinerary_sections",
+        schema: sectionFormSchema,
+      },
+      {
+        id: ids.sectionList,
+        type: "list",
+        title: "Аяллын хөтөлбөрийн бүлэг — grid",
+        tableName: "travel_itinerary_sections",
+        schema: sectionListSchema,
       },
       {
         id: ids.detailForm,
@@ -123,6 +139,12 @@ export async function setupTravelBuilder() {
         title: "Аяллын гаралтууд",
         formId: ids.departureForm,
         listId: ids.departureList,
+      },
+      {
+        id: ids.sectionView,
+        title: "Аяллын хөтөлбөрийн бүлгүүд",
+        formId: ids.sectionForm,
+        listId: ids.sectionList,
       },
       {
         id: ids.detailView,

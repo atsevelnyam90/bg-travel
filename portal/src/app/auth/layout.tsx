@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { brand } from "@/config/brand";
+import { RequireGuest } from "@/features/auth/components/RequireGuest";
 
 export default function AuthPathLayout({ children }: { children: ReactNode }) {
   return (
@@ -45,7 +46,7 @@ export default function AuthPathLayout({ children }: { children: ReactNode }) {
               className="h-auto w-28 sm:w-32"
             />
           </div>
-          {children}
+          <RequireGuest>{children}</RequireGuest>
           <p className="mt-6 text-center text-muted-foreground text-xs">
             Зөвхөн эрх бүхий ажилтанд зориулсан удирдлагын хэсэг
           </p>

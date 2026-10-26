@@ -8,6 +8,8 @@ describe("createJourneyCategories", () => {
       publicId: "6cc7df59-93bf-4499-a9d5-4c90834618eb",
       slug: "gobi-tour",
       name: "Говийн аялал",
+      destinationLabel: "МОНГОЛ",
+      tagline: null,
       description: "Элсэн манхан, хадат хавцлаар аялна.",
       category: "DOMESTIC",
       coverImage: "https://cdn.example.com/gobi-cover.jpg",
@@ -20,6 +22,7 @@ describe("createJourneyCategories", () => {
           images: ["https://cdn.example.com/yolyn-am.jpg"],
         },
       ],
+      itinerarySections: [],
       slots: [
         {
           publicId: "ab2c0b37-ed02-4a8d-96d9-864c59acc70b",
@@ -59,11 +62,14 @@ describe("createJourneyCategories", () => {
       publicId: "77e8e98f-3c2f-4fa6-bbbf-a1f19655dd59",
       slug: "empty-itinerary",
       name: "Хоосон хөтөлбөр",
+      destinationLabel: null,
+      tagline: null,
       description: "Тайлбар байна.",
       category: "WEDDING",
       coverImage: null,
       durationDays: 3,
       details: [],
+      itinerarySections: [],
       slots: [],
     });
 

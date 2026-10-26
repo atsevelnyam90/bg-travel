@@ -25,6 +25,7 @@ export async function resetDatabase(): Promise<void> {
     prisma.order.deleteMany(),
     prisma.travelDeparture.deleteMany(),
     prisma.travelDetail.deleteMany(),
+    prisma.travelItinerarySection.deleteMany(),
     prisma.travel.deleteMany(),
     prisma.websiteSection.deleteMany(),
     prisma.websitePage.deleteMany(),

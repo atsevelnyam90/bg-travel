@@ -10,7 +10,7 @@ describe("seedTravelDemo", () => {
 
   it("creates the demo travel with departures and rich-text details exactly once", async () => {
     await expect(seedTravelDemo()).resolves.toMatchObject({
-      created: { departures: 4, details: 8, travel: 1 },
+      created: { departures: 4, details: 8, sections: 3, travel: 1 },
       skippedDeletedTravel: false,
       slug: "vietnam-three-cities",
     });
@@ -19,6 +19,7 @@ describe("seedTravelDemo", () => {
       where: { slug: "vietnam-three-cities" },
       include: {
         departures: { orderBy: [{ departureDate: "asc" }, { transportType: "asc" }] },
+        itinerarySections: { orderBy: { sortOrder: "asc" } },
         details: { orderBy: { dayNumber: "asc" } },
       },
     });
@@ -28,19 +29,23 @@ describe("seedTravelDemo", () => {
       status: "PUBLISHED",
     });
     expect(travel.departures).toHaveLength(4);
+    expect(travel.itinerarySections).toHaveLength(3);
+    expect(travel.itinerarySections[1].images).toHaveLength(4);
     expect(travel.details).toHaveLength(8);
+    expect(travel.details.every((detail) => detail.sectionId !== null)).toBe(true);
     expect(JSON.parse(travel.details[0].content ?? "")).toMatchObject({ type: "doc" });
     expect(travel.details[5].images).toHaveLength(5);
-    expect(await prisma.auditLog.count()).toBe(13);
+    expect(await prisma.auditLog.count()).toBe(16);
 
     await expect(seedTravelDemo()).resolves.toMatchObject({
-      created: { departures: 0, details: 0, travel: 0 },
+      created: { departures: 0, details: 0, sections: 0, travel: 0 },
       skippedDeletedTravel: false,
     });
     expect(await prisma.travel.count()).toBe(1);
     expect(await prisma.travelDeparture.count()).toBe(4);
+    expect(await prisma.travelItinerarySection.count()).toBe(3);
     expect(await prisma.travelDetail.count()).toBe(8);
-    expect(await prisma.auditLog.count()).toBe(13);
+    expect(await prisma.auditLog.count()).toBe(16);
   });
 
   it("does not recreate a soft-deleted seeded travel", async () => {
@@ -51,7 +56,7 @@ describe("seedTravelDemo", () => {
     });
 
     await expect(seedTravelDemo()).resolves.toMatchObject({
-      created: { departures: 0, details: 0, travel: 0 },
+      created: { departures: 0, details: 0, sections: 0, travel: 0 },
       skippedDeletedTravel: true,
     });
   });

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { BookingBudgetScreen } from "../hooks/useBookingBudgetScreen";
+import type { JourneyCategoryId } from "../hooks/useJourneyExplorerScreen";
 import { BlackTomatoJourneyBlocks } from "./BlackTomatoJourneyBlocks";
 import { BlackTomatoPopularDestinationsTabMarkup } from "./BlackTomatoPopularDestinationsTabMarkup";
 import { BlackTomatoSpotlightTabMarkup } from "./BlackTomatoSpotlightTabMarkup";
@@ -11,11 +12,15 @@ import optionTwoStyles from "./journeyOptionTwo.module.css";
 
 type BlackTomatoJourneySectionProps = {
   bookingScreen?: BookingBudgetScreen;
+  initialCategoryId?: JourneyCategoryId | null;
+  onCategoryChange?: (categoryId: JourneyCategoryId | null) => void;
   variant?: "default" | "option2";
 };
 
 export function BlackTomatoJourneySection({
   bookingScreen,
+  initialCategoryId,
+  onCategoryChange,
   variant = "default",
 }: BlackTomatoJourneySectionProps = {}) {
   const t = useTranslations("publicJourney.ui");
@@ -83,7 +88,12 @@ export function BlackTomatoJourneySection({
             className={`tab tab--col--3 section__tab is-active${isOptionTwo ? ` ${optionTwoStyles.tab}` : ""}`}
             data-tab="by-traveller"
           >
-            <BlackTomatoJourneyBlocks bookingScreen={bookingScreen} variant={variant} />
+            <BlackTomatoJourneyBlocks
+              bookingScreen={bookingScreen}
+              initialCategoryId={initialCategoryId}
+              onCategoryChange={onCategoryChange}
+              variant={variant}
+            />
           </div>
           <BlackTomatoPopularDestinationsTabMarkup />
           <BlackTomatoTravelMonthsTabMarkup />

@@ -23,6 +23,7 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "Product",
   "Travel",
   "TravelDeparture",
+  "TravelItinerarySection",
   "TravelDetail",
   "Order",
   "WebsitePage",

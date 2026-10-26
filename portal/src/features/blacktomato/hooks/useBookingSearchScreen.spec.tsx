@@ -29,13 +29,16 @@ function createTrip(publicId: string, name: string, slots: TravelSlot[]): Travel
   return {
     category: "INTERNATIONAL",
     coverImage: null,
+    destinationLabel: null,
     description: null,
     details: [],
+    itinerarySections: [],
     durationDays: 4,
     name,
     publicId,
     slots,
     slug: publicId,
+    tagline: null,
   };
 }
 

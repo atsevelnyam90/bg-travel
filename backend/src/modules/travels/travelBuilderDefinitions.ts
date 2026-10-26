@@ -10,6 +10,9 @@ export const TRAVEL_BUILDER_IDS = {
   detailForm: "66666666-6666-4666-8666-666666666681",
   detailList: "66666666-6666-4666-8666-666666666682",
   detailView: "66666666-6666-4666-8666-666666666683",
+  sectionForm: "66666666-6666-4666-8666-666666666691",
+  sectionList: "66666666-6666-4666-8666-666666666692",
+  sectionView: "66666666-6666-4666-8666-666666666693",
 } as const;
 
 export const travelFormSchema = builder.builderFormSchema.parse({
@@ -17,6 +20,18 @@ export const travelFormSchema = builder.builderFormSchema.parse({
   fields: [
     { key: "name", label: "Аяллын нэр", type: "text", required: true },
     { key: "slug", label: "Тогтмол холбоос", type: "text", required: true },
+    {
+      key: "destinationLabel",
+      label: "Чиглэлийн жижиг гарчиг",
+      type: "text",
+      placeholder: "Жишээ: ФРАНЦ & ИСПАНИ",
+    },
+    {
+      key: "tagline",
+      label: "Hero дэд гарчиг",
+      type: "text",
+      placeholder: "Аяллын гол санааг нэг өгүүлбэрээр",
+    },
     {
       key: "category",
       label: "Ангилал",
@@ -42,7 +57,12 @@ export const travelFormSchema = builder.builderFormSchema.parse({
     },
     { key: "coverImage", label: "Cover зураг", type: "text" },
     { key: "durationDays", label: "Хоног", type: "number", required: true },
-    { key: "description", label: "Тайлбар", type: "textarea" },
+    {
+      key: "description",
+      label: "Аяллын ерөнхий танилцуулга",
+      type: "richtext",
+      placeholder: "Аяллын тухай ерөнхий танилцуулгаа бичнэ үү",
+    },
   ],
   layout: {
     groups: [
@@ -54,6 +74,8 @@ export const travelFormSchema = builder.builderFormSchema.parse({
           { key: "name", span: 12 },
           { key: "slug", span: 6 },
           { key: "durationDays", span: 6 },
+          { key: "destinationLabel", span: 6 },
+          { key: "tagline", span: 6 },
           { key: "category", span: 6 },
           { key: "status", span: 6 },
           { key: "coverImage", span: 12 },
@@ -74,6 +96,16 @@ export const travelFormSchema = builder.builderFormSchema.parse({
       presentation: "dialog",
     },
     {
+      key: "itinerarySections",
+      label: "Хөтөлбөрийн бүлгүүд",
+      viewId: TRAVEL_BUILDER_IDS.sectionView,
+      parentField: "id",
+      childField: "travelId",
+      buttonLabel: "Бүлэг нэмэх",
+      icon: "plus",
+      presentation: "dialog",
+    },
+    {
       key: "details",
       label: "Өдрийн хөтөлбөр",
       viewId: TRAVEL_BUILDER_IDS.detailView,
@@ -84,6 +116,62 @@ export const travelFormSchema = builder.builderFormSchema.parse({
       presentation: "dialog",
     },
   ],
+});
+
+export const sectionFormSchema = builder.builderFormSchema.parse({
+  presentation: "drawer",
+  fields: [
+    { key: "travelId", label: "Аялал", type: "text", required: true, hidden: true },
+    { key: "title", label: "Бүлгийн гарчиг", type: "text", required: true },
+    {
+      key: "description",
+      label: "Бүлгийн танилцуулга",
+      type: "richtext",
+      placeholder: "Энэ чиглэлд өнгөрүүлэх өдрүүдийн ерөнхий танилцуулга",
+    },
+    {
+      key: "mapImage",
+      label: "Маршрутын map зураг · 2:3 босоо",
+      description:
+        "Portrait 2:3 харьцаатай (жишээ нь 800×1200 px) зураг оруулна. Transparent PNG байвал хамгийн цэвэр харагдана.",
+      type: "file",
+      storage: "server",
+      contentKind: "image",
+    },
+    {
+      key: "images",
+      label: "Бүлгийн gallery зургууд",
+      type: "file",
+      storage: "server",
+      contentKind: "image",
+      multiple: true,
+    },
+    { key: "sortOrder", label: "Дараалал", type: "number", required: true, defaultValue: 0 },
+  ],
+  layout: {
+    groups: [
+      {
+        id: "section",
+        title: "Хөтөлбөрийн бүлэг",
+        columns: 12,
+        fields: [
+          { key: "title", span: 9 },
+          { key: "sortOrder", span: 3 },
+          { key: "description", span: 12 },
+          { key: "mapImage", span: 12 },
+          { key: "images", span: 12 },
+        ],
+      },
+    ],
+  },
+});
+
+export const sectionListSchema = builder.builderListSchema.parse({
+  columns: [
+    { key: "title", label: "Бүлэг", sortable: true },
+    { key: "sortOrder", label: "Дараалал", sortable: true, align: "right" },
+  ],
+  orderBy: [{ field: "sortOrder", direction: "asc" }],
 });
 
 export const departureFormSchema = builder.builderFormSchema.parse({
@@ -149,6 +237,19 @@ export const detailFormSchema = builder.builderFormSchema.parse({
   presentation: "drawer",
   fields: [
     { key: "travelId", label: "Аялал", type: "text", required: true, hidden: true },
+    {
+      key: "sectionId",
+      label: "Хөтөлбөрийн бүлэг",
+      type: "select",
+      optionsSource: {
+        type: "dbTable",
+        tableName: "travel_itinerary_sections",
+        valueField: "id",
+        labelField: "title",
+        searchFields: ["title"],
+        filterBy: { field: "travelId", valueFromField: "travelId" },
+      },
+    },
     { key: "dayNumber", label: "Өдөр", type: "number", required: true },
     { key: "title", label: "Гарчиг", type: "text", required: true },
     {
@@ -173,8 +274,9 @@ export const detailFormSchema = builder.builderFormSchema.parse({
         title: "Өдрийн хөтөлбөр",
         columns: 12,
         fields: [
-          { key: "dayNumber", span: 3 },
-          { key: "title", span: 9 },
+          { key: "sectionId", span: 6 },
+          { key: "dayNumber", span: 2 },
+          { key: "title", span: 4 },
           { key: "content", span: 12 },
           { key: "images", span: 12 },
         ],

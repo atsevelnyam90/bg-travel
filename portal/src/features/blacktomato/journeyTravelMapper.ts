@@ -8,7 +8,6 @@ export type JourneyTrip = {
   duration: string;
   excluded?: readonly string[];
   galleryImage?: string;
-  highlights: Record<string, string>;
   id: string;
   image: string;
   included?: readonly string[];
@@ -26,6 +25,7 @@ export type JourneyTrip = {
   price: string;
   region: string;
   season: string;
+  slug: string;
   title: string;
   transportTypes: readonly ("GROUND" | "DIRECT_FLIGHT")[];
   videoId?: string;
@@ -62,14 +62,10 @@ function toJourneyTrip(travel: travels.PublicTravel, category: JourneyCategory):
     title: detail.title,
   }));
   const fallbackImage = firstImage ?? travel.coverImage ?? category.image;
-  const highlights = Object.fromEntries(
-    travel.details.slice(0, 3).map((detail, index) => [`item${index + 1}`, detail.title]),
-  );
 
   return {
     duration: `${travel.durationDays} өдөр`,
     galleryImage: firstImage ?? travel.coverImage ?? undefined,
-    highlights: Object.keys(highlights).length > 0 ? highlights : { category: category.title },
     id: travel.publicId,
     image: travel.coverImage ?? category.image,
     intro: travel.description ?? "",
@@ -81,6 +77,7 @@ function toJourneyTrip(travel: travels.PublicTravel, category: JourneyCategory):
     price: lowestPrice(travel.slots),
     region: category.title,
     season: "",
+    slug: travel.slug,
     title: travel.name,
     transportTypes: [...new Set(travel.slots.map((slot) => slot.transportType))],
   };

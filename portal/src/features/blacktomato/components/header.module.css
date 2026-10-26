@@ -12,6 +12,11 @@
   transform: translateY(-100%);
 }
 
+.header[data-detail-header] {
+  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--travel-dark, var(--foreground)) 68%, transparent);
+}
+
 .header .bar {
   display: flex;
   align-items: center;

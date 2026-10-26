@@ -7,6 +7,8 @@ import { TRAVEL_BUILDER_IDS as ids } from "./travelBuilderDefinitions";
 const travelValues = {
   name: "Kenya Private Safari",
   slug: "kenya-private-safari",
+  destinationLabel: "КЕНИ",
+  tagline: "ЗЭРЛЭГ БАЙГАЛИЙГ ОЙРООС",
   category: "INTERNATIONAL",
   status: "PUBLISHED",
   coverImage: "https://cdn.example.com/kenya.jpg",
@@ -59,6 +61,8 @@ describe("travel builder", () => {
     expect(view.body.form.schema.fields.map((field: { key: string }) => field.key)).toEqual([
       "name",
       "slug",
+      "destinationLabel",
+      "tagline",
       "category",
       "status",
       "coverImage",
@@ -78,14 +82,37 @@ describe("travel builder", () => {
       presentation: "dialog",
     });
     expect(view.body.form.schema.subforms[1]).toMatchObject({
+      viewId: ids.sectionView,
+      parentField: "id",
+      childField: "travelId",
+      presentation: "dialog",
+    });
+    expect(view.body.form.schema.subforms[2]).toMatchObject({
       viewId: ids.detailView,
       parentField: "id",
       childField: "travelId",
       presentation: "dialog",
     });
     const detailView = await api().get(`${root}/${ids.detailView}`).set(bearer(token)).expect(200);
+    const sectionView = await api()
+      .get(`${root}/${ids.sectionView}`)
+      .set(bearer(token))
+      .expect(200);
+    expect(
+      sectionView.body.form.schema.fields.find((field: { key: string }) => field.key === "images"),
+    ).toMatchObject({ type: "file", multiple: true });
+    expect(
+      sectionView.body.form.schema.fields.find(
+        (field: { key: string }) => field.key === "mapImage",
+      ),
+    ).toMatchObject({
+      label: "Маршрутын map зураг · 2:3 босоо",
+      description: expect.stringContaining("800×1200 px"),
+      type: "file",
+    });
     expect(detailView.body.form.schema.fields.map((field: { key: string }) => field.key)).toEqual([
       "travelId",
+      "sectionId",
       "dayNumber",
       "title",
       "content",
@@ -94,6 +121,17 @@ describe("travel builder", () => {
     expect(
       detailView.body.form.schema.fields.find((field: { key: string }) => field.key === "content"),
     ).toMatchObject({ type: "richtext" });
+    expect(
+      detailView.body.form.schema.fields.find(
+        (field: { key: string }) => field.key === "sectionId",
+      ),
+    ).toMatchObject({
+      type: "select",
+      optionsSource: {
+        tableName: "travel_itinerary_sections",
+        filterBy: { field: "travelId", valueFromField: "travelId" },
+      },
+    });
     await prisma.builderDefinition.update({
       where: { id: ids.travelForm },
       data: { title: "Custom title" },
@@ -105,7 +143,7 @@ describe("travel builder", () => {
   });
 
   it("requires authentication and org:manage for both views and mutations", async () => {
-    for (const id of [ids.travelView, ids.departureView, ids.detailView]) {
+    for (const id of [ids.travelView, ids.departureView, ids.sectionView, ids.detailView]) {
       await api().get(`${root}/${id}`).expect(401);
       await api().get(`${root}/${id}`).set(bearer(viewerToken)).expect(403);
       await api()
@@ -140,6 +178,18 @@ describe("travel builder", () => {
       })
       .expect(201);
     const travelId = created.body.id as string;
+    const section = await api()
+      .post(`${root}/${ids.sectionView}/entries`)
+      .set(bearer(token))
+      .send({
+        values: {
+          travelId,
+          title: "МААСАЙ МАРА",
+          description: "Сафари өдрүүд",
+          sortOrder: 1,
+        },
+      })
+      .expect(201);
     const rows = await prisma.travelDeparture.findMany({
       where: { travelId },
       orderBy: { transportType: "asc" },
@@ -197,7 +247,13 @@ describe("travel builder", () => {
             { id: rows[1].id, version: 0, _delete: true },
           ],
           travel_details: [
-            { ...detailValues, id: details[0].id, version: 0, title: "Шинэчилсэн эхний өдөр" },
+            {
+              ...detailValues,
+              id: details[0].id,
+              version: 0,
+              sectionId: section.body.id,
+              title: "Шинэчилсэн эхний өдөр",
+            },
             { id: details[1].id, version: 0, _delete: true },
           ],
         },
@@ -214,6 +270,7 @@ describe("travel builder", () => {
     expect(await prisma.travelDetail.count({ where: { travelId } })).toBe(1);
     const updatedDetail = await prisma.travelDetail.findFirstOrThrow({ where: { travelId } });
     expect(updatedDetail.title).toBe("Шинэчилсэн эхний өдөр");
+    expect(updatedDetail.sectionId).toBe(section.body.id);
     expect(await prisma.auditLog.count({ where: { resourceId: travelId } })).toBeGreaterThan(0);
 
     await api()

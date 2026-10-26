@@ -22,15 +22,27 @@ export const publicTravelDetailSchema = z.object({
 });
 export type PublicTravelDetail = z.infer<typeof publicTravelDetailSchema>;
 
+export const publicTravelItinerarySectionSchema = z.object({
+  title: z.string(),
+  description: z.string().nullable(),
+  mapImage: z.string().nullable(),
+  images: z.array(z.string()),
+  details: z.array(publicTravelDetailSchema),
+});
+export type PublicTravelItinerarySection = z.infer<typeof publicTravelItinerarySectionSchema>;
+
 export const publicTravelSchema = z.object({
   publicId: z.uuid(),
   slug: z.string().min(1),
   name: z.string(),
+  destinationLabel: z.string().nullable(),
+  tagline: z.string().nullable(),
   description: z.string().nullable(),
   category: z.enum(["DOMESTIC", "INTERNATIONAL", "WEDDING"]),
   coverImage: z.string().nullable(),
   durationDays: z.number().int().positive(),
   details: z.array(publicTravelDetailSchema),
+  itinerarySections: z.array(publicTravelItinerarySectionSchema),
   slots: z.array(publicTravelSlotSchema),
 });
 export type PublicTravel = z.infer<typeof publicTravelSchema>;

@@ -1,0 +1,26 @@
+.viewport {
+  background: var(--background);
+  height: 100dvh;
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+  width: 100vw;
+  z-index: 100;
+}
+
+.snapshot {
+  border: 0;
+  display: block;
+  height: 100dvh;
+  width: 100vw;
+}
+
+.error {
+  background: var(--background);
+  color: var(--foreground);
+  inset: 0;
+  padding: 40px;
+  position: absolute;
+  text-align: center;
+  z-index: 2;
+}

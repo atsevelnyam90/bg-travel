@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setTokens } from "@/lib/api/authTokens";
-import { login } from "../api";
+import { fetchMe, login } from "../api";
 import { sessionKeys } from "./useSession";
 
 export function useLogin() {
@@ -14,9 +14,11 @@ export function useLogin() {
       // Platform adapter web дээр token-ийг үлдээхгүй; httpOnly session cookie ашиглана.
       // Native adapter дээр Bearer token хадгалагдана.
       await setTokens(tokens);
-      // The login page may hold an inactive cached 401 from the admin guard.
-      // Refresh it before navigating, so the guard sees the new session.
-      await queryClient.invalidateQueries({ queryKey: sessionKeys.me, refetchType: "all" });
+
+      // Login route дээр өмнөх unauthenticated `null` cache үлдсэн байж болно.
+      // Admin руу client navigation хийхээс өмнө session-ийг бодитоор авч cache-д
+      // тавихгүй бол guard хуучин null-ийг хараад skeleton/redirect race үүсгэнэ.
+      queryClient.setQueryData(sessionKeys.me, await fetchMe());
     },
   });
 }
