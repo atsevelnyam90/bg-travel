@@ -1,7 +1,7 @@
 // Check the URLs the embedded trip page actually uses on the production server.
 // The development server can serve filenames that production URL matching rejects.
 const origin = new URL(process.argv[2] ?? "http://127.0.0.1:3000");
-const templateUrl = new URL("/destinations/france/the-lost-generation/index.html", origin);
+const templateUrl = new URL("/travel-detail/index.html", origin);
 
 async function getText(url, contentType) {
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
