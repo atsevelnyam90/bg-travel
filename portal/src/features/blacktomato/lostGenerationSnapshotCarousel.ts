@@ -100,6 +100,9 @@ export function hydrateSnapshotGallery(
   const slides = images.map((image, index) => {
     const slide = carousel.ownerDocument.createElement("div");
     slide.className = "slide slick-slide";
+    // The borrowed Slick stylesheet hides slides until its JavaScript marks the carousel ready.
+    // This gallery is hydrated without Slick, so keep the generated slides visible explicitly.
+    slide.style.display = "block";
     slide.style.flex = "0 0 min(42vw, 620px)";
     slide.style.height = "550px";
     slide.style.scrollSnapAlign = "start";

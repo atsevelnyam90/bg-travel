@@ -169,7 +169,12 @@ export type ListAdminTravelsQuery = z.infer<typeof listAdminTravelsQuerySchema>;
 export const listAdminTravelsResponseSchema = paginatedSchema(adminTravelListItemSchema);
 export type ListAdminTravelsResponse = z.infer<typeof listAdminTravelsResponseSchema>;
 
-const nullableText = z.string().trim().nullable().optional().transform((value) => value || null);
+const nullableText = z
+  .string()
+  .trim()
+  .nullable()
+  .optional()
+  .transform((value) => value || null);
 const departureInputSchema = z
   .object({
     id: z.uuid().optional(),

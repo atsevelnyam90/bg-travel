@@ -1,6 +1,14 @@
 import type { travels } from "@/api/generated/contracts";
 import { formatMinor } from "@/api/generated/contracts/money";
+import {
+  hydrateSimilarTrips,
+  removeSimilarTrips,
+  type SimilarTripsLabels,
+} from "./lostGenerationSimilarTrips";
 import { hydrateSnapshotGallery } from "./lostGenerationSnapshotCarousel";
+
+const SNAPSHOT_OVERRIDE_ID = "bg-travel-snapshot-overrides";
+const SNAPSHOT_LAYOUT_BODY_CLASS = "post-template-template-experience-superitinerary";
 
 type RichTextNode = {
   attrs?: {
@@ -12,6 +20,15 @@ type RichTextNode = {
   }>;
   text?: string;
   type?: string;
+};
+
+type SnapshotLabels = {
+  journeys: string;
+};
+
+type SnapshotOptions = {
+  labels?: SnapshotLabels & SimilarTripsLabels;
+  similarTrips?: travels.PublicTravel[];
 };
 
 function parsedRichText(value: string): RichTextNode | null {
@@ -161,6 +178,39 @@ function hydrateNavigation(document: Document, travel: travels.PublicTravel): vo
   });
 }
 
+function hydrateBreadcrumb(
+  document: Document,
+  travel: travels.PublicTravel,
+  labels: SnapshotLabels,
+): void {
+  const list = document.querySelector(".section--breadcrumb .nav--breadcrumbs");
+  if (!list) return;
+
+  list.replaceChildren();
+  const links = [
+    { href: "/", label: "BG Travel" },
+    { href: "/#journey-start", label: labels.journeys },
+  ];
+
+  links.forEach(({ href, label }, index) => {
+    if (index > 0) list.append(" / ");
+    const item = document.createElement("span");
+    const anchor = document.createElement("a");
+    anchor.href = href;
+    anchor.target = "_top";
+    anchor.textContent = label;
+    item.append(anchor);
+    list.append(item);
+  });
+
+  list.append(" / ");
+  const current = document.createElement("span");
+  current.className = "breadcrumb_last";
+  current.setAttribute("aria-current", "page");
+  current.textContent = travel.name;
+  list.append(current);
+}
+
 function hydrateOverview(document: Document, travel: travels.PublicTravel): void {
   const overview = document.querySelector(".section--content .content__read-more");
   if (overview) {
@@ -239,7 +289,6 @@ function hydrateMap(map: HTMLElement | null, mapImage: string | null): void {
   holder.style.backgroundPosition = "center";
   holder.style.backgroundRepeat = "no-repeat";
   holder.style.backgroundSize = "cover";
-  holder.style.height = "100%";
   holder.style.minHeight = "500px";
   holder.style.width = "100%";
   map.replaceChildren(holder);
@@ -327,10 +376,115 @@ function hydrateDestinations(document: Document, travel: travels.PublicTravel): 
   });
 }
 
+function removeSnapshotPlaceholders(document: Document): void {
+  removeSimilarTrips(document);
+  document.title = "";
+
+  const hero = document.querySelector(".section--hero-banner");
+  hero?.querySelectorAll<HTMLElement>(".banner__image").forEach((image) => {
+    image.style.backgroundImage = "none";
+  });
+  hero
+    ?.querySelectorAll(":scope .container--absolute > .h7, :scope .container--absolute > h1")
+    .forEach((element) => {
+      element.textContent = "";
+    });
+
+  document.querySelector(".section--subnav ul")?.replaceChildren();
+  document.querySelector(".section--breadcrumb .nav--breadcrumbs")?.replaceChildren();
+
+  const overview = document.querySelector(".section--content .content__read-more");
+  setText(overview?.querySelector("h6") ?? null, "");
+  setText(overview?.querySelector("h3") ?? null, "");
+  overview
+    ?.querySelectorAll(
+      ":scope > p, :scope > ul, :scope > ol, :scope > blockquote, :scope > [data-travel-description]",
+    )
+    .forEach((element) => {
+      element.remove();
+    });
+
+  document
+    .querySelectorAll(".section--experience-facts .experience__facts .col")
+    .forEach((fact) => {
+      setText(fact.querySelector("h3"), "");
+      fact.querySelectorAll("h3 ~ div").forEach((value) => {
+        value.replaceChildren();
+      });
+    });
+
+  document
+    .querySelectorAll<HTMLElement>("section.section--destination.bg-light")
+    .forEach((destination) => {
+      const map = destination.querySelector<HTMLElement>(".section--destination__map");
+      map?.replaceChildren();
+      const heading = destination.querySelector(".section--destination__heading");
+      setText(heading?.querySelector("h2") ?? null, "");
+      heading?.querySelector(".mb-lg.max-width-lg")?.replaceChildren();
+      heading?.querySelectorAll(":scope > .text-blue").forEach((label) => {
+        label.textContent = "";
+      });
+
+      destination.querySelectorAll<HTMLElement>(".experience-slide").forEach((card) => {
+        const content = card.querySelector(".experience-slide__content");
+        setText(content?.querySelector(":scope > .uppercase") ?? null, "");
+        setText(content?.querySelector(":scope > .text-base") ?? null, "");
+        content?.querySelector(":scope > .text-grey")?.replaceChildren();
+        card.querySelector(".experience-slide__media")?.replaceChildren();
+      });
+    });
+
+  document.querySelectorAll<HTMLElement>(".section--destination-carousel").forEach((carousel) => {
+    carousel.querySelector('[data-slickslider="destination"]')?.replaceChildren();
+  });
+}
+
 export function prepareLostGenerationSnapshot(document: Document): void {
+  document.body.classList.add(SNAPSHOT_LAYOUT_BODY_CLASS);
   document.querySelectorAll("body > header.header").forEach((header) => {
     header.remove();
   });
+
+  removeSnapshotPlaceholders(document);
+
+  if (!document.getElementById(SNAPSHOT_OVERRIDE_ID)) {
+    const style = document.createElement("style");
+    style.id = SNAPSHOT_OVERRIDE_ID;
+    style.textContent = `
+      [data-travel-description] {
+        text-align: left !important;
+      }
+
+      [data-travel-description] > * {
+        text-align: left !important;
+      }
+
+      [data-travel-description] p {
+        margin-bottom: 0 !important;
+      }
+
+      [data-travel-description] h2,
+      [data-travel-description] h3 {
+        margin-bottom: 8px !important;
+        margin-top: 24px !important;
+      }
+
+      [data-travel-description] > :first-child {
+        margin-top: 0 !important;
+      }
+
+      [data-travel-description] ul,
+      [data-travel-description] ol {
+        margin-bottom: 8px !important;
+        margin-top: 8px !important;
+      }
+
+      [data-travel-description] li p {
+        margin: 0 !important;
+      }
+    `;
+    document.head.append(style);
+  }
 
   const readyHeading = Array.from(document.querySelectorAll("main h3")).find(
     (heading) => heading.textContent?.trim().toLowerCase() === "so, ready to start?",
@@ -349,11 +503,23 @@ export function prepareLostGenerationSnapshot(document: Document): void {
 export function hydrateLostGenerationSnapshot(
   document: Document,
   travel: travels.PublicTravel,
+  options: SnapshotOptions = {},
 ): void {
+  const labels = options.labels ?? {
+    durationDays: (count: number) => `${count} өдөр`,
+    exploreTrip: "Аялалтай танилцах",
+    journeys: "Аяллууд",
+    nextSimilarTrips: "Дараагийн төстэй аяллууд",
+    previousSimilarTrips: "Өмнөх төстэй аяллууд",
+    similarTrips: "Төстэй аяллууд",
+    similarTripsSubtitle: "Энэ ангиллын бусад аяллуудтай танилцаарай",
+  };
   prepareLostGenerationSnapshot(document);
   document.title = `${travel.name} | BG Travel`;
   hydrateHero(document, travel);
   hydrateNavigation(document, travel);
+  hydrateBreadcrumb(document, travel, labels);
   hydrateOverview(document, travel);
   hydrateDestinations(document, travel);
+  hydrateSimilarTrips(document, options.similarTrips ?? [], labels);
 }

@@ -28,7 +28,7 @@ export function BlackTomatoPublicLayout({ children }: { children: ReactNode }) {
       <BlackTomatoLocalizedShell
         className={`${BLACK_TOMATO_BODY_CLASS} blacktomato-shell ${styles.brand} ${themes.theme} ${typography.scope}`}
       >
-        <BlackTomatoHeaderMarkup bookingHref="/#journey-start" detail />
+        <BlackTomatoHeaderMarkup bookingHref="/#journey-start" />
         {children}
       </BlackTomatoLocalizedShell>
     </PublicI18nProvider>

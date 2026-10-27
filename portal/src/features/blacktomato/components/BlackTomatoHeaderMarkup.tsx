@@ -7,16 +7,11 @@ import { TravelThemeSwitcher } from "./TravelThemeSwitcher";
 
 export function BlackTomatoHeaderMarkup({
   bookingHref = "#journey-start",
-  detail = false,
-}: { bookingHref?: string; detail?: boolean } = {}) {
+}: { bookingHref?: string } = {}) {
   const t = useTranslations("publicHeader");
 
   return (
-    <header
-      className={styles.header}
-      data-detail-header={detail ? "" : undefined}
-      data-public-header=""
-    >
+    <header className={styles.header} data-public-header="">
       <div className={styles.bar}>
         <a href="/" aria-label={t("home")} className={styles.logo}>
           <img src="/bg-travel/logo.png" alt="BG Travel" width="247" height="266" />
