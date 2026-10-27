@@ -5,7 +5,8 @@ Winu Software Factory-ийн design decision, architecture note, operational wor
 
 ## Ангилал
 
-- `builder/` - Builder package, runtime, metadata, trigger, boundary шийдвэрүүд.
+- `builder/` - ашиглалтаас гарсан хуучин runtime-ийн archived design notes.
+- `travels/` - Travel domain болон admin/public урсгалын шийдвэрүүд.
 - `mobile/` - Capacitor/mobile build constraint болон workflow.
 - `integrations/` - External template/service integration note.
 

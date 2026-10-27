@@ -28,8 +28,6 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "Order",
   "WebsitePage",
   "WebsiteSection",
-  "BuilderDefinition",
-  "BuilderView",
 ]);
 
 type WhereArgs = { where?: Record<string, unknown> };

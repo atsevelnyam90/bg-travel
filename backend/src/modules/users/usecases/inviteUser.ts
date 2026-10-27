@@ -44,7 +44,15 @@ export async function inviteUser(
       where: { email },
       update: { name: input.name, status: "INVITED", roleId: input.roleId, deletedAt: null },
       create: { email, name: input.name, status: "INVITED", roleId: input.roleId },
-      select: { id: true, email: true, name: true, status: true, createdAt: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        status: true,
+        version: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     await tx.invitation.create({
@@ -88,7 +96,9 @@ export async function inviteUser(
       name: user.name,
       status: user.status,
       roleId: input.roleId,
+      version: user.version,
       createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
     },
     mailFailed,
   };

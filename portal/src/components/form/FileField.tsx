@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import type { files } from "@/api/generated/contracts";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
-import { ApiError } from "@/lib/api/apiClient";
+import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { uploadFile } from "@/lib/api/upload";
 import { useFieldError } from "./useFieldError";
 
@@ -55,9 +55,7 @@ export function FileField<T extends FieldValues>({
                 try {
                   field.onChange(await uploadFile(file, scope));
                 } catch (error) {
-                  toast.error(
-                    error instanceof ApiError ? error.message : "Файл байршуулахад алдаа гарлаа",
-                  );
+                  toast.error(apiErrorMessage(error, "Файл байршуулж чадсангүй"));
                 } finally {
                   setUploading(false);
                   // Ижил файлыг дахин сонгоход onChange асахын тулд цэвэрлэнэ.

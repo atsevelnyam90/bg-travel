@@ -15,8 +15,6 @@ export const PREFIX = "/api/v1";
  */
 export async function resetDatabase(): Promise<void> {
   await prisma.$transaction([
-    prisma.builderView.deleteMany(),
-    prisma.builderDefinition.deleteMany(),
     prisma.refreshToken.deleteMany(),
     prisma.session.deleteMany(),
     prisma.auditLog.deleteMany(),

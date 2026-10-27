@@ -47,7 +47,11 @@ await client.send(
           Effect: "Allow",
           Principal: "*",
           Action: ["s3:GetObject"],
-          Resource: [`arn:aws:s3:::${bucket}/product/*`, `arn:aws:s3:::${bucket}/avatar/*`],
+          Resource: [
+            `arn:aws:s3:::${bucket}/product/*`,
+            `arn:aws:s3:::${bucket}/avatar/*`,
+            `arn:aws:s3:::${bucket}/travel/*`,
+          ],
         },
       ],
     }),

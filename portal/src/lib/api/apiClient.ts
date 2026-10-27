@@ -8,12 +8,14 @@ export type ApiErrorShape = {
   message: string;
   code?: string;
   details?: unknown;
+  requestId?: string;
 };
 
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly details?: unknown;
+  readonly requestId?: string;
 
   constructor(status: number, body: ApiErrorShape) {
     super(body.message);
@@ -21,6 +23,7 @@ export class ApiError extends Error {
     this.status = status;
     this.code = body.code;
     this.details = body.details;
+    this.requestId = body.requestId;
   }
 }
 
@@ -57,6 +60,7 @@ async function parseError(response: Response): Promise<ApiErrorShape> {
       message: body.message ?? body.error ?? `HTTP ${response.status}`,
       code: body.code,
       details: body.details,
+      requestId: body.requestId,
     };
   } catch {
     return { message: `HTTP ${response.status} ${response.statusText}` };

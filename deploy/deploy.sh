@@ -62,7 +62,6 @@ compose up -d --wait --pull never postgres minio
 compose run --rm -e S3_ENDPOINT=http://minio:9000 api node scripts/create-production-bucket.mjs
 bash ./backup-db.sh "$image_tag"
 compose run --rm api pnpm db:deploy
-compose run --rm api pnpm builder:migrate
 
 # The validation-only Nginx occupies port 80 until the application proxy takes over.
 docker compose -f compose.validation.yml down

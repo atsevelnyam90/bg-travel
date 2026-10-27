@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { Prisma } from "@/generated/prisma/client";
 import { logger } from "./logger";
 
 // Алдааны ГАНЦ формат: { message, code?, details? }
@@ -29,6 +30,14 @@ export const notFound = (message = "Олдсонгүй") =>
 /** Optimistic locking зөрчил — өөр хэрэглэгч зэрэг өөрчилсөн. */
 export const conflict = (message: string) => new HttpError(409, message, { code: "CONFLICT" });
 
+function isDatabaseUnavailable(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientInitializationError) return true;
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    ["P1001", "P1002", "P1008", "P1017", "P2024"].includes(error.code)
+  );
+}
+
 /** Хамгийн сүүлд бүртгэгдэх middleware. */
 export function errorHandler(
   error: unknown,
@@ -50,6 +59,17 @@ export function errorHandler(
       message: error.message,
       code: error.code,
       details: error.details,
+    });
+    return;
+  }
+
+  if (isDatabaseUnavailable(error)) {
+    const requestId = res.getHeader("x-request-id");
+    logger.error({ err: error, requestId }, "Database unavailable");
+    res.status(503).json({
+      message: "Өгөгдлийн сантай холбогдож чадсангүй. Түр хүлээгээд дахин оролдоно уу.",
+      code: "DATABASE_UNAVAILABLE",
+      ...(requestId ? { requestId } : {}),
     });
     return;
   }

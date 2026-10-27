@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Caveat, Manrope } from "next/font/google";
 import type { ReactNode } from "react";
-import "@duke333/builder-ui/styles.css";
 import { brand } from "@/config/brand";
 import { cn } from "@/lib/utils";
 import "./globals.css";

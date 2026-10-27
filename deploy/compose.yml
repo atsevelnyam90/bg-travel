@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
     env_file: backend.env
     volumes:
-      - builder-files:/app/backend/storage/builder-files
+      - legacy-travel-files:/app/backend/storage/legacy-travel-files
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,4 +72,6 @@ services:
 volumes:
   postgres-data:
   minio-data:
-  builder-files:
+  legacy-travel-files:
+    # Keep the existing Docker volume so previously uploaded travel images survive this release.
+    name: bgtravel_builder-files

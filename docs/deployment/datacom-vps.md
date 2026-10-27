@@ -5,7 +5,7 @@
 - `portal/` is the only Next.js 16 application. The public website is at `/`, the administration area is at `/admin`, and sign-in is at `/auth/login`. There is no separate `admin/` application in this repository.
 - `backend/` is an Express API under `/api/v1`. The `/api/v1/health` endpoint checks PostgreSQL.
 - The database is PostgreSQL 17. The development `backend/docker-compose.yml` contains development credentials and Mailpit; **do not use it on the VPS**.
-- The production stack in `deploy/compose.yml` runs PostgreSQL, MinIO, the API, the portal, and Nginx. PostgreSQL and MinIO have no public ports. Docker volumes `postgres-data`, `minio-data`, and `builder-files` retain database data, uploaded objects, and Builder images on the VPS.
+- The production stack in `deploy/compose.yml` runs PostgreSQL, MinIO, the API, the portal, and Nginx. PostgreSQL and MinIO have no public ports. Docker volumes retain database data, uploaded objects, and legacy travel images on the VPS.
 - A note in the development Compose file recommends a managed database. The requested production setup uses PostgreSQL in Docker, so database recovery will be our responsibility.
 
 ## VPS status
@@ -19,7 +19,7 @@ merge or push to main → existing CI (tests, lint, build)
                       → .github/workflows/deploy.yml
                       → build API and portal images → GHCR (commit SHA tags)
                       → SSH to VPS → docker compose pull
-                      → PostgreSQL backup → Prisma and Builder migrations → start containers
+                      → PostgreSQL backup → Prisma migrations → start containers
                       → API, page, and CSS smoke checks → record deployed commit SHA
 ```
 
@@ -64,7 +64,7 @@ The production API marks session cookies `Secure` and `SameSite=None`, so browse
 6. Configure the GitHub repository variables and secrets in **GitHub Actions setup** above. The workflow logs the VPS into GHCR before each pull using the job's `GITHUB_TOKEN`, which expires after the run. Verify the SSH host fingerprint through an independent channel before trusting it. If package access is denied, grant this repository Actions access to both GHCR packages in their package settings.
 7. Allow inbound TCP ports 22 (preferably restricted to trusted addresses), 80, and 443. Do not expose PostgreSQL 5432, MinIO 9000, or application ports 3000 and 4000.
 
-The GitHub workflow runs `bash /opt/bgtravel/deploy.sh <40-character-commit-SHA>` after publishing images. The script can deploy in either live HTTP or HTTPS mode. Then run `IMAGE_TAG=<SHA> docker compose --env-file stack.env -f compose.yml run --rm api pnpm db:seed` once from `/opt/bgtravel` if the production seed has not already been run. Production seeding rejects the default password. Automatic deployment intentionally does not run the seed because it can modify Builder definitions. After changing `PERMISSIONS`, review the effect on customized Builder definitions before running the seed again.
+The GitHub workflow runs `bash /opt/bgtravel/deploy.sh <40-character-commit-SHA>` after publishing images. The script can deploy in either live HTTP or HTTPS mode. Then run `IMAGE_TAG=<SHA> docker compose --env-file stack.env -f compose.yml run --rm api pnpm db:seed` once from `/opt/bgtravel` if the production seed has not already been run. Production seeding rejects the default password. Automatic deployment intentionally does not run the seed because it can modify roles and initial data. After changing `PERMISSIONS`, review customized roles before running the seed again.
 
 ## Domain and Positive SSL
 
@@ -96,8 +96,8 @@ The GitHub workflow runs `bash /opt/bgtravel/deploy.sh <40-character-commit-SHA>
 
 ## Data, backups, and remaining work
 
-- Each deployment saves a PostgreSQL dump before migrations in `/opt/bgtravel/backups/`. It checks the archive listing and reads the full archive with `pg_restore` before deleting earlier automatic dumps. On success, only the newest automatic dump remains; if backup or validation fails, deploy stops and the previous dump remains. The directory mode is `700` and the file mode is `600`. On October 26, the VPS had about 146 GB free and a dump was 62 kB; dump size will grow with data. A new dump temporarily needs enough space alongside the previous one. This single local dump covers the pre-deploy database, not the state after migrations. It does not cover MinIO objects or the `builder-files` volume, and cannot protect against loss of the entire VPS. Test restoration separately before relying on it for recovery.
-- The MinIO bucket permits anonymous reads only under `product/` and `avatar/` so public URLs work. `contract/` remains private; authorized downloads must be implemented before that scope is used. Current travel images uploaded through Builder are stored locally in the persistent `builder-files` volume.
-- The owner requested the same temporary demo travel as local development. `Вьетнам 3 хот аялал` (`vietnam-three-cities`) was seeded directly into the production database on 24 October 2026 with four departures and eight itinerary days. `seedTravelDemo()` only inserts missing records and respects a soft-deleted demo travel. The public `/api/v1/public/travels` endpoint now returns this travel. Do not run the full production seed just to restore the demo, because it also updates roles and Builder definitions.
+- Each deployment saves a PostgreSQL dump before migrations in `/opt/bgtravel/backups/`. It checks the archive listing and reads the full archive with `pg_restore` before deleting earlier automatic dumps. On success, only the newest automatic dump remains; if backup or validation fails, deploy stops and the previous dump remains. The directory mode is `700` and the file mode is `600`. On October 26, the VPS had about 146 GB free and a dump was 62 kB; dump size will grow with data. A new dump temporarily needs enough space alongside the previous one. This single local dump covers the pre-deploy database, not the state after migrations. It does not cover MinIO objects or the legacy travel-image volume, and cannot protect against loss of the entire VPS. Test restoration separately before relying on it for recovery.
+- The MinIO bucket permits anonymous reads under `product/`, `avatar/`, and `travel/` so public URLs work. `contract/` remains private; authorized downloads must be implemented before that scope is used. New travel images upload directly to MinIO. The old local image volume remains mounted read-only in application terms through a compatibility endpoint so existing URLs keep working.
+- The owner requested the same temporary demo travel as local development. `Вьетнам 3 хот аялал` (`vietnam-three-cities`) was seeded directly into the production database on 24 October 2026 with four departures and eight itinerary days. `seedTravelDemo()` only inserts missing records and respects a soft-deleted demo travel. The public `/api/v1/public/travels` endpoint now returns this travel. Do not run the full production seed just to restore the demo, because it also updates roles.
 - The one-time `20261026190000_backfill_existing_demo_travel_sections` migration fills missing demo labels and creates the three itinerary sections only when the existing, non-deleted demo has no section records. It links only ungrouped, non-deleted day records. Existing editor-managed values and deleted sections are preserved.
 - Keep `DEPLOY_ENABLED=true`, `NGINX_CONFIG=https.conf`, and the HTTPS API build argument for subsequent deployments.

@@ -20,9 +20,6 @@ importers:
       '@capacitor/ios':
         specifier: ^7.6.8
         version: 7.6.8(@capacitor/core@7.6.8)
-      '@duke333/builder-ui':
-        specifier: 0.2.5
-        version: 0.2.5(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.85.0(react@19.2.8))(zod@4.4.3)
@@ -38,6 +35,15 @@ importers:
       '@tanstack/table-core':
         specifier: 9.1.2
         version: 9.1.2
+      '@tiptap/core':
+        specifier: 3.32.0
+        version: 3.32.0(@tiptap/pm@3.32.0)
+      '@tiptap/react':
+        specifier: 3.32.0
+        version: 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tiptap/starter-kit':
+        specifier: 3.32.0
+        version: 3.32.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -440,17 +446,6 @@ packages:
 
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
-
-  '@duke333/builder-contracts@0.2.3':
-    resolution: {integrity: sha512-72f2vLibcb3J7Ta/mZ2khZRmcW89S2m88s2x4mcdzr8UWMB6qijgOXT1+eATQAFUxBSOlyBB77duZ3I3AQ+U/Q==}
-
-  '@duke333/builder-ui@0.2.5':
-    resolution: {integrity: sha512-GU4v2sibgR7dyspHnSB/+RsAMUqGh66Hkj39dBfNJEmGV9B/ktbh41hRWAsJahgLzpSDRIulkPkh+glWmJJEOA==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.101.4
-      react: '>=18.2.0 <20'
-      react-dom: '>=18.2.0 <20'
-      react-hook-form: '>=7.85.0 <8'
 
   '@eloqnt/config@0.1.1':
     resolution: {integrity: sha512-YRDigSaiJEzKDfzTth5kG+L/PKfB3mo8h7yNzpXExPfvQmcD05WoZT57PdhJE0jI+Vva6eb0OCU8hnHHgdME3g==}
@@ -4792,26 +4787,6 @@ snapshots:
       yocto-spinner: 1.2.2
 
   '@dotenvx/primitives@0.8.0': {}
-
-  '@duke333/builder-contracts@0.2.3':
-    dependencies:
-      zod: 4.4.3
-
-  '@duke333/builder-ui@0.2.5(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@duke333/builder-contracts': 0.2.3
-      '@tanstack/react-query': 5.101.4(react@19.2.8)
-      '@tiptap/pm': 3.32.0
-      '@tiptap/react': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@tiptap/starter-kit': 3.32.0
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
-      react-hook-form: 7.85.0(react@19.2.8)
-    transitivePeerDependencies:
-      - '@floating-ui/dom'
-      - '@tiptap/core'
-      - '@types/react'
-      - '@types/react-dom'
 
   '@eloqnt/config@0.1.1': {}
 

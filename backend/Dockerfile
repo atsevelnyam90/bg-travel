@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
     && rm -rf /var/lib/apt/lists/* && mkdir -p /opt/corepack && corepack enable \
     && corepack prepare pnpm@11.22.0 --activate
 COPY --from=build /app/backend /app/backend
-RUN mkdir -p /app/backend/storage/builder-files && chown -R node:node /app/backend/storage
+RUN mkdir -p /app/backend/storage/legacy-travel-files && chown -R node:node /app/backend/storage
 USER node
 EXPOSE 4000
 CMD ["node", "dist/index.js"]

@@ -45,7 +45,7 @@ export function DashboardScreen() {
     {
       label: "Starter",
       value: "Ready",
-      description: "Template болон builder суулгах суурь",
+      description: "Домэйн CRUD дэлгэцүүд ажиллахад бэлэн",
       icon: Activity,
     },
   ];
@@ -98,7 +98,7 @@ export function DashboardScreen() {
 
       <Card className="shadow-xs">
         <CardHeader>
-          <CardTitle>Session & Builder readiness</CardTitle>
+          <CardTitle>Session & application readiness</CardTitle>
           <CardDescription>
             {session?.user.name} · {session?.user.email}
           </CardDescription>

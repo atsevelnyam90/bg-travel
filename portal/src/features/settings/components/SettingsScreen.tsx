@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ApiError } from "@/lib/api/apiClient";
+import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { useBanks, useOrganization, useUpdateOrganization } from "../hooks/useOrganization";
 
 type Values = orgContract.UpdateOrganizationInput;
@@ -49,7 +49,7 @@ export function SettingsScreen() {
       await save.mutateAsync(values);
       toast.success("Хадгалагдлаа");
     } catch (error) {
-      toast.error(error instanceof ApiError ? error.message : "Хадгалахад алдаа гарлаа");
+      toast.error(apiErrorMessage(error, "Байгууллагын тохиргоог хадгалж чадсангүй"));
     }
   });
 

@@ -3,7 +3,13 @@ import { formatMinor } from "@/api/generated/contracts/money";
 import { hydrateSnapshotGallery } from "./lostGenerationSnapshotCarousel";
 
 type RichTextNode = {
+  attrs?: {
+    level?: unknown;
+  };
   content?: RichTextNode[];
+  marks?: Array<{
+    type?: string;
+  }>;
   text?: string;
   type?: string;
 };
@@ -18,8 +24,23 @@ function parsedRichText(value: string): RichTextNode | null {
 }
 
 function appendRichNode(document: Document, parent: Node, node: RichTextNode): void {
-  if (node.type === "text" && node.text) {
-    parent.appendChild(document.createTextNode(node.text));
+  if (node.type === "text") {
+    let content: Node = document.createTextNode(node.text ?? "");
+    const tagByMarkType: Record<string, keyof HTMLElementTagNameMap> = {
+      bold: "strong",
+      italic: "em",
+      strike: "s",
+    };
+
+    for (const mark of node.marks ?? []) {
+      const tag = mark.type ? tagByMarkType[mark.type] : undefined;
+      if (!tag) continue;
+      const wrapper = document.createElement(tag);
+      wrapper.append(content);
+      content = wrapper;
+    }
+
+    parent.appendChild(content);
     return;
   }
 
@@ -27,12 +48,18 @@ function appendRichNode(document: Document, parent: Node, node: RichTextNode): v
     blockquote: "blockquote",
     bulletList: "ul",
     hardBreak: "br",
-    heading: "h4",
     listItem: "li",
     orderedList: "ol",
     paragraph: "p",
   };
-  const tag = node.type ? tagByType[node.type] : undefined;
+  const tag =
+    node.type === "heading"
+      ? node.attrs?.level === 3
+        ? "h3"
+        : "h2"
+      : node.type
+        ? tagByType[node.type]
+        : undefined;
   const nextParent = tag ? document.createElement(tag) : parent;
   if (tag) parent.appendChild(nextParent);
   node.content?.forEach((child) => {
@@ -139,12 +166,18 @@ function hydrateOverview(document: Document, travel: travels.PublicTravel): void
   if (overview) {
     setText(overview.querySelector("h6"), travel.destinationLabel ?? "");
     setText(overview.querySelector("h3"), travel.name);
-    overview.querySelectorAll(":scope > p, :scope > ul, :scope > ol").forEach((node) => {
-      node.remove();
-    });
-    const copy = document.createElement("div");
+    let copy = overview.querySelector<HTMLElement>(":scope > [data-travel-description]");
+    if (!copy) {
+      overview
+        .querySelectorAll(":scope > p, :scope > ul, :scope > ol, :scope > blockquote")
+        .forEach((node) => {
+          node.remove();
+        });
+      copy = document.createElement("div");
+      copy.dataset.travelDescription = "";
+      overview.append(copy);
+    }
     replaceEditorialContent(copy, travel.description);
-    while (copy.firstChild) overview.append(copy.firstChild);
   }
 
   const facts = document.querySelectorAll(".section--experience-facts .experience__facts .col");

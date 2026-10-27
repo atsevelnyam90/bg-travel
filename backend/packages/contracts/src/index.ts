@@ -10,7 +10,6 @@
 
 export * as audit from "./audit";
 export * as auth from "./auth";
-export * as builder from "./builder";
 export * as files from "./files";
 export * as money from "./money";
 export * as orders from "./orders";

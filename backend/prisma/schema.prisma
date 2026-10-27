@@ -176,61 +176,6 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// ─── Builder ────────────────────────────────────────────────────────────────
-// Form/List definition нэг table дээр type-аар ялгарна. View нь form/list
-// definition-уудыг id-аар холбоно.
-
-model BuilderDefinition {
-  id          String    @id @default(uuid())
-  type        String
-  title       String
-  description String?
-  source      Json?
-  schema      Json
-  triggers    Json?
-  version     Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  formViews BuilderView[] @relation("BuilderViewForm")
-  listViews BuilderView[] @relation("BuilderViewList")
-
-  @@index([type, createdAt])
-  @@map("builder_definitions")
-}
-
-model BuilderView {
-  id              String    @id @default(uuid())
-  title           String
-  description     String?
-  formId          String?
-  listId          String?
-  permissionRead  String?
-  permissionWrite String?
-  triggers        Json?
-  version         Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
-
-  form BuilderDefinition? @relation("BuilderViewForm", fields: [formId], references: [id], onDelete: SetNull)
-  list BuilderDefinition? @relation("BuilderViewList", fields: [listId], references: [id], onDelete: SetNull)
-
-  @@index([formId])
-  @@index([listId])
-  @@index([createdAt])
-  @@map("builder_views")
-}
-
-model BuilderSchemaMigration {
-  version   Int      @id
-  name      String
-  appliedAt DateTime @default(now())
-
-  @@map("builder_schema_migrations")
-}
-
 // ─── Бараа (жишээ домэйн) ───────────────────────────────────────────────────
 // eShop төрлийн төслийн жишээ: public талд жагсаалт, admin талд CRUD.
 
@@ -264,7 +209,7 @@ model Product {
 }
 
 // ─── Website content ────────────────────────────────────────────────────────
-// Public website-ийн content-ийг admin builder-ээр удирдах app-domain хүснэгтүүд.
+// Public website-ийн content-ийг admin-аас удирдах app-domain хүснэгтүүд.
 // Page нь parent form, Section нь subform child. Section row бүр нь section доторх
 // block/item-ийг төлөөлж чадна.
 
@@ -436,7 +381,7 @@ model TravelDetail {
 
 // ─── Захиалга ───────────────────────────────────────────────────────────────
 // Customer account үүсгэхгүй, public form-оос ирсэн мэдээллийг snapshot хэлбэрээр хадгална.
-// Admin талд builder DynamicView-ээр жагсааж, шаардлагатай үед төлбөрийн төлөв баталгаажуулна.
+// Admin талд жагсааж, шаардлагатай үед төлбөрийн төлөв баталгаажуулна.
 
 enum OrderStatus {
   AWAITING_PAYMENT

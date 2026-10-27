@@ -22,8 +22,8 @@ export const presignUploadSchema = z.object({
     .int()
     .positive()
     .max(MAX_UPLOAD_BYTES, "Файл 10MB-аас том байж болохгүй"),
-  /** Логик folder: "product", "avatar", "contract" */
-  scope: z.enum(["product", "avatar", "contract"]),
+  /** Логик folder: сервер өөрөө түлхүүр үүсгэнэ. */
+  scope: z.enum(["product", "avatar", "contract", "travel"]),
 });
 export type PresignUploadInput = z.infer<typeof presignUploadSchema>;
 

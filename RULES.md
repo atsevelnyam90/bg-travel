@@ -9,7 +9,7 @@
 дараах гурван зүйлийг бүү хутга:
 
 - `backend` / `portal` app code
-- reusable packages (`@winu/contracts`, `@winu/builder-backend`, `@winu/builder-ui`)
+- reusable packages (`@winu/contracts`, `@winu/mn-integrations`)
 - generated/build artifact
 
 Зорилго нь project бүр дээр давтагддаг boilerplate-ийг багасгах, харин app-specific
@@ -22,8 +22,7 @@ domain logic-ийг тодорхой boundary дотор үлдээх.
 - Backend-only secret уншдаг package portal dependency болохгүй.
 - Generated contract файлыг гараар засахгүй.
 - shadcn primitive файлуудыг шууд засахгүй.
-- Builder package дотор app-specific `Product`, `User`, `Order` logic хатуу бичихгүй.
-- App-specific datasource/adapter logic host project талдаа байна.
+- Domain logic нь тухайн backend module болон portal feature дотроо байна.
 
 ## 3. Contracts
 
@@ -95,48 +94,23 @@ portal/src/features/<domain>/
 - `"use server"` ашиглахгүй.
 - `NEXT_PUBLIC_*` бүх утга public гэж үзнэ.
 
-## 6. Builder Rules
-
-Builder-ийн үндсэн ойлголт:
-
-```text
-Form = field schema
-List = column schema
-View = Form + List runtime CRUD composition
-```
-
-Дүрэм:
-
-- Builder metadata нь domain data хадгалахгүй.
-- Builder package нь domain entity мэдэхгүй.
-- Runtime datasource host project-ийн table/API дээр ажиллана.
-- Full CRUD screen хэрэгтэй бол `DynamicView`.
-- Дан form хэрэгтэй бол `DynamicForm`.
-- Дан list/grid хэрэгтэй бол `DynamicList`.
-- Builder lifecycle trigger болон field-level computed behavior хоёрыг бүү хутга.
-- Field computed trigger roadmap: `docs/builder/field-triggers-plan.md`.
-- Builder backend migration нь builder metadata table-д л хамаатай.
-- App domain migration Prisma workflow-оор тусдаа явна.
-
-## 7. Package Rules
+## 6. Package Rules
 
 Workspace development:
 
 ```text
 @winu/contracts        backend/packages/contracts
-@winu/builder-backend  backend/packages/builder-backend
-@winu/builder-ui       portal/packages/builder-ui
+@winu/mn-integrations  backend/packages/mn-integrations
 ```
 
 Дүрэм:
 
 - Package exports `dist` рүү заана.
 - Package source өөрчилсний дараа холбогдох `build/typecheck/test` ажиллуулна.
-- External project update хийхдээ backend дээр builder package update + migration хамт явна.
 - Private registry publish нээгдэх хүртэл starter дотор `workspace:*` ашиглана.
 - Package boundary эвдэх import нэмэхгүй.
 
-## 8. Migrations
+## 7. Migrations
 
 App DB migration:
 
@@ -146,21 +120,12 @@ pnpm db:migrate   # dev
 pnpm db:deploy    # production
 ```
 
-Builder metadata migration:
-
-```bash
-cd backend
-pnpm builder:migrate
-```
-
 Дүрэм:
 
-- App domain table-ийг builder migration үүсгэхгүй.
-- Builder migration нь `builder_definitions`, `builder_views`,
-  `builder_schema_migrations` зэрэг metadata table-д л хамаатай.
+- App domain table-ийн өөрчлөлтийг Prisma migration-аар version-лоно.
 - Schema өөрчилсөн бол Prisma generate/typecheck марталгүй ажиллуулна.
 
-## 9. Verification
+## 8. Verification
 
 Өөрчлөлтийн scope-оос хамаарч шалгана:
 
@@ -184,7 +149,7 @@ Minimum:
 - Package logic өөрчилсөн бол package tests.
 - Endpoint нэмсэн бол integration test.
 
-## 10. Do Not Touch Without Reason
+## 9. Do Not Touch Without Reason
 
 - `.env*`
 - `node_modules/`
@@ -195,24 +160,17 @@ Minimum:
 - package `dist/` manually
 - bank/tax protocol internals under `mn-integrations`
 
-## 11. Decision Logging
+## 10. Decision Logging
 
 Том шийдвэрийг code дотор нууц refactor маягаар хийхгүй. Дараах төрлийн ажлыг docs дээр
 үлдээнэ:
 
-- builder architecture
 - package/release flow
 - migration/versioning strategy
-- field trigger/computed behavior
-- builder form layout
 - auth/permission model change
 - mobile/Capacitor build constraint
 
 Existing docs:
 
-- `docs/builder/winu-builder.md`
-- `docs/builder/in-repo-package-plan.md`
-- `docs/builder/field-triggers-plan.md`
-- `docs/builder/form-layout-plan.md`
-- `docs/builder/boundary-hardening.md`
 - `docs/mobile/capacitor-build.md`
+- `docs/travels/travel-domain-plan.md`

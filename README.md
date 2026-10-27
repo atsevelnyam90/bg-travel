@@ -84,10 +84,6 @@ deploy/                      Production Compose, Nginx, backup, deploy scripts
 .github/workflows/           CI and production deployment
 ~~~
 
-Builder runtime packages are currently published dependencies: `@duke333/builder-backend` and `@duke333/builder-contracts` in the backend, and `@duke333/builder-ui` in the portal. They are not local `backend/packages/builder-backend` or `portal/packages/builder-ui` workspaces. App-specific Builder definitions and data adapters remain in this repository.
-
-When updating Builder dependencies, change the relevant package versions and lockfiles in each application, test the app-specific Builder definitions, and include any needed metadata migration. `pnpm builder:migrate` runs during the production deployment after Prisma migrations; it does not replace app-domain migrations.
-
 ## Daily development commands
 
 Run these from the application directory:
@@ -108,10 +104,8 @@ cd backend
 pnpm db:migrate          # Create/apply a Prisma migration in development.
 pnpm db:deploy           # Apply committed migrations; used in production.
 pnpm db:generate         # Regenerate the Prisma client after schema changes.
-pnpm db:seed             # Initial organization, roles, owner, and Builder setup.
+pnpm db:seed             # Initial organization, roles, owner, and demo travel.
 pnpm db:studio           # Inspect the local database with Prisma Studio.
-pnpm builder:migrate     # Builder metadata migrations.
-pnpm builder:setup-travels # Install/update travel Builder definitions.
 pnpm gen:contracts       # Regenerate portal/src/api/generated/contracts.
 pnpm db:test:setup       # Prepare the separate local test database.
 pnpm infra:up            # Start local Docker services.
@@ -141,7 +135,7 @@ Read [AGENTS.md](./AGENTS.md) and [RULES.md](./RULES.md) before implementation; 
 
 Prisma schema changes need a committed migration in `backend/prisma/migrations/`. `pnpm db:deploy` applies pending migrations exactly once; it does **not** infer a migration from `schema.prisma` or run `db:seed`. CI applies migrations to PostgreSQL and checks migration/schema drift.
 
-The full seed is for initial setup. Re-running it on production can change role permissions, the owner's role, and Builder definitions. A change to `seedTravelDemo()` alone does not update a travel that is already in production. **Do not add the full seed to every deploy.**
+The full seed is for initial setup. Re-running it on production can change role permissions and the owner's role. A change to `seedTravelDemo()` alone does not update a travel that is already in production. **Do not add the full seed to every deploy.**
 
 For a one-time change to existing production rows:
 
@@ -151,11 +145,11 @@ For a one-time change to existing production rows:
 4. Run backend typecheck, lint, tests, and build. Review destructive SQL such as `DROP`, `TRUNCATE`, and broad `UPDATE` statements before pushing.
 5. Push to `main` only after review. CI must pass before the deployment workflow applies the migration. The deploy script takes a database snapshot before migrations.
 
-Permission-list changes are a separate case: `AGENTS.md` requires `pnpm db:seed` to update stored roles after adding permissions. Review any customized role and Builder settings first; do not make this an unconditional deploy step.
+Permission-list changes are a separate case: `AGENTS.md` requires `pnpm db:seed` to update stored roles after adding permissions. Review any customized roles first; do not make this an unconditional deploy step.
 
 ## Production deployment and VPS verification
 
-A successful push to `main` runs CI, builds commit-tagged API and portal images, then deploys that exact commit to the VPS when `DEPLOY_ENABLED=true`. The workflow copies `deploy/` to `/opt/bgtravel/` and runs `deploy.sh`. The script pulls application images, creates and validates a **pre-migration PostgreSQL dump**, retains only the newest automatic dump, applies Prisma and Builder migrations, starts the containers, and runs HTTP smoke checks. If the backup fails, migrations do not run. Application-image rollback does **not** roll back database migrations, so migrations must remain compatible with the previous application version.
+A successful push to `main` runs CI, builds commit-tagged API and portal images, then deploys that exact commit to the VPS when `DEPLOY_ENABLED=true`. The workflow copies `deploy/` to `/opt/bgtravel/` and runs `deploy.sh`. The script pulls application images, creates and validates a **pre-migration PostgreSQL dump**, retains only the newest automatic dump, applies Prisma migrations, starts the containers, and runs HTTP smoke checks. If the backup fails, migrations do not run. Application-image rollback does **not** roll back database migrations, so migrations must remain compatible with the previous application version.
 
 After the deployment workflow completes, connect to the VPS and verify:
 
@@ -179,7 +173,7 @@ release_sha=PASTE_FULL_40_CHARACTER_COMMIT_SHA_HERE
 bash ./deploy.sh "$release_sha"
 ~~~
 
-The single retained dump is from **before** its deployment. It contains PostgreSQL user data, but not MinIO objects or the `builder-files` volume. It is stored on the same VPS, so it cannot protect against losing that server or data already damaged before the snapshot. Keep an offsite copy and test restoration in an isolated database before any high-risk migration. A replacement dump temporarily needs disk space alongside the current one; the old dump is removed only after the new archive passes validation.
+The single retained dump is from **before** its deployment. It contains PostgreSQL user data, but not MinIO objects or the legacy travel-image volume. It is stored on the same VPS, so it cannot protect against losing that server or data already damaged before the snapshot. Keep an offsite copy and test restoration in an isolated database before any high-risk migration. A replacement dump temporarily needs disk space alongside the current one; the old dump is removed only after the new archive passes validation.
 
 Routine app deploys do not refresh the PostgreSQL, MinIO, or Nginx images. Provision or upgrade those infrastructure images separately. See the [VPS operations guide](./docs/deployment/datacom-vps.md) for credentials, DNS/TLS, volumes, and deployment setup.
 
@@ -188,6 +182,4 @@ Routine app deploys do not refresh the PostgreSQL, MinIO, or Nginx images. Provi
 The web build uses Next.js standalone output; `pnpm build:mobile` creates the static export used by Capacitor. The portal also has `build:cap:android:*` and `build:cap:ios:*` scripts for remote-webview and packaged builds. Platform-specific code belongs under `portal/src/platform/`. See [Capacitor build notes](./docs/mobile/capacitor-build.md) and [the platform adapter guide](./portal/src/platform/README.md).
 
 - [Travel domain plan](./docs/travels/travel-domain-plan.md)
-- [Builder overview](./docs/builder/current-builder-app-overview.md)
-- [Builder architecture](./docs/builder/winu-builder.md)
 - [Deployment and VPS operations](./docs/deployment/datacom-vps.md)

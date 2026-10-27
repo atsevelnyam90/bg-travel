@@ -12,8 +12,10 @@ export const userSchema = z.object({
   email: z.email(),
   name: z.string(),
   status: userStatusSchema,
-  roleId: z.uuid(),
+  roleId: z.uuid().nullable(),
+  version: z.number().int().min(0),
   createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type User = z.infer<typeof userSchema>;
 
@@ -53,3 +55,12 @@ export const inviteUserResponseSchema = z.object({
   mailFailed: z.boolean(),
 });
 export type InviteUserResponse = z.infer<typeof inviteUserResponseSchema>;
+
+export const updateUserSchema = z.object({
+  email: z.email("И-мэйл буруу байна"),
+  name: z.string().trim().min(1, "Нэр оруулна уу").max(160),
+  status: userStatusSchema,
+  roleId: z.uuid().nullable(),
+  version: z.number().int().min(0),
+});
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;

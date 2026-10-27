@@ -1,6 +1,7 @@
 import type { travels as travelsContract } from "@winu/contracts";
 import { notFound } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import { normalizeLegacyTravelFileUrl } from "@/modules/files/legacyTravelFiles";
 
 type PublicTravelLocale = travelsContract.PublicTravelLocale;
 
@@ -152,7 +153,7 @@ async function publicTravelRows(
         zh: detail.contentZh,
         ko: detail.contentKo,
       }),
-      images: detail.images,
+      images: detail.images.map((image) => normalizeLegacyTravelFileUrl(image) ?? image),
     };
     const rows = detailsByTravelId.get(detail.travelId) ?? [];
     rows.push(publicDetail);
@@ -205,7 +206,7 @@ async function publicTravelRows(
         zh: detail.contentZh,
         ko: detail.contentKo,
       }),
-      images: detail.images,
+      images: detail.images.map((image) => normalizeLegacyTravelFileUrl(image) ?? image),
     };
     const rows = ungroupedDetailsByTravelId.get(detail.travelId) ?? [];
     rows.push(publicDetail);
@@ -228,8 +229,8 @@ async function publicTravelRows(
         zh: section.descriptionZh,
         ko: section.descriptionKo,
       }),
-      mapImage: section.mapImage,
-      images: section.images,
+      mapImage: normalizeLegacyTravelFileUrl(section.mapImage),
+      images: section.images.map((image) => normalizeLegacyTravelFileUrl(image) ?? image),
       details: detailsBySectionId.get(section.id) ?? [],
     });
     sectionsByTravelId.set(section.travelId, rows);
@@ -277,7 +278,7 @@ async function publicTravelRows(
         ko: travel.descriptionKo,
       }),
       category: travel.category,
-      coverImage: travel.coverImage,
+      coverImage: normalizeLegacyTravelFileUrl(travel.coverImage),
       durationDays: travel.durationDays,
       details: detailsByTravelId.get(travel.id) ?? [],
       itinerarySections,

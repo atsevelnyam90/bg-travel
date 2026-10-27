@@ -9,7 +9,7 @@ import { TextField } from "@/components/form/TextField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { ApiError } from "@/lib/api/apiClient";
+import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { useLogin } from "../hooks/useLogin";
 
 // Validation schema нь backend-ээс generate хийгдсэн contract — гараар давхардуулахгүй.
@@ -31,7 +31,7 @@ export function LoginForm() {
     } catch (error) {
       // Сервер и-мэйл/нууц үгийн алийг нь буруу болохыг ЗААДАГГҮЙ —
       // тандалтаас сэргийлэх зорилготой. Тэр мессежийг хэвээр харуулна.
-      toast.error(error instanceof ApiError ? error.message : "Нэвтрэхэд алдаа гарлаа");
+      toast.error(apiErrorMessage(error, "Нэвтрэх боломжгүй байна"));
     }
   });
 

@@ -10,7 +10,9 @@ type Result = usersContract.ListUsersResponse;
 const SORTABLE = {
   name: "name",
   email: "email",
+  status: "status",
   createdAt: "createdAt",
+  updatedAt: "updatedAt",
 } as const;
 
 function buildOrderBy(sort?: string): Prisma.UserOrderByWithRelationInput {
@@ -26,7 +28,6 @@ function buildOrderBy(sort?: string): Prisma.UserOrderByWithRelationInput {
 
 export async function listUsers(query: Query): Promise<Result> {
   const where: Prisma.UserWhereInput = {
-    deletedAt: null,
     ...(query.status ? { status: query.status } : {}),
     ...(query.search
       ? {
@@ -51,7 +52,9 @@ export async function listUsers(query: Query): Promise<Result> {
         email: true,
         name: true,
         status: true,
+        version: true,
         createdAt: true,
+        updatedAt: true,
         roleId: true,
       },
     }),
@@ -63,8 +66,10 @@ export async function listUsers(query: Query): Promise<Result> {
       email: row.email,
       name: row.name,
       status: row.status,
-      roleId: row.roleId ?? "",
+      roleId: row.roleId,
+      version: row.version,
       createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
     })),
     total,
     page: query.page,

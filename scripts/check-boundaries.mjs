@@ -18,10 +18,6 @@ const portalImportRules = [
     root: "portal/src",
     disallowed: [
       {
-        pattern: /from\s+["']@winu\/builder-backend(?:\/[^"']*)?["']|import\(\s*["']@winu\/builder-backend(?:\/[^"']*)?["']\s*\)/,
-        message: "portal нь @winu/builder-backend import хийхгүй",
-      },
-      {
         pattern: /from\s+["']@winu\/mn-integrations(?:\/[^"']*)?["']|import\(\s*["']@winu\/mn-integrations(?:\/[^"']*)?["']\s*\)/,
         message: "portal нь @winu/mn-integrations import хийхгүй",
       },
@@ -35,36 +31,12 @@ const portalImportRules = [
     root: "portal/packages",
     disallowed: [
       {
-        pattern: /from\s+["']@winu\/builder-backend(?:\/[^"']*)?["']|import\(\s*["']@winu\/builder-backend(?:\/[^"']*)?["']\s*\)/,
-        message: "portal package нь @winu/builder-backend import хийхгүй",
-      },
-      {
         pattern: /from\s+["']@winu\/mn-integrations(?:\/[^"']*)?["']|import\(\s*["']@winu\/mn-integrations(?:\/[^"']*)?["']\s*\)/,
         message: "portal package нь @winu/mn-integrations import хийхгүй",
       },
     ],
   },
 ];
-
-const builderPackageRoots = [
-  "backend/packages/builder-backend/src",
-  "portal/packages/builder-ui/src",
-];
-
-const appSpecificPathSegments = [
-  "product",
-  "products",
-  "user",
-  "users",
-  "order",
-  "orders",
-  "marketplace",
-  "customer",
-  "customers",
-];
-
-const appSpecificImportPattern =
-  /(?:from|import)\s*(?:\(\s*)?["'][^"']*(?:products?|users?|orders?|marketplace|customers?)(?:\/[^"']*)?["']/i;
 
 function walk(relativeRoot) {
   const absoluteRoot = path.join(repoRoot, relativeRoot);
@@ -105,24 +77,6 @@ for (const rule of portalImportRules) {
         if (disallowed.pattern.test(line.text)) {
           failures.push(`${file}:${line.number} ${disallowed.message}`);
         }
-      }
-    }
-  }
-}
-
-for (const root of builderPackageRoots) {
-  for (const file of walk(root)) {
-    const pathSegments = file
-      .split(path.sep)
-      .map((segment) => segment.replace(/\.[^.]+$/, "").toLowerCase());
-    if (pathSegments.some((segment) => appSpecificPathSegments.includes(segment))) {
-      failures.push(`${file} builder package дотор app-specific folder/file нэр оруулахгүй`);
-      continue;
-    }
-
-    for (const line of lines(file)) {
-      if (appSpecificImportPattern.test(line.text)) {
-        failures.push(`${file}:${line.number} builder package app-specific module import хийхгүй`);
       }
     }
   }

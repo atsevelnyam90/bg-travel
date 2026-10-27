@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { FieldGroup } from "@/components/ui/field";
-import { ApiError, api } from "@/lib/api/apiClient";
+import { api } from "@/lib/api/apiClient";
+import { apiErrorMessage } from "@/lib/api/errorMessage";
 
 type Values = authContract.AcceptInviteInput;
 
@@ -29,7 +30,7 @@ export function AcceptInviteForm() {
       toast.success("Бүртгэл идэвхжлээ. Одоо нэвтэрнэ үү.");
       router.replace("/auth/login");
     } catch (error) {
-      toast.error(error instanceof ApiError ? error.message : "Алдаа гарлаа");
+      toast.error(apiErrorMessage(error, "Бүртгэлийг идэвхжүүлж чадсангүй"));
     }
   });
 

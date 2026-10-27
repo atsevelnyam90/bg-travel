@@ -5,7 +5,6 @@ import { type ReactNode, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthSessionBootstrap } from "@/features/auth/components/AuthSessionBootstrap";
-import { AppBuilderProvider } from "@/features/builder/builder.config";
 import { ApiError } from "@/lib/api/apiClient";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -29,9 +28,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthSessionBootstrap />
-      <AppBuilderProvider queryClient={queryClient}>
-        <TooltipProvider>{children}</TooltipProvider>
-      </AppBuilderProvider>
+      <TooltipProvider>{children}</TooltipProvider>
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );

@@ -1,0 +1,94 @@
+.editor {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+}
+
+.editor:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+}
+
+.toolbarButton {
+  min-width: 2.15rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.toolbarButton[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: color-mix(in srgb, var(--primary) 13%, transparent);
+  color: var(--primary);
+}
+
+.toolbarButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.content {
+  min-height: 10rem;
+  padding: 0.8rem;
+  color: var(--foreground);
+  line-height: 1.6;
+  outline: none;
+}
+
+.content p,
+.content h2,
+.content h3,
+.content ul,
+.content ol,
+.content blockquote {
+  margin: 0 0 0.75rem;
+}
+
+.content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.content h3 {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.content ul {
+  padding-left: 1.35rem;
+  list-style: disc;
+}
+
+.content ol {
+  padding-left: 1.35rem;
+  list-style: decimal;
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border);
+  color: var(--muted-foreground);
+  padding-left: 0.75rem;
+}
+
+.content p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
