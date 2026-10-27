@@ -202,7 +202,11 @@ export const builderFormLayoutGroupSchema = z.object({
 });
 export type BuilderFormLayoutGroup = z.infer<typeof builderFormLayoutGroupSchema>;
 
+export const builderFormLayoutPresentationSchema = z.enum(["stacked", "tabs"]);
+export type BuilderFormLayoutPresentation = z.infer<typeof builderFormLayoutPresentationSchema>;
+
 export const builderFormLayoutSchema = z.object({
+  presentation: builderFormLayoutPresentationSchema.default("stacked"),
   groups: z.array(builderFormLayoutGroupSchema).max(24).default([]),
 });
 export type BuilderFormLayout = z.infer<typeof builderFormLayoutSchema>;

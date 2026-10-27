@@ -21,8 +21,8 @@ importers:
         specifier: ^7.6.8
         version: 7.6.8(@capacitor/core@7.6.8)
       '@duke333/builder-ui':
-        specifier: 0.2.4
-        version: 0.2.4(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)
+        specifier: 0.2.5
+        version: 0.2.5(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.85.0(react@19.2.8))(zod@4.4.3)
@@ -441,11 +441,11 @@ packages:
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
 
-  '@duke333/builder-contracts@0.2.2':
-    resolution: {integrity: sha512-AzmZHLpCnItbplMMsCPUz9VHaR/yw4MIGC5PzD94wFqgygDZc9OxQJLBLggzIw/QZ0p3AFjp12BKfIy8nTtJaQ==}
+  '@duke333/builder-contracts@0.2.3':
+    resolution: {integrity: sha512-72f2vLibcb3J7Ta/mZ2khZRmcW89S2m88s2x4mcdzr8UWMB6qijgOXT1+eATQAFUxBSOlyBB77duZ3I3AQ+U/Q==}
 
-  '@duke333/builder-ui@0.2.4':
-    resolution: {integrity: sha512-j4Bab/vI60mcv9iOsH3BNSIawlg+nsKt28Eyq+XPveook4rusgjQ3vRXSfBm2JdmTnMbQXX4ApbW3VyKHsG+Gg==}
+  '@duke333/builder-ui@0.2.5':
+    resolution: {integrity: sha512-GU4v2sibgR7dyspHnSB/+RsAMUqGh66Hkj39dBfNJEmGV9B/ktbh41hRWAsJahgLzpSDRIulkPkh+glWmJJEOA==}
     peerDependencies:
       '@tanstack/react-query': ^5.101.4
       react: '>=18.2.0 <20'
@@ -4793,13 +4793,13 @@ snapshots:
 
   '@dotenvx/primitives@0.8.0': {}
 
-  '@duke333/builder-contracts@0.2.2':
+  '@duke333/builder-contracts@0.2.3':
     dependencies:
       zod: 4.4.3
 
-  '@duke333/builder-ui@0.2.4(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)':
+  '@duke333/builder-ui@0.2.5(@floating-ui/dom@1.8.0)(@tanstack/react-query@5.101.4(react@19.2.8))(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-hook-form@7.85.0(react@19.2.8))(react@19.2.8)':
     dependencies:
-      '@duke333/builder-contracts': 0.2.2
+      '@duke333/builder-contracts': 0.2.3
       '@tanstack/react-query': 5.101.4(react@19.2.8)
       '@tiptap/pm': 3.32.0
       '@tiptap/react': 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

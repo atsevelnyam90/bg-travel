@@ -1,4 +1,8 @@
-import { orders as ordersContract, products as productsContract } from "@winu/contracts";
+import {
+  orders as ordersContract,
+  products as productsContract,
+  travels as travelsContract,
+} from "@winu/contracts";
 import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "@/lib/asyncHandler";
@@ -25,8 +29,9 @@ export const publicRouter: Router = Router();
 
 publicRouter.get(
   "/travels",
-  asyncHandler(async (_req, res) => {
-    res.json(await listPublicTravels());
+  asyncHandler(async (req, res) => {
+    const { locale } = travelsContract.publicTravelsQuerySchema.parse(req.query);
+    res.json(await listPublicTravels(locale));
   }),
 );
 
@@ -34,7 +39,8 @@ publicRouter.get(
   "/travels/:slug",
   asyncHandler(async (req, res) => {
     const { slug } = slugParamSchema.parse(req.params);
-    res.json(await getPublicTravel(slug));
+    const { locale } = travelsContract.publicTravelsQuerySchema.parse(req.query);
+    res.json(await getPublicTravel(slug, locale));
   }),
 );
 

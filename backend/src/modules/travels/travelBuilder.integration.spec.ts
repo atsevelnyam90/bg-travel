@@ -65,6 +65,17 @@ describe("travel builder", () => {
     expect(view.body.form.id).toBe(ids.travelForm);
     expect(view.body.list.id).toBe(ids.travelList);
     expect(view.body.form.schema.presentation).toBe("drawer");
+    expect(view.body.form.schema.layout).toMatchObject({
+      presentation: "tabs",
+      groups: [
+        { id: "general", title: "Үндсэн" },
+        { id: "content", title: "Монгол" },
+        { id: "english", title: "English" },
+        { id: "chinese", title: "中文" },
+        { id: "korean", title: "한국어" },
+        { id: "related", title: "Гаралт ба хөтөлбөр" },
+      ],
+    });
     expect(view.body.form.schema.fields.map((field: { key: string }) => field.key)).toEqual([
       "name",
       "slug",
@@ -75,6 +86,18 @@ describe("travel builder", () => {
       "coverImage",
       "durationDays",
       "description",
+      "nameEn",
+      "destinationLabelEn",
+      "taglineEn",
+      "descriptionEn",
+      "nameZh",
+      "destinationLabelZh",
+      "taglineZh",
+      "descriptionZh",
+      "nameKo",
+      "destinationLabelKo",
+      "taglineKo",
+      "descriptionKo",
     ]);
     expect(view.body.list.schema.columns.map((column: { key: string }) => column.key)).toEqual([
       "name",
@@ -108,6 +131,7 @@ describe("travel builder", () => {
     expect(
       sectionView.body.form.schema.fields.find((field: { key: string }) => field.key === "images"),
     ).toMatchObject({ type: "file", multiple: true });
+    expect(sectionView.body.form.schema.layout).toMatchObject({ presentation: "tabs" });
     expect(
       sectionView.body.form.schema.fields.find(
         (field: { key: string }) => field.key === "mapImage",
@@ -123,8 +147,15 @@ describe("travel builder", () => {
       "dayNumber",
       "title",
       "content",
+      "titleEn",
+      "contentEn",
+      "titleZh",
+      "contentZh",
+      "titleKo",
+      "contentKo",
       "images",
     ]);
+    expect(detailView.body.form.schema.layout).toMatchObject({ presentation: "tabs" });
     expect(
       detailView.body.form.schema.fields.find((field: { key: string }) => field.key === "content"),
     ).toMatchObject({ type: "richtext" });

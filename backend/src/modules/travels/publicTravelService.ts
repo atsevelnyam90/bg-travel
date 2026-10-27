@@ -2,13 +2,37 @@ import type { travels as travelsContract } from "@winu/contracts";
 import { notFound } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 
+type PublicTravelLocale = travelsContract.PublicTravelLocale;
+
+type LocalizedText = {
+  mn: string | null;
+  en: string | null;
+  zh: string | null;
+  ko: string | null;
+};
+
+function localizedText(locale: PublicTravelLocale, text: LocalizedText): string | null {
+  const selected = text[locale];
+  return selected?.trim() ? selected : text.mn;
+}
+
+const fallbackItineraryTitle: Record<PublicTravelLocale, string> = {
+  mn: "Аяллын хөтөлбөр",
+  en: "Itinerary",
+  zh: "旅行行程",
+  ko: "여행 일정",
+};
+
 function dateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
-async function publicTravelRows(where?: {
-  slug?: string;
-}): Promise<travelsContract.PublicTravel[]> {
+async function publicTravelRows(
+  where?: {
+    slug?: string;
+  },
+  locale: PublicTravelLocale = "mn",
+): Promise<travelsContract.PublicTravel[]> {
   const travels = await prisma.travel.findMany({
     where: { status: "PUBLISHED", ...where },
     orderBy: { name: "asc" },
@@ -17,9 +41,21 @@ async function publicTravelRows(where?: {
       publicId: true,
       slug: true,
       name: true,
+      nameEn: true,
+      nameZh: true,
+      nameKo: true,
       destinationLabel: true,
+      destinationLabelEn: true,
+      destinationLabelZh: true,
+      destinationLabelKo: true,
       tagline: true,
+      taglineEn: true,
+      taglineZh: true,
+      taglineKo: true,
       description: true,
+      descriptionEn: true,
+      descriptionZh: true,
+      descriptionKo: true,
       category: true,
       coverImage: true,
       durationDays: true,
@@ -87,7 +123,13 @@ async function publicTravelRows(where?: {
       sectionId: true,
       dayNumber: true,
       title: true,
+      titleEn: true,
+      titleZh: true,
+      titleKo: true,
       content: true,
+      contentEn: true,
+      contentZh: true,
+      contentKo: true,
       images: true,
     },
   });
@@ -97,8 +139,19 @@ async function publicTravelRows(where?: {
   for (const detail of details) {
     const publicDetail = {
       dayNumber: detail.dayNumber,
-      title: detail.title,
-      content: detail.content,
+      title:
+        localizedText(locale, {
+          mn: detail.title,
+          en: detail.titleEn,
+          zh: detail.titleZh,
+          ko: detail.titleKo,
+        }) ?? detail.title,
+      content: localizedText(locale, {
+        mn: detail.content,
+        en: detail.contentEn,
+        zh: detail.contentZh,
+        ko: detail.contentKo,
+      }),
       images: detail.images,
     };
     const rows = detailsByTravelId.get(detail.travelId) ?? [];
@@ -123,7 +176,13 @@ async function publicTravelRows(where?: {
       id: true,
       travelId: true,
       title: true,
+      titleEn: true,
+      titleZh: true,
+      titleKo: true,
       description: true,
+      descriptionEn: true,
+      descriptionZh: true,
+      descriptionKo: true,
       mapImage: true,
       images: true,
     },
@@ -133,8 +192,19 @@ async function publicTravelRows(where?: {
     if (!detail.sectionId || sectionIds.has(detail.sectionId)) continue;
     const publicDetail = {
       dayNumber: detail.dayNumber,
-      title: detail.title,
-      content: detail.content,
+      title:
+        localizedText(locale, {
+          mn: detail.title,
+          en: detail.titleEn,
+          zh: detail.titleZh,
+          ko: detail.titleKo,
+        }) ?? detail.title,
+      content: localizedText(locale, {
+        mn: detail.content,
+        en: detail.contentEn,
+        zh: detail.contentZh,
+        ko: detail.contentKo,
+      }),
       images: detail.images,
     };
     const rows = ungroupedDetailsByTravelId.get(detail.travelId) ?? [];
@@ -145,8 +215,19 @@ async function publicTravelRows(where?: {
   for (const section of sections) {
     const rows = sectionsByTravelId.get(section.travelId) ?? [];
     rows.push({
-      title: section.title,
-      description: section.description,
+      title:
+        localizedText(locale, {
+          mn: section.title,
+          en: section.titleEn,
+          zh: section.titleZh,
+          ko: section.titleKo,
+        }) ?? section.title,
+      description: localizedText(locale, {
+        mn: section.description,
+        en: section.descriptionEn,
+        zh: section.descriptionZh,
+        ko: section.descriptionKo,
+      }),
       mapImage: section.mapImage,
       images: section.images,
       details: detailsBySectionId.get(section.id) ?? [],
@@ -159,7 +240,7 @@ async function publicTravelRows(where?: {
     const ungroupedDetails = ungroupedDetailsByTravelId.get(travel.id) ?? [];
     if (ungroupedDetails.length > 0) {
       itinerarySections.push({
-        title: "Аяллын хөтөлбөр",
+        title: fallbackItineraryTitle[locale],
         description: null,
         mapImage: null,
         images: [],
@@ -170,10 +251,31 @@ async function publicTravelRows(where?: {
     return {
       publicId: travel.publicId,
       slug: travel.slug,
-      name: travel.name,
-      destinationLabel: travel.destinationLabel,
-      tagline: travel.tagline,
-      description: travel.description,
+      name:
+        localizedText(locale, {
+          mn: travel.name,
+          en: travel.nameEn,
+          zh: travel.nameZh,
+          ko: travel.nameKo,
+        }) ?? travel.name,
+      destinationLabel: localizedText(locale, {
+        mn: travel.destinationLabel,
+        en: travel.destinationLabelEn,
+        zh: travel.destinationLabelZh,
+        ko: travel.destinationLabelKo,
+      }),
+      tagline: localizedText(locale, {
+        mn: travel.tagline,
+        en: travel.taglineEn,
+        zh: travel.taglineZh,
+        ko: travel.taglineKo,
+      }),
+      description: localizedText(locale, {
+        mn: travel.description,
+        en: travel.descriptionEn,
+        zh: travel.descriptionZh,
+        ko: travel.descriptionKo,
+      }),
       category: travel.category,
       coverImage: travel.coverImage,
       durationDays: travel.durationDays,
@@ -184,15 +286,18 @@ async function publicTravelRows(where?: {
   });
 }
 
-export async function listPublicTravels(): Promise<travelsContract.ListPublicTravelsResponse> {
-  const travels = await publicTravelRows();
+export async function listPublicTravels(
+  locale: PublicTravelLocale = "mn",
+): Promise<travelsContract.ListPublicTravelsResponse> {
+  const travels = await publicTravelRows(undefined, locale);
   return travels.filter((travel) => travel.slots.length > 0);
 }
 
 export async function getPublicTravel(
   slug: string,
+  locale: PublicTravelLocale = "mn",
 ): Promise<travelsContract.GetPublicTravelResponse> {
-  const travel = (await publicTravelRows({ slug }))[0];
+  const travel = (await publicTravelRows({ slug }, locale))[0];
   if (!travel) throw notFound("Аялал олдсонгүй");
   return travel;
 }

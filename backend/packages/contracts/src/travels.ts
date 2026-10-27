@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const publicTravelLocaleSchema = z.enum(["mn", "en", "zh", "ko"]);
+export type PublicTravelLocale = z.infer<typeof publicTravelLocaleSchema>;
+
+export const publicTravelsQuerySchema = z.object({
+  locale: publicTravelLocaleSchema.default("mn"),
+});
+export type PublicTravelsQuery = z.infer<typeof publicTravelsQuerySchema>;
+
 export const publicTravelSlotSchema = z.object({
   publicId: z.uuid(),
   departureDate: z.iso.date(),

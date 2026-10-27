@@ -78,6 +78,7 @@ Contract дээр `BuilderFormSchema` дараах optional layout-тай бол
 
 ```ts
 layout?: {
+  presentation?: "stacked" | "tabs";
   groups: Array<{
     id: string;
     title?: string;
@@ -93,6 +94,8 @@ layout?: {
 Validation:
 
 - `groups` optional.
+- `presentation` байхгүй бол backward-compatible `stacked` утгатай.
+- `tabs` үед group бүр runtime form-ийн нэг tab болно.
 - `columns` MVP дээр `6`, `8`, `12`.
 - `span` нь `1..columns`.
 - `field.key` нь form schema-ийн field key-тэй таарч байх ёстой. Эхний pass дээр runtime/editor helper шалгана.
@@ -137,6 +140,9 @@ Drag/drop MVP-д хийхгүй. Дараа нэмэхэд schema солихгү
 `DataForm`:
 
 - `schema.layout.groups` байвал grouped grid render хийнэ.
+- `layout.presentation = "stacked"` бол group-үүд дараалан харагдана.
+- `layout.presentation = "tabs"` бол group title-ууд tab trigger болно. Идэвхгүй tab-ийн
+  field-үүд form state болон validation-аа хадгалахын тулд mounted хэвээр байна.
 - `layout` байхгүй бол одоогийн vertical render хэвээр.
 - Desktop дээр `grid-template-columns: repeat(columns, minmax(0, 1fr))`.
 - Field дээр `grid-column: span <span> / span <span>`.

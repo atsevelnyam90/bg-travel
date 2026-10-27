@@ -243,6 +243,84 @@ describe("public travels", () => {
     }
   });
 
+  it("returns localized content and falls back to Mongolian per field", async () => {
+    const travel = await prisma.travel.create({
+      data: {
+        name: "Монгол аялал",
+        nameEn: "English journey",
+        slug: "localized-journey",
+        destinationLabel: "Монгол чиглэл",
+        description: "Монгол танилцуулга",
+        descriptionEn: "English overview",
+        status: "PUBLISHED",
+      },
+    });
+    const section = await prisma.travelItinerarySection.create({
+      data: {
+        travelId: travel.id,
+        title: "Монгол бүлэг",
+        titleEn: "English section",
+        description: "Монгол бүлгийн тайлбар",
+      },
+    });
+    await prisma.travelDetail.create({
+      data: {
+        travelId: travel.id,
+        sectionId: section.id,
+        dayNumber: 1,
+        title: "Монгол өдөр",
+        titleEn: "English day",
+        content: "Монгол өдрийн тайлбар",
+        contentEn: "English day description",
+      },
+    });
+    await prisma.travelDeparture.create({
+      data: {
+        travelId: travel.id,
+        departureDate: new Date("2026-11-05T00:00:00.000Z"),
+        returnDate: new Date("2026-11-06T00:00:00.000Z"),
+        transportType: "GROUND",
+        unitPriceMinor: 100000000n,
+        capacity: 8,
+      },
+    });
+
+    const english = await api().get(`${PREFIX}/public/travels?locale=en`).expect(200);
+    expect(english.body[0]).toMatchObject({
+      name: "English journey",
+      destinationLabel: "Монгол чиглэл",
+      description: "English overview",
+      itinerarySections: [
+        {
+          title: "English section",
+          description: "Монгол бүлгийн тайлбар",
+          details: [
+            {
+              title: "English day",
+              content: "English day description",
+            },
+          ],
+        },
+      ],
+    });
+
+    const koreanFallback = await api()
+      .get(`${PREFIX}/public/travels/localized-journey?locale=ko`)
+      .expect(200);
+    expect(koreanFallback.body).toMatchObject({
+      name: "Монгол аялал",
+      description: "Монгол танилцуулга",
+      itinerarySections: [
+        {
+          title: "Монгол бүлэг",
+          details: [{ title: "Монгол өдөр", content: "Монгол өдрийн тайлбар" }],
+        },
+      ],
+    });
+
+    await api().get(`${PREFIX}/public/travels?locale=fr`).expect(400);
+  });
+
   it("returns a published travel by slug even when it has no open departure", async () => {
     const travel = await prisma.travel.create({
       data: {

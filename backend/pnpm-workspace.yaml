@@ -10,5 +10,5 @@ allowBuilds:
   esbuild: true
 
 minimumReleaseAgeExclude:
-  - '@duke333/builder-backend@0.1.0 || 0.1.3 || 0.2.0 || 0.2.1 || 0.2.2 || 0.2.4 || 0.2.5'
-  - '@duke333/builder-contracts@0.1.0 || 0.1.3 || 0.2.0 || 0.2.1 || 0.2.2'
+  - '@duke333/builder-backend@0.1.0 || 0.1.3 || 0.2.0 || 0.2.1 || 0.2.2 || 0.2.4 || 0.2.5 || 0.2.6'
+  - '@duke333/builder-contracts@0.1.0 || 0.1.3 || 0.2.0 || 0.2.1 || 0.2.2 || 0.2.3'

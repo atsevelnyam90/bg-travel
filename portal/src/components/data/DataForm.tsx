@@ -21,6 +21,7 @@ import {
 } from "@/components/form";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useRunRuntimeBuilderFieldTrigger,
   useRuntimeBuilderFormFieldOptions,
@@ -157,27 +158,60 @@ export function DataForm<T extends FieldValues>({
   const layoutGroups = getDataFormLayoutGroups(schema, extraItems);
 
   if (layoutGroups) {
+    const renderGroupFields = (group: DataFormLayoutGroup) => (
+      <div className={`grid grid-cols-1 gap-4 ${layoutColumnClasses[group.columns]}`}>
+        {group.fields.map(({ key, field, extra, span }) => (
+          <div key={key} className={`min-w-0 ${layoutSpanClasses[span] ?? "md:col-span-12"}`}>
+            {field ? (
+              <DataFormField<T>
+                formId={formId}
+                viewId={viewId}
+                field={field}
+                namePrefix={namePrefix}
+              />
+            ) : (
+              extra?.render()
+            )}
+          </div>
+        ))}
+      </div>
+    );
+
+    if (schema.layout?.presentation === "tabs") {
+      const firstGroup = layoutGroups[0];
+      return (
+        <Tabs defaultValue={firstGroup.id} className="min-h-0 gap-4">
+          <TabsList variant="line" className="max-w-full justify-start overflow-x-auto">
+            {layoutGroups.map((group, index) => (
+              <TabsTrigger
+                key={group.id}
+                value={group.id}
+                className="rounded-none border-b-2 border-b-transparent px-3 data-[state=active]:border-b-primary data-[state=active]:text-foreground"
+              >
+                {group.title ?? `Хэсэг ${index + 1}`}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {layoutGroups.map((group) => (
+            <TabsContent
+              forceMount
+              key={group.id}
+              value={group.id}
+              className="data-[state=inactive]:hidden"
+            >
+              {renderGroupFields(group)}
+            </TabsContent>
+          ))}
+        </Tabs>
+      );
+    }
+
     return (
       <div className="space-y-6">
         {layoutGroups.map((group) => (
           <section key={group.id} className="space-y-3">
             {group.title ? <h3 className="font-medium text-sm">{group.title}</h3> : null}
-            <div className={`grid grid-cols-1 gap-4 ${layoutColumnClasses[group.columns]}`}>
-              {group.fields.map(({ key, field, extra, span }) => (
-                <div key={key} className={`min-w-0 ${layoutSpanClasses[span] ?? "md:col-span-12"}`}>
-                  {field ? (
-                    <DataFormField<T>
-                      formId={formId}
-                      viewId={viewId}
-                      field={field}
-                      namePrefix={namePrefix}
-                    />
-                  ) : (
-                    extra?.render()
-                  )}
-                </div>
-              ))}
-            </div>
+            {renderGroupFields(group)}
           </section>
         ))}
       </div>
