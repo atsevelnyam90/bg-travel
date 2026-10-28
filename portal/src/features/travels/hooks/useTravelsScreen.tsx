@@ -10,8 +10,10 @@ import {
   useDataTable,
   useDataTableState,
 } from "@/components/data";
+import { Badge } from "@/components/ui/badge";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { createTravel, deleteTravel, getTravel, listTravels, updateTravel } from "../api";
+import { travelCategoryLabels, travelStatusLabels } from "../labels";
 
 const keys = {
   all: ["admin-travels"] as const,
@@ -27,22 +29,28 @@ export function useTravelsScreen() {
   const [deleting, setDeleting] = useState<travels.AdminTravelListItem | null>(null);
   const query = useQuery({
     queryKey: keys.list(state.query),
-    queryFn: () => listTravels(state.query),
+    queryFn: ({ signal }) => listTravels(state.query, signal),
     placeholderData: keepPreviousData,
   });
   const detail = useQuery({
     queryKey: keys.detail(editingId ?? "new"),
-    queryFn: () => getTravel(editingId ?? ""),
+    queryFn: ({ signal }) => getTravel(editingId ?? "", signal),
     enabled: editorOpen && Boolean(editingId),
   });
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.all });
-  const createMutation = useMutation({ mutationFn: createTravel, onSuccess: invalidate });
+  const createMutation = useMutation({
+    mutationFn: createTravel,
+    onSuccess: () => void invalidate(),
+  });
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: travels.UpdateAdminTravelInput }) =>
       updateTravel(id, input),
-    onSuccess: invalidate,
+    onSuccess: () => void invalidate(),
   });
-  const deleteMutation = useMutation({ mutationFn: deleteTravel, onSuccess: invalidate });
+  const deleteMutation = useMutation({
+    mutationFn: deleteTravel,
+    onSuccess: () => void invalidate(),
+  });
   const columns = useMemo<DataTableColumnDef<travels.AdminTravelListItem>[]>(
     () => [
       {
@@ -55,13 +63,17 @@ export function useTravelsScreen() {
         id: "category",
         header: "Ангилал",
         meta: { sortable: true },
-        cell: ({ row }) => row.original.category,
+        cell: ({ row }) => travelCategoryLabels[row.original.category],
       },
       {
         id: "status",
         header: "Төлөв",
         meta: { sortable: true },
-        cell: ({ row }) => row.original.status,
+        cell: ({ row }) => (
+          <Badge variant={row.original.status === "PUBLISHED" ? "default" : "outline"}>
+            {travelStatusLabels[row.original.status]}
+          </Badge>
+        ),
       },
       {
         id: "durationDays",

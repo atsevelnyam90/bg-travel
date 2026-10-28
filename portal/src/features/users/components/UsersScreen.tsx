@@ -18,14 +18,20 @@ export function UsersScreen() {
         isLoading={screen.isLoading}
         searchPlaceholder="Нэр, и-мэйлээр хайх…"
         emptyTitle="Хэрэглэгч алга"
-        onRowClick={(row, event) => {
-          if ((event.target as HTMLElement).closest("[data-row-action]")) return;
-          screen.openEdit(row);
-        }}
+        onRowClick={
+          screen.canEdit
+            ? (row, event) => {
+                if ((event.target as HTMLElement).closest("[data-row-action]")) return;
+                screen.openEdit(row);
+              }
+            : undefined
+        }
         toolbarExtra={
-          <Button size="sm" onClick={screen.openInvite}>
-            <Plus /> Урих
-          </Button>
+          screen.canInvite ? (
+            <Button size="sm" onClick={screen.openInvite}>
+              <Plus /> Урих
+            </Button>
+          ) : null
         }
       />
       <UserEditor

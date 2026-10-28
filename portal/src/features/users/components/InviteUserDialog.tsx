@@ -33,11 +33,20 @@ export function InviteUserDialog({
     resolver: zodResolver(userSchemas.inviteUserSchema),
     defaultValues: { email: "", name: "", roleId: roles[0]?.id ?? "" },
   });
+  const firstRoleId = roles[0]?.id;
   useEffect(() => {
-    if (open) form.reset({ email: "", name: "", roleId: roles[0]?.id ?? "" });
-  }, [form, open, roles]);
+    if (!open) return;
+    if (!form.formState.isDirty) {
+      form.reset({ email: "", name: "", roleId: firstRoleId ?? "" });
+    } else if (!form.getValues("roleId") && firstRoleId) {
+      form.setValue("roleId", firstRoleId);
+    }
+  }, [firstRoleId, form, open]);
+  const close = () => {
+    if (!isSaving) onClose();
+  };
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+    <Dialog open={open} onOpenChange={(next) => !next && close()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Хэрэглэгч урих</DialogTitle>
@@ -55,10 +64,13 @@ export function InviteUserDialog({
               />
             </FieldGroup>
             <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={close} disabled={isSaving}>
                 Болих
               </Button>
-              <Button type="submit" disabled={isSaving}>
+              <Button
+                type="submit"
+                disabled={isSaving || roles.length === 0 || !form.formState.isDirty}
+              >
                 {isSaving ? "Илгээж байна…" : "Урих"}
               </Button>
             </DialogFooter>

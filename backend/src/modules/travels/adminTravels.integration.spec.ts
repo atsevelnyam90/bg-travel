@@ -116,6 +116,9 @@ describe("admin travels (integration)", () => {
       .expect(200);
     expect(updated.body.name).toBe("Зассан аялал");
     expect(updated.body.version).toBe(1);
+    expect(updated.body.departures[0].version).toBe(0);
+    expect(updated.body.sections[0].version).toBe(0);
+    expect(updated.body.details[0].version).toBe(0);
 
     await api().delete(`${PREFIX}/travels/${created.body.id}`).set(bearer(token)).expect(204);
     const list = await api().get(`${PREFIX}/travels`).set(bearer(token)).expect(200);
@@ -125,6 +128,24 @@ describe("admin travels (integration)", () => {
       SELECT "deletedAt" FROM travels WHERE id = ${created.body.id}
     `;
     expect(stored[0]?.deletedAt).toBeInstanceOf(Date);
+  });
+
+  it("шинэ аяллын бүлэг болон өдрийг нэг хадгалалтаар холбоно", async () => {
+    const token = await login("owner@test.mn", "Test1234!");
+    const sectionId = crypto.randomUUID();
+    const created = await api()
+      .post(`${PREFIX}/travels`)
+      .set(bearer(token))
+      .send({
+        ...travelInput,
+        slug: "linked-new-section",
+        sections: [{ ...travelInput.sections[0], id: sectionId, _new: true }],
+        details: [{ ...travelInput.details[0], sectionId }],
+      })
+      .expect(201);
+
+    expect(created.body.sections[0].id).toBe(sectionId);
+    expect(created.body.details[0].sectionId).toBe(sectionId);
   });
 
   it("олон гаралт, бүлэг, өдрийн хөтөлбөрийг нэг хүсэлтээр хадгална", async () => {

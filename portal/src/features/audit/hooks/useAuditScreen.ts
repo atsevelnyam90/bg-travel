@@ -12,7 +12,7 @@ export function useAuditScreen() {
 
   const query = useQuery({
     queryKey: ["audit", "list", state.query],
-    queryFn: () => listAudit(state.query),
+    queryFn: ({ signal }) => listAudit(state.query, signal),
     placeholderData: keepPreviousData,
   });
 

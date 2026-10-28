@@ -15,12 +15,17 @@ import { ApiError, api } from "./apiClient";
 export async function uploadFile(
   file: File,
   scope: files.PresignUploadInput["scope"],
+  signal?: AbortSignal,
 ): Promise<string> {
-  const presign = await api.post<files.PresignUploadResponse>("/files/presign", {
-    contentType: file.type,
-    contentLength: file.size,
-    scope,
-  });
+  const presign = await api.post<files.PresignUploadResponse>(
+    "/files/presign",
+    {
+      contentType: file.type,
+      contentLength: file.size,
+      scope,
+    },
+    { signal },
+  );
 
   const response = await fetch(presign.uploadUrl, {
     method: "PUT",
@@ -29,6 +34,7 @@ export async function uploadFile(
     // Presigned URL нь өөрөө зөвшөөрөлтэй — cookie явуулбал S3 гарын үсгийг
     // няцаана.
     credentials: "omit",
+    signal,
   });
 
   if (!response.ok) {
@@ -36,4 +42,32 @@ export async function uploadFile(
   }
 
   return presign.publicUrl;
+}
+
+export async function uploadFiles(
+  filesToUpload: File[],
+  scope: files.PresignUploadInput["scope"],
+  signal?: AbortSignal,
+  concurrency = 3,
+): Promise<string[]> {
+  const results = new Array<string>(filesToUpload.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < filesToUpload.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      const file = filesToUpload[index];
+      if (!file) continue;
+      results[index] = await uploadFile(file, scope, signal);
+    }
+  }
+
+  const workerCount = Math.min(Math.max(1, concurrency), filesToUpload.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
+export function isUploadAbort(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
 }

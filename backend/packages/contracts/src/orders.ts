@@ -66,12 +66,58 @@ export const adminOrderSchema = z.object({
 });
 export type AdminOrder = z.infer<typeof adminOrderSchema>;
 
+export const adminOrderDepartureOptionSchema = z.object({
+  id: z.uuid(),
+  travelId: z.uuid(),
+  travelName: z.string(),
+  departureDate: z.iso.date(),
+  returnDate: z.iso.date(),
+  transportType: orderTransportTypeSchema,
+  unitPriceMinor: z.number().int().min(0),
+  capacity: z.number().int().positive(),
+  remainingSeats: z.number().int().min(0),
+  isBookingOpen: z.boolean(),
+});
+export type AdminOrderDepartureOption = z.infer<typeof adminOrderDepartureOptionSchema>;
+export const listAdminOrderDepartureOptionsResponseSchema = z.array(
+  adminOrderDepartureOptionSchema,
+);
+export type ListAdminOrderDepartureOptionsResponse = z.infer<
+  typeof listAdminOrderDepartureOptionsResponseSchema
+>;
+
 export const listAdminOrdersQuerySchema = paginationQuerySchema.extend({
   status: orderStatusSchema.optional(),
 });
 export type ListAdminOrdersQuery = z.infer<typeof listAdminOrdersQuerySchema>;
 export const listAdminOrdersResponseSchema = paginatedSchema(adminOrderSchema);
 export type ListAdminOrdersResponse = z.infer<typeof listAdminOrdersResponseSchema>;
+
+export const orderDashboardDaysSchema = z.union([z.literal(7), z.literal(14), z.literal(30)]);
+export const orderDashboardQuerySchema = z.object({
+  days: z.coerce.number().pipe(orderDashboardDaysSchema).default(7),
+});
+export type OrderDashboardQuery = z.infer<typeof orderDashboardQuerySchema>;
+export const orderDashboardSchema = z.object({
+  days: orderDashboardDaysSchema,
+  totalOrders: z.number().int().min(0),
+  paidRevenueMinor: z.number().int().min(0),
+  daily: z.array(
+    z.object({
+      date: z.iso.date(),
+      orders: z.number().int().min(0),
+      paidRevenueMinor: z.number().int().min(0),
+    }),
+  ),
+  topTrips: z.array(
+    z.object({
+      travelId: z.uuid(),
+      name: z.string(),
+      travelerCount: z.number().int().min(0),
+    }),
+  ),
+});
+export type OrderDashboard = z.infer<typeof orderDashboardSchema>;
 
 const adminOrderInputBaseSchema = z.object({
   publicOrderId: z.string().trim().min(1).max(20),
@@ -93,7 +139,10 @@ const adminOrderInputBaseSchema = z.object({
   idempotencyKey: z.string().trim().min(1).max(64),
 });
 
-export const createAdminOrderSchema = adminOrderInputBaseSchema;
+export const createAdminOrderSchema = adminOrderInputBaseSchema.omit({
+  publicOrderId: true,
+  idempotencyKey: true,
+});
 export type CreateAdminOrderInput = z.infer<typeof createAdminOrderSchema>;
 export const updateAdminOrderSchema = adminOrderInputBaseSchema.extend({
   version: z.number().int().min(0),

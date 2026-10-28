@@ -26,19 +26,27 @@ export function OrdersScreen() {
         isLoading={screen.isLoading}
         searchPlaceholder="Дугаар, нэр, утасаар хайх…"
         emptyTitle="Захиалга алга"
-        onRowClick={(row, event) => {
-          if ((event.target as HTMLElement).closest("[data-row-action]")) return;
-          screen.openEdit(row);
-        }}
+        onRowClick={
+          screen.canWrite
+            ? (row, event) => {
+                if ((event.target as HTMLElement).closest("[data-row-action]")) return;
+                screen.openEdit(row);
+              }
+            : undefined
+        }
         toolbarExtra={
-          <Button size="sm" onClick={screen.openAdd}>
-            <Plus /> Нэмэх
-          </Button>
+          screen.canWrite ? (
+            <Button size="sm" onClick={screen.openAdd}>
+              <Plus /> Нэмэх
+            </Button>
+          ) : null
         }
       />
       <OrderEditor
         open={screen.editorOpen}
         order={screen.editing}
+        departureOptions={screen.departureOptions}
+        departureOptionsLoading={screen.departureOptionsLoading}
         isSaving={screen.isSaving}
         onClose={screen.closeEditor}
         onSave={screen.save}

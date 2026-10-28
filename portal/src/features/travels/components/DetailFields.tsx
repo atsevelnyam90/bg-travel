@@ -30,6 +30,7 @@ export function DetailFields({
             name={path(index, "sectionId")}
             label="Хөтөлбөрийн бүлэг"
             options={sectionOptions}
+            clearable
           />
         </div>
         <NumberField<TravelFormValues> name={path(index, "dayNumber")} label="Өдөр" min={1} />

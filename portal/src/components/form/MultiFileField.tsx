@@ -1,14 +1,15 @@
 "use client";
 
 import { Loader2, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, type FieldValues, type Path, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import type { files } from "@/api/generated/contracts";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import { uploadFile } from "@/lib/api/upload";
+import { isUploadAbort, uploadFiles } from "@/lib/api/upload";
+import { useOptionalFormUploads } from "./FormUploadProvider";
 import { useFieldError } from "./useFieldError";
 
 type MultiFileFieldProps<T extends FieldValues> = {
@@ -28,6 +29,10 @@ export function MultiFileField<T extends FieldValues>({
   const { message, errorId, invalid, describedBy } = useFieldError<T>(name);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const uploads = useOptionalFormUploads();
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   return (
     <Field data-invalid={invalid}>
@@ -54,15 +59,22 @@ export function MultiFileField<T extends FieldValues>({
                 onChange={async (event) => {
                   const files = Array.from(event.target.files ?? []);
                   if (files.length === 0) return;
+                  abortRef.current?.abort();
+                  const controller = new AbortController();
+                  abortRef.current = controller;
+                  const finishUpload = uploads?.beginUpload();
                   setUploading(true);
                   try {
-                    const uploaded = [];
-                    for (const file of files) uploaded.push(await uploadFile(file, scope));
+                    const uploaded = await uploadFiles(files, scope, controller.signal);
                     field.onChange([...urls, ...uploaded]);
                   } catch (error) {
-                    toast.error(apiErrorMessage(error, "Зургуудыг байршуулж чадсангүй"));
+                    if (!isUploadAbort(error)) {
+                      toast.error(apiErrorMessage(error, "Зургуудыг байршуулж чадсангүй"));
+                    }
                   } finally {
+                    finishUpload?.();
                     setUploading(false);
+                    abortRef.current = null;
                     event.target.value = "";
                   }
                 }}

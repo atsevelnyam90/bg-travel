@@ -11,19 +11,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePermissions } from "@/features/auth";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { useBanks, useOrganization, useUpdateOrganization } from "../hooks/useOrganization";
 
 type Values = orgContract.UpdateOrganizationInput;
 
 export function SettingsScreen() {
+  const { can } = usePermissions();
+  const canManage = can("org:manage");
   const org = useOrganization();
   const banks = useBanks();
   const save = useUpdateOrganization();
 
   const form = useForm<Values>({
     resolver: zodResolver(orgContract.updateOrganizationSchema),
-    defaultValues: { name: "", bankCode: null, bankAccount: "", bankAccountName: "" },
+    defaultValues: {
+      name: "",
+      bankCode: null,
+      bankAccount: "",
+      bankAccountName: "",
+      version: 0,
+    },
   });
 
   useEffect(() => {
@@ -34,6 +43,7 @@ export function SettingsScreen() {
       bankCode: org.data.bankCode,
       bankAccount: org.data.bankAccount ?? "",
       bankAccountName: org.data.bankAccountName ?? "",
+      version: org.data.version,
     });
   }, [org.data, form]);
 
@@ -45,6 +55,7 @@ export function SettingsScreen() {
   );
 
   const onSubmit = form.handleSubmit(async (values) => {
+    if (!canManage) return;
     try {
       await save.mutateAsync(values);
       toast.success("Хадгалагдлаа");
@@ -67,7 +78,7 @@ export function SettingsScreen() {
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <TextField<Values> name="name" label="Нэр" />
+                <TextField<Values> name="name" label="Нэр" disabled={!canManage} />
               </FieldGroup>
             </CardContent>
           </Card>
@@ -81,20 +92,34 @@ export function SettingsScreen() {
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <SelectField<Values> name="bankCode" label="Банк" options={bankOptions} />
-                <TextField<Values> name="bankAccount" label="Данс / IBAN" autoComplete="off" />
+                <SelectField<Values>
+                  name="bankCode"
+                  label="Банк"
+                  options={bankOptions}
+                  clearable
+                  disabled={!canManage}
+                />
+                <TextField<Values>
+                  name="bankAccount"
+                  label="Данс / IBAN"
+                  autoComplete="off"
+                  disabled={!canManage}
+                />
                 <TextField<Values>
                   name="bankAccountName"
                   label="Данс эзэмшигчийн нэр"
                   description="QR дотор латинаар хөрвүүлэгдэж бичигдэнэ."
+                  disabled={!canManage}
                 />
               </FieldGroup>
             </CardContent>
           </Card>
 
-          <Button type="submit" disabled={save.isPending}>
-            {save.isPending ? "Хадгалж байна…" : "Хадгалах"}
-          </Button>
+          {canManage ? (
+            <Button type="submit" disabled={save.isPending || !form.formState.isDirty}>
+              {save.isPending ? "Хадгалж байна…" : "Хадгалах"}
+            </Button>
+          ) : null}
         </form>
       </FormProvider>
     </div>

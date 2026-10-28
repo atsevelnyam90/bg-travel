@@ -15,9 +15,11 @@ export function RowActions({
   onEdit,
   onDelete,
 }: {
-  onEdit(event: MouseEvent): void;
-  onDelete(event: MouseEvent): void;
+  onEdit?(event: MouseEvent): void;
+  onDelete?(event: MouseEvent): void;
 }) {
+  if (!onEdit && !onDelete) return null;
+
   return (
     <div className="text-right" data-row-action>
       <DropdownMenu>
@@ -33,15 +35,19 @@ export function RowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem onClick={onEdit}>
-            <Pencil />
-            Засах
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onClick={onDelete}>
-            <Trash2 />
-            Устгах
-          </DropdownMenuItem>
+          {onEdit ? (
+            <DropdownMenuItem onClick={onEdit}>
+              <Pencil />
+              Засах
+            </DropdownMenuItem>
+          ) : null}
+          {onEdit && onDelete ? <DropdownMenuSeparator /> : null}
+          {onDelete ? (
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              <Trash2 />
+              Устгах
+            </DropdownMenuItem>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

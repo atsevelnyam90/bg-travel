@@ -11,7 +11,7 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 // TanStack Table v9 нь feature-үүдийг ИЛ зарлахыг шаарддаг (tree-shaking).
 // Sort/filter/pagination-ыг СЕРВЕР хийдэг тул тэдгээрийн row model хэрэггүй —
@@ -63,10 +63,22 @@ export type DataTableColumnDef<T extends RowData> = ColumnDef<Features, T, unkno
  *   const { data } = useItems(state.query);
  *   const controller = useDataTable({ columns, data, rowCount, state });
  */
-export function useDataTableState({ pageSize = 20 }: { pageSize?: number } = {}) {
+export function useDataTableState({
+  pageSize = 20,
+  searchDelayMs = 350,
+}: {
+  pageSize?: number;
+  searchDelayMs?: number;
+} = {}) {
   const [page, setPage] = useState(1);
   const [search, setSearchValue] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sort, setSort] = useState<SortState>(null);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search), searchDelayMs);
+    return () => window.clearTimeout(timeout);
+  }, [search, searchDelayMs]);
 
   // Шүүлт/хайлт өөрчлөгдвөл эхний хуудас руу — эс тэгвэл хоосон хуудсан дээр үлдэнэ.
   const setSearch = useCallback((value: string) => {
@@ -87,10 +99,10 @@ export function useDataTableState({ pageSize = 20 }: { pageSize?: number } = {})
     () => ({
       page,
       pageSize,
-      search,
+      search: debouncedSearch,
       sort: sort ? `${sort.desc ? "-" : ""}${sort.id}` : undefined,
     }),
-    [page, pageSize, search, sort],
+    [debouncedSearch, page, pageSize, sort],
   );
 
   return { page, setPage, pageSize, search, setSearch, sort, toggleSort, query };

@@ -15,6 +15,8 @@ export const emptyDeparture = (): DepartureFormValue => ({
 });
 
 export const emptySection = (): SectionFormValue => ({
+  id: crypto.randomUUID(),
+  _new: true,
   title: "",
   description: null,
   titleEn: null,

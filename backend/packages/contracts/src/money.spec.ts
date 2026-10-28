@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addVat, distribute, extractVat, formatMinor, roundHalfUp, toMinor } from "./money";
+import {
+  addVat,
+  distribute,
+  extractVat,
+  formatMinor,
+  multiplyMinor,
+  roundHalfUp,
+  toMinor,
+} from "./money";
 
 describe("Мөнгө", () => {
   it("хагасыг дээш, сөрөгт тэгш хэмтэй", () => {
@@ -47,5 +55,10 @@ describe("Мөнгө", () => {
     expect(toMinor(1200)).toBe(120_000);
     expect(formatMinor(120_000)).toContain("1");
     expect(formatMinor(120_000)).toContain("₮");
+  });
+
+  it("unit price-ийг тоо ширхгээр үржүүлнэ", () => {
+    expect(multiplyMinor(125_000, 3)).toBe(375_000);
+    expect(() => multiplyMinor(Number.MAX_SAFE_INTEGER, 2)).toThrow(RangeError);
   });
 });

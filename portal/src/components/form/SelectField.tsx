@@ -20,7 +20,11 @@ type SelectFieldProps<T extends FieldValues> = {
   placeholder?: string;
   description?: string;
   disabled?: boolean;
+  clearable?: boolean;
+  clearLabel?: string;
 };
+
+const EMPTY_VALUE = "__select_none__";
 
 // Radix Select нь жинхэнэ <input> биш тул register биш Controller ашиглана.
 export function SelectField<T extends FieldValues>({
@@ -30,6 +34,8 @@ export function SelectField<T extends FieldValues>({
   placeholder = "Сонгоно уу",
   description,
   disabled,
+  clearable = false,
+  clearLabel = "Сонголтгүй",
 }: SelectFieldProps<T>) {
   const { control } = useFormContext<T>();
   const { message, errorId, invalid, describedBy } = useFieldError<T>(name);
@@ -41,11 +47,16 @@ export function SelectField<T extends FieldValues>({
         control={control}
         name={name}
         render={({ field }) => (
-          <Select value={field.value ?? ""} onValueChange={field.onChange} disabled={disabled}>
+          <Select
+            value={field.value ?? ""}
+            onValueChange={(value) => field.onChange(value === EMPTY_VALUE ? null : value)}
+            disabled={disabled}
+          >
             <SelectTrigger id={name} aria-invalid={invalid} aria-describedby={describedBy}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
+              {clearable ? <SelectItem value={EMPTY_VALUE}>{clearLabel}</SelectItem> : null}
               {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

@@ -1,5 +1,5 @@
 import type { audit } from "@/api/generated/contracts";
 import { api } from "@/lib/api/apiClient";
 
-export const listAudit = (query: audit.ListAuditQuery) =>
-  api.get<audit.ListAuditResponse>("/audit", { query });
+export const listAudit = (query: audit.ListAuditQuery, signal?: AbortSignal) =>
+  api.get<audit.ListAuditResponse>("/audit", { query, signal });

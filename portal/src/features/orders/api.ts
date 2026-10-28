@@ -1,8 +1,14 @@
 import type { orders } from "@/api/generated/contracts";
 import { api } from "@/lib/api/apiClient";
 
-export const listOrders = (query: orders.ListAdminOrdersQuery) =>
-  api.get<orders.ListAdminOrdersResponse>("/orders", { query });
+export const listOrders = (query: orders.ListAdminOrdersQuery, signal?: AbortSignal) =>
+  api.get<orders.ListAdminOrdersResponse>("/orders", { query, signal });
+
+export const listOrderDepartureOptions = (signal?: AbortSignal) =>
+  api.get<orders.ListAdminOrderDepartureOptionsResponse>("/orders/departure-options", { signal });
+
+export const getOrderDashboard = (days: orders.OrderDashboard["days"], signal?: AbortSignal) =>
+  api.get<orders.OrderDashboard>("/orders/dashboard", { query: { days }, signal });
 
 export const createOrder = (input: orders.CreateAdminOrderInput) =>
   api.post<orders.AdminOrder>("/orders", input);

@@ -196,6 +196,7 @@ const sectionInputSchema = z
   .object({
     id: z.uuid().optional(),
     version: z.number().int().min(0).optional(),
+    _new: z.boolean().optional(),
     _delete: z.boolean().optional(),
     title: z.string().trim().min(1).max(200),
     description: nullableText,
@@ -209,7 +210,7 @@ const sectionInputSchema = z
     images: z.array(z.string()).default([]),
     sortOrder: z.number().int().default(0),
   })
-  .refine((value) => !value.id || value.version !== undefined, {
+  .refine((value) => !value.id || value._new || value.version !== undefined, {
     message: "Засах бүлэгт version заавал хэрэгтэй",
   });
 const detailInputSchema = z

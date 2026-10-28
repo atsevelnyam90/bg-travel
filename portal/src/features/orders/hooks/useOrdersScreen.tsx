@@ -12,16 +12,30 @@ import {
   useDataTable,
   useDataTableState,
 } from "@/components/data";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/features/auth";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import { confirmOrder, createOrder, deleteOrder, listOrders, updateOrder } from "../api";
+import {
+  confirmOrder,
+  createOrder,
+  deleteOrder,
+  listOrderDepartureOptions,
+  listOrders,
+  updateOrder,
+} from "../api";
+import { orderStatusLabels } from "../labels";
 
 const keys = {
   all: ["orders"] as const,
   list: (query: object) => ["orders", "list", query] as const,
+  departureOptions: ["orders", "departure-options"] as const,
 };
 
 export function useOrdersScreen() {
+  const { can } = usePermissions();
+  const canWrite = can("order:write");
+  const canDelete = can("order:delete");
   const queryClient = useQueryClient();
   const state = useDataTableState({ pageSize: 20 });
   const [editorOpen, setEditorOpen] = useState(false);
@@ -30,20 +44,31 @@ export function useOrdersScreen() {
   const [confirming, setConfirming] = useState<orders.AdminOrder | null>(null);
   const query = useQuery({
     queryKey: keys.list(state.query),
-    queryFn: () => listOrders(state.query),
+    queryFn: ({ signal }) => listOrders(state.query, signal),
     placeholderData: keepPreviousData,
   });
+  const departureOptions = useQuery({
+    queryKey: keys.departureOptions,
+    queryFn: ({ signal }) => listOrderDepartureOptions(signal),
+    enabled: editorOpen && canWrite,
+  });
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.all });
-  const createMutation = useMutation({ mutationFn: createOrder, onSuccess: invalidate });
+  const createMutation = useMutation({
+    mutationFn: createOrder,
+    onSuccess: () => void invalidate(),
+  });
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: orders.UpdateAdminOrderInput }) =>
       updateOrder(id, input),
-    onSuccess: invalidate,
+    onSuccess: () => void invalidate(),
   });
-  const deleteMutation = useMutation({ mutationFn: deleteOrder, onSuccess: invalidate });
+  const deleteMutation = useMutation({
+    mutationFn: deleteOrder,
+    onSuccess: () => void invalidate(),
+  });
   const confirmMutation = useMutation({
     mutationFn: ({ id, version }: { id: string; version: number }) => confirmOrder(id, { version }),
-    onSuccess: invalidate,
+    onSuccess: () => void invalidate(),
   });
 
   const columns = useMemo<DataTableColumnDef<orders.AdminOrder>[]>(
@@ -64,7 +89,7 @@ export function useOrdersScreen() {
               <CircleCheck className="size-4" />
               Баталгаажсан
             </span>
-          ) : (
+          ) : canWrite ? (
             <Button
               size="sm"
               variant="outline"
@@ -76,6 +101,8 @@ export function useOrdersScreen() {
             >
               Баталгаажуулах
             </Button>
+          ) : (
+            <span className="text-muted-foreground text-sm">Хүлээгдэж байна</span>
           ),
       },
       {
@@ -124,9 +151,13 @@ export function useOrdersScreen() {
       },
       {
         id: "status",
-        header: "Төлөв",
+        header: "Төлбөрийн төлөв",
         meta: { sortable: true },
-        cell: ({ row }) => row.original.status,
+        cell: ({ row }) => (
+          <Badge variant={row.original.status === "PAID" ? "secondary" : "outline"}>
+            {orderStatusLabels[row.original.status]}
+          </Badge>
+        ),
       },
       {
         id: "actions",
@@ -135,20 +166,28 @@ export function useOrdersScreen() {
         enableHiding: false,
         cell: ({ row }) => (
           <RowActions
-            onEdit={(event) => {
-              event.stopPropagation();
-              setEditing(row.original);
-              setEditorOpen(true);
-            }}
-            onDelete={(event) => {
-              event.stopPropagation();
-              setDeleting(row.original);
-            }}
+            onEdit={
+              canWrite
+                ? (event) => {
+                    event.stopPropagation();
+                    setEditing(row.original);
+                    setEditorOpen(true);
+                  }
+                : undefined
+            }
+            onDelete={
+              canDelete
+                ? (event) => {
+                    event.stopPropagation();
+                    setDeleting(row.original);
+                  }
+                : undefined
+            }
           />
         ),
       },
     ],
-    [],
+    [canDelete, canWrite],
   );
   const rows = useMemo(() => query.data?.items ?? [], [query.data]);
 
@@ -176,6 +215,9 @@ export function useOrdersScreen() {
       getRowId: (row) => row.id,
     }),
     isLoading: query.isPending,
+    canWrite,
+    departureOptions: departureOptions.data ?? [],
+    departureOptionsLoading: departureOptions.isPending,
     editorOpen,
     editing,
     deleting,

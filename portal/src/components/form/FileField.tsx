@@ -1,14 +1,15 @@
 "use client";
 
 import { Loader2, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, type FieldValues, type Path, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import type { files } from "@/api/generated/contracts";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
-import { uploadFile } from "@/lib/api/upload";
+import { isUploadAbort, uploadFile } from "@/lib/api/upload";
+import { useOptionalFormUploads } from "./FormUploadProvider";
 import { useFieldError } from "./useFieldError";
 
 type FileFieldProps<T extends FieldValues> = {
@@ -31,6 +32,10 @@ export function FileField<T extends FieldValues>({
   const { message, errorId, invalid, describedBy } = useFieldError<T>(name);
   const [isUploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const uploads = useOptionalFormUploads();
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   return (
     <Field data-invalid={invalid}>
@@ -51,13 +56,21 @@ export function FileField<T extends FieldValues>({
               onChange={async (event) => {
                 const file = event.target.files?.[0];
                 if (!file) return;
+                abortRef.current?.abort();
+                const controller = new AbortController();
+                abortRef.current = controller;
+                const finishUpload = uploads?.beginUpload();
                 setUploading(true);
                 try {
-                  field.onChange(await uploadFile(file, scope));
+                  field.onChange(await uploadFile(file, scope, controller.signal));
                 } catch (error) {
-                  toast.error(apiErrorMessage(error, "Файл байршуулж чадсангүй"));
+                  if (!isUploadAbort(error)) {
+                    toast.error(apiErrorMessage(error, "Файл байршуулж чадсангүй"));
+                  }
                 } finally {
+                  finishUpload?.();
                   setUploading(false);
+                  abortRef.current = null;
                   // Ижил файлыг дахин сонгоход onChange асахын тулд цэвэрлэнэ.
                   event.target.value = "";
                 }

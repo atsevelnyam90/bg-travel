@@ -26,6 +26,6 @@ export function useUpdateOrganization() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateOrganization,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: orgKeys.all }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: orgKeys.all }),
   });
 }

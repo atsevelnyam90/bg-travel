@@ -125,14 +125,23 @@ export function useTravelSectionsEditor() {
 
   function removeSection(index: number) {
     const row = form.getValues(`sections.${index}`);
-    if (row.id) {
+    if (row.id && !row._new) {
       detailValues.forEach((detail, detailIndex) => {
         if (detail.sectionId === row.id) {
           form.setValue(`details.${detailIndex}.sectionId`, null, { shouldDirty: true });
         }
       });
       sections.update(index, { ...row, _delete: true });
-    } else sections.remove(index);
+    } else {
+      if (row.id) {
+        detailValues.forEach((detail, detailIndex) => {
+          if (detail.sectionId === row.id) {
+            form.setValue(`details.${detailIndex}.sectionId`, null, { shouldDirty: true });
+          }
+        });
+      }
+      sections.remove(index);
+    }
   }
 
   return {

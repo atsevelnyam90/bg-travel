@@ -72,6 +72,14 @@ export function applyPercent(amountMinor: Minor, percent: number): Minor {
   return roundHalfUp((amountMinor * percent) / 100);
 }
 
+export function multiplyMinor(unitMinor: Minor, quantity: number): Minor {
+  const total = unitMinor * quantity;
+  if (!Number.isSafeInteger(total)) {
+    throw new RangeError("Мөнгөн дүн боловсруулах хэмжээнээс хэтэрсэн байна");
+  }
+  return total;
+}
+
 /**
  * Нийт дүнг хэсгүүдэд ХУВААРИЛНА (хөнгөлөлт, хүргэлтийн зардал г.м).
  *

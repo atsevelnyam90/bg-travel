@@ -36,12 +36,15 @@ export function UserEditor({
         version: user.version,
       });
   }, [form, user]);
+  const close = () => {
+    if (!isSaving) onClose();
+  };
   return (
     <EditorSheet
       open={Boolean(user)}
       title="Хэрэглэгч засах"
       description={user?.email ?? ""}
-      onClose={onClose}
+      onClose={close}
     >
       <FormProvider {...form}>
         <form className="flex min-h-0 flex-1 flex-col" onSubmit={form.handleSubmit(onSave)}>
@@ -62,14 +65,15 @@ export function UserEditor({
                 name="roleId"
                 label="Role"
                 options={roles.map((role) => ({ value: role.id, label: role.name }))}
+                clearable
               />
             </div>
           </FieldGroup>
           <div className="flex justify-end gap-2 border-t px-5 py-3">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={close} disabled={isSaving}>
               Болих
             </Button>
-            <Button type="submit" disabled={isSaving}>
+            <Button type="submit" disabled={isSaving || !form.formState.isDirty}>
               {isSaving ? "Хадгалж байна…" : "Хадгалах"}
             </Button>
           </div>

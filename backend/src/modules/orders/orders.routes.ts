@@ -8,6 +8,8 @@ import {
   confirmAdminOrder,
   createAdminOrder,
   deleteAdminOrder,
+  getOrderDashboard,
+  listAdminOrderDepartureOptions,
   listAdminOrders,
   updateAdminOrder,
 } from "./adminOrderService";
@@ -20,6 +22,23 @@ ordersRouter.get(
   requirePermission("order:read"),
   asyncHandler(async (req, res) => {
     res.json(await listAdminOrders(ordersContract.listAdminOrdersQuerySchema.parse(req.query)));
+  }),
+);
+
+ordersRouter.get(
+  "/departure-options",
+  requirePermission("order:write"),
+  asyncHandler(async (_req, res) => {
+    res.json(await listAdminOrderDepartureOptions());
+  }),
+);
+
+ordersRouter.get(
+  "/dashboard",
+  requirePermission("order:read"),
+  asyncHandler(async (req, res) => {
+    const { days } = ordersContract.orderDashboardQuerySchema.parse(req.query);
+    res.json(await getOrderDashboard(days));
   }),
 );
 

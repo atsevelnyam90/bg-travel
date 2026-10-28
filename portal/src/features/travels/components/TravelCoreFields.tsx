@@ -1,6 +1,7 @@
 "use client";
 
 import { FileField, NumberField, SelectField, TextField } from "@/components/form";
+import { travelCategoryOptions, travelStatusOptions } from "../labels";
 import type { TravelFormValues } from "../travelFormValues";
 import { TravelRichTextField } from "./TravelRichTextField";
 
@@ -17,22 +18,14 @@ export function TravelGeneralFields() {
         <SelectField<TravelFormValues>
           name="category"
           label="Ангилал"
-          options={[
-            { label: "Дотоод аялал", value: "DOMESTIC" },
-            { label: "Гадаад аялал", value: "INTERNATIONAL" },
-            { label: "Хуримын аялал", value: "WEDDING" },
-          ]}
+          options={travelCategoryOptions}
         />
       </div>
       <div className="md:col-span-6">
         <SelectField<TravelFormValues>
           name="status"
           label="Нийтлэх төлөв"
-          options={[
-            { label: "Ноорог", value: "DRAFT" },
-            { label: "Нийтэлсэн", value: "PUBLISHED" },
-            { label: "Архив", value: "ARCHIVED" },
-          ]}
+          options={travelStatusOptions}
         />
       </div>
       <div className="md:col-span-12">

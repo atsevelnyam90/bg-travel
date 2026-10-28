@@ -11,6 +11,7 @@ export const organizationSchema = z.object({
   bankCode: z.string().nullable(),
   bankAccount: z.string().nullable(),
   bankAccountName: z.string().nullable(),
+  version: z.number().int().min(0),
 });
 export type Organization = z.infer<typeof organizationSchema>;
 
@@ -33,6 +34,7 @@ export const updateOrganizationSchema = z.object({
   // 2025 оноос ашиглаж буй Монгол IBAN болон хуучин numeric дансыг дэмжинэ.
   bankAccount: bankAccountSchema.nullable().optional(),
   bankAccountName: z.string().max(100).nullable().optional(),
+  version: z.number().int().min(0),
 });
 export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>;
 

@@ -10,6 +10,7 @@ import {
   useDataTable,
   useDataTableState,
 } from "@/components/data";
+import { usePermissions } from "@/features/auth";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { disableUser, inviteUser, listRoles, listUsers, updateUser } from "../api";
 
@@ -19,6 +20,11 @@ const keys = {
 };
 
 export function useUsersScreen() {
+  const { can } = usePermissions();
+  const canReadRoles = can("role:read");
+  const canEdit = can("user:update") && canReadRoles;
+  const canInvite = can("user:invite") && canReadRoles;
+  const canDisable = can("user:disable");
   const queryClient = useQueryClient();
   const state = useDataTableState({ pageSize: 20 });
   const [editing, setEditing] = useState<users.User | null>(null);
@@ -26,18 +32,28 @@ export function useUsersScreen() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const query = useQuery({
     queryKey: keys.list(state.query),
-    queryFn: () => listUsers(state.query),
+    queryFn: ({ signal }) => listUsers(state.query, signal),
     placeholderData: keepPreviousData,
   });
-  const roles = useQuery({ queryKey: [...keys.all, "roles"], queryFn: listRoles });
+  const roles = useQuery({
+    queryKey: [...keys.all, "roles"],
+    queryFn: ({ signal }) => listRoles(signal),
+    enabled: canReadRoles,
+  });
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.all });
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: users.UpdateUserInput }) =>
       updateUser(id, input),
-    onSuccess: invalidate,
+    onSuccess: () => void invalidate(),
   });
-  const deleteMutation = useMutation({ mutationFn: disableUser, onSuccess: invalidate });
-  const inviteMutation = useMutation({ mutationFn: inviteUser, onSuccess: invalidate });
+  const deleteMutation = useMutation({
+    mutationFn: disableUser,
+    onSuccess: () => void invalidate(),
+  });
+  const inviteMutation = useMutation({
+    mutationFn: inviteUser,
+    onSuccess: () => void invalidate(),
+  });
   const columns = useMemo<DataTableColumnDef<users.User>[]>(
     () => [
       { id: "name", header: "Нэр", meta: { sortable: true }, cell: ({ row }) => row.original.name },
@@ -65,19 +81,27 @@ export function useUsersScreen() {
         enableHiding: false,
         cell: ({ row }) => (
           <RowActions
-            onEdit={(event) => {
-              event.stopPropagation();
-              setEditing(row.original);
-            }}
-            onDelete={(event) => {
-              event.stopPropagation();
-              setDeleting(row.original);
-            }}
+            onEdit={
+              canEdit
+                ? (event) => {
+                    event.stopPropagation();
+                    setEditing(row.original);
+                  }
+                : undefined
+            }
+            onDelete={
+              canDisable
+                ? (event) => {
+                    event.stopPropagation();
+                    setDeleting(row.original);
+                  }
+                : undefined
+            }
           />
         ),
       },
     ],
-    [roles.data],
+    [canDisable, canEdit, roles.data],
   );
   const rows = useMemo(() => query.data?.items ?? [], [query.data]);
 
@@ -91,6 +115,8 @@ export function useUsersScreen() {
     }),
     roles: roles.data ?? [],
     isLoading: query.isPending,
+    canEdit,
+    canInvite,
     editing,
     deleting,
     inviteOpen,

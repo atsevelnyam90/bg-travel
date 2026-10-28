@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { FormProvider, type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { travels as travelSchemas, type travels } from "@/api/generated/contracts";
+import { FormUploadProvider, useFormUploads } from "@/components/form";
 import { EditorSheet } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,22 +23,26 @@ import {
   TravelSectionsFields,
 } from "./TravelRelatedFields";
 
-export function TravelEditor({
-  open,
-  loading,
-  travel,
-  isSaving,
-  onClose,
-  onSave,
-}: {
+type TravelEditorProps = {
   open: boolean;
   loading: boolean;
   travel: travels.AdminTravel | null;
   isSaving: boolean;
   onClose(): void;
   onSave(input: travels.CreateAdminTravelInput | travels.UpdateAdminTravelInput): Promise<void>;
-}) {
+};
+
+export function TravelEditor(props: TravelEditorProps) {
+  return (
+    <FormUploadProvider>
+      <TravelEditorForm {...props} />
+    </FormUploadProvider>
+  );
+}
+
+function TravelEditorForm({ open, loading, travel, isSaving, onClose, onSave }: TravelEditorProps) {
   const [activeTab, setActiveTab] = useState("general");
+  const { isUploading } = useFormUploads();
   const form = useForm<TravelFormValues>({
     resolver: zodResolver(
       travelSchemas.updateAdminTravelSchema.partial({ version: true }),
@@ -51,12 +56,21 @@ export function TravelEditor({
     else if (!loading) form.reset(emptyTravel());
   }, [form, loading, open, travel]);
 
+  const isBusy = isSaving || isUploading;
+  const close = () => {
+    if (isBusy) {
+      toast.error(isUploading ? "Файл байршуулж дуусаагүй байна" : "Хадгалж дуусаагүй байна");
+      return;
+    }
+    onClose();
+  };
+
   return (
     <EditorSheet
       open={open}
       title={travel ? "Аялал засах" : "Аялал нэмэх"}
       description={travel?.name ?? "Аяллын мэдээлэл, гаралт, хөтөлбөр"}
-      onClose={onClose}
+      onClose={close}
     >
       {loading ? (
         <div className="space-y-4 p-5">
@@ -69,6 +83,10 @@ export function TravelEditor({
             className="flex min-h-0 flex-1 flex-col"
             onSubmit={form.handleSubmit(
               async (rawValues) => {
+                if (isUploading) {
+                  toast.error("Файл байршуулж дууссаны дараа хадгална уу");
+                  return;
+                }
                 const values = normalizeTravelForm(rawValues);
                 if (travel) {
                   await onSave({
@@ -157,11 +175,11 @@ export function TravelEditor({
               </div>
             </Tabs>
             <div className="flex justify-end gap-2 border-t bg-background px-5 py-3">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={close} disabled={isBusy}>
                 Болих
               </Button>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Хадгалж байна…" : "Хадгалах"}
+              <Button type="submit" disabled={isBusy || !form.formState.isDirty}>
+                {isUploading ? "Файл байршуулж байна…" : isSaving ? "Хадгалж байна…" : "Хадгалах"}
               </Button>
             </div>
           </form>

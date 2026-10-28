@@ -2,7 +2,7 @@
 
 import type { organization as orgContract } from "@winu/contracts";
 import { banks, qr } from "@winu/mn-integrations";
-import { badRequest, notFound } from "@/lib/errors";
+import { badRequest, conflict, notFound } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { generateReference } from "./paymentReference";
 
@@ -14,6 +14,7 @@ const SELECT = {
   bankCode: true,
   bankAccount: true,
   bankAccountName: true,
+  version: true,
 } as const;
 
 /**
@@ -40,17 +41,21 @@ export async function updateOrganization(
 
   const current = await getOrganization();
 
-  return prisma.organization.update({
-    where: { id: current.id },
+  const result = await prisma.organization.updateMany({
+    where: { id: current.id, version: input.version },
     data: {
       name: input.name,
       logoUrl: input.logoUrl ?? null,
       bankCode: input.bankCode ?? null,
       bankAccount: input.bankAccount ?? null,
       bankAccountName: input.bankAccountName ?? null,
+      version: { increment: 1 },
     },
-    select: SELECT,
   });
+  if (result.count === 0) {
+    throw conflict("Тохиргоог өөр хэрэглэгч зэрэг заслаа. Дахин ачаална уу.");
+  }
+  return prisma.organization.findFirstOrThrow({ where: { id: current.id }, select: SELECT });
 }
 
 /** Монголбанкны оролцогч банкууд — сонгох жагсаалтад. */
