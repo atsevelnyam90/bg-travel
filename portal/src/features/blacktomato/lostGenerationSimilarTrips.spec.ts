@@ -63,6 +63,12 @@ describe("similar trips", () => {
 
     const section = snapshot.querySelector("[data-bg-travel-similar-trips]");
     expect(section?.textContent).toContain("ТӨСТЭЙ АЯЛЛУУД");
+    expect(section?.classList.contains("bg-headings")).toBe(true);
+    expect(section?.classList.contains("colour-scheme-dark")).toBe(true);
+    expect(section?.classList.contains("layout-carousel")).toBe(true);
+    const desktopIntro = section?.querySelector<HTMLElement>(".intro--desktop");
+    expect(desktopIntro?.style.flex).toBe("0 0 310px");
+    expect(desktopIntro?.style.width).toBe("310px");
     expect(section?.textContent).toContain("5 ӨДӨР");
     expect(section?.textContent).toContain("same-category аялал");
     expect(section?.textContent).toContain("АЯЛАЛТАЙ ТАНИЛЦАХ");
@@ -71,5 +77,17 @@ describe("similar trips", () => {
     expect(section?.querySelector<HTMLAnchorElement>(".card__title a")?.getAttribute("href")).toBe(
       "/trip-detail?slug=same-category",
     );
+  });
+
+  it("uses the branded placeholder when a related trip has no image", () => {
+    const snapshot = document.implementation.createHTMLDocument("Snapshot");
+    snapshot.body.innerHTML = "<main></main>";
+    const tripWithoutImage = { ...sameCategory, coverImage: null };
+
+    hydrateSimilarTrips(snapshot, [tripWithoutImage], labels);
+
+    const image = snapshot.querySelector<HTMLImageElement>(".card__image");
+    expect(image?.getAttribute("src")).toContain("bg-swirl-dark.jpg");
+    expect(image?.hasAttribute("data-travel-image-placeholder")).toBe(true);
   });
 });

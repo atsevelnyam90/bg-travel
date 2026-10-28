@@ -17,7 +17,7 @@ export function BlackTomatoLostGenerationSnapshotPage() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug")?.trim() ?? "";
   const travelQuery = usePublicTravel(slug);
-  const travelsQuery = usePublicTravels();
+  const travelsQuery = usePublicTravels(travelQuery.data?.category, Boolean(travelQuery.data));
   const frameRef = useRef<HTMLIFrameElement>(null);
 
   const hydrateFrame = useCallback(() => {

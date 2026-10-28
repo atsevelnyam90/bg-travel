@@ -30,8 +30,8 @@ export const publicRouter: Router = Router();
 publicRouter.get(
   "/travels",
   asyncHandler(async (req, res) => {
-    const { locale } = travelsContract.publicTravelsQuerySchema.parse(req.query);
-    res.json(await listPublicTravels(locale));
+    const { category, locale } = travelsContract.publicTravelsQuerySchema.parse(req.query);
+    res.json(await listPublicTravels(locale, category));
   }),
 );
 

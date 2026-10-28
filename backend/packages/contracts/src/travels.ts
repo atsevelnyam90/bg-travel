@@ -4,7 +4,10 @@ import { paginatedSchema, paginationQuerySchema } from "./shared";
 export const publicTravelLocaleSchema = z.enum(["mn", "en", "zh", "ko"]);
 export type PublicTravelLocale = z.infer<typeof publicTravelLocaleSchema>;
 
+export const travelCategorySchema = z.enum(["DOMESTIC", "INTERNATIONAL", "WEDDING"]);
+
 export const publicTravelsQuerySchema = z.object({
+  category: travelCategorySchema.optional(),
   locale: publicTravelLocaleSchema.default("mn"),
 });
 export type PublicTravelsQuery = z.infer<typeof publicTravelsQuerySchema>;
@@ -44,7 +47,7 @@ export const publicTravelSchema = z.object({
   destinationLabel: z.string().nullable(),
   tagline: z.string().nullable(),
   description: z.string().nullable(),
-  category: z.enum(["DOMESTIC", "INTERNATIONAL", "WEDDING"]),
+  category: travelCategorySchema,
   coverImage: z.string().nullable(),
   durationDays: z.number().int().positive(),
   details: z.array(publicTravelDetailSchema),
@@ -59,7 +62,6 @@ export type ListPublicTravelsResponse = z.infer<typeof listPublicTravelsResponse
 export const getPublicTravelResponseSchema = publicTravelSchema;
 export type GetPublicTravelResponse = z.infer<typeof getPublicTravelResponseSchema>;
 
-export const travelCategorySchema = z.enum(["DOMESTIC", "INTERNATIONAL", "WEDDING"]);
 export const travelStatusSchema = z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]);
 export const travelTransportTypeSchema = z.enum(["GROUND", "DIRECT_FLIGHT"]);
 

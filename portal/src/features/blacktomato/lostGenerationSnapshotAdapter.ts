@@ -6,6 +6,7 @@ import {
   type SimilarTripsLabels,
 } from "./lostGenerationSimilarTrips";
 import { hydrateSnapshotGallery } from "./lostGenerationSnapshotCarousel";
+import { resolveTravelImage } from "./lostGenerationTravelImage";
 
 const SNAPSHOT_OVERRIDE_ID = "bg-travel-snapshot-overrides";
 const SNAPSHOT_LAYOUT_BODY_CLASS = "post-template-template-experience-superitinerary";
@@ -147,11 +148,12 @@ function hydrateHero(document: Document, travel: travels.PublicTravel): void {
   labels[0]?.toggleAttribute("hidden", !travel.destinationLabel);
   labels[1]?.toggleAttribute("hidden", !travel.tagline);
 
-  if (travel.coverImage) {
-    hero.querySelectorAll<HTMLElement>(".banner__image").forEach((image) => {
-      image.style.backgroundImage = `url("${travel.coverImage}")`;
-    });
-  }
+  const travelImage = resolveTravelImage(travel);
+  hero.querySelectorAll<HTMLElement>(".banner__image").forEach((image) => {
+    image.style.backgroundAttachment = "fixed";
+    image.style.backgroundImage = `url("${travelImage.src}")`;
+    image.toggleAttribute("data-travel-image-placeholder", travelImage.isPlaceholder);
+  });
 }
 
 function hydrateNavigation(document: Document, travel: travels.PublicTravel): void {

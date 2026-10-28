@@ -30,6 +30,7 @@ function dateOnly(value: Date): string {
 
 async function publicTravelRows(
   where?: {
+    category?: travelsContract.PublicTravel["category"];
     slug?: string;
   },
   locale: PublicTravelLocale = "mn",
@@ -289,8 +290,9 @@ async function publicTravelRows(
 
 export async function listPublicTravels(
   locale: PublicTravelLocale = "mn",
+  category?: travelsContract.PublicTravel["category"],
 ): Promise<travelsContract.ListPublicTravelsResponse> {
-  const travels = await publicTravelRows(undefined, locale);
+  const travels = await publicTravelRows(category ? { category } : undefined, locale);
   return travels.filter((travel) => travel.slots.length > 0);
 }
 

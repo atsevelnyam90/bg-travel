@@ -1,4 +1,5 @@
 import type { travels } from "@/api/generated/contracts";
+import { resolveTravelImage } from "./lostGenerationTravelImage";
 
 const SIMILAR_TRIPS_SELECTOR = "[data-bg-travel-similar-trips]";
 const SECTION_SCOPE_ATTRIBUTE = "data-v-5ea7fae5";
@@ -43,6 +44,10 @@ function appendIntro(
   labels: SimilarTripsLabels,
 ): void {
   const intro = scopedElement(document, "div", `intro intro--${variant}`);
+  if (variant === "desktop") {
+    intro.style.flex = "0 0 310px";
+    intro.style.width = "310px";
+  }
   const tile = scopedElement(document, "div", "tile");
   const text = scopedElement(document, "div", "intro__text");
   const body = scopedElement(document, "div", "intro__body");
@@ -59,15 +64,6 @@ function appendIntro(
   parent.append(intro);
 }
 
-function firstTravelImage(travel: travels.PublicTravel): string | null {
-  return (
-    travel.coverImage ??
-    travel.itinerarySections.find((section) => section.images.length > 0)?.images[0] ??
-    travel.details.find((detail) => detail.images.length > 0)?.images[0] ??
-    null
-  );
-}
-
 function appendCard(
   document: Document,
   grid: HTMLElement,
@@ -77,19 +73,18 @@ function appendCard(
   const item = scopedElement(document, "div", "item");
   const card = scopedElement(document, "div", "card card--standard", CARD_SCOPE_ATTRIBUTE);
   const inner = scopedElement(document, "div", "card__inner", CARD_SCOPE_ATTRIBUTE);
-  const imageUrl = firstTravelImage(travel);
-  if (imageUrl) {
-    const image = scopedElement(
-      document,
-      "img",
-      "card__image card__image--not-clickable",
-      CARD_SCOPE_ATTRIBUTE,
-    );
-    image.alt = "";
-    image.loading = "lazy";
-    image.src = imageUrl;
-    inner.append(image);
-  }
+  const travelImage = resolveTravelImage(travel);
+  const image = scopedElement(
+    document,
+    "img",
+    "card__image card__image--not-clickable",
+    CARD_SCOPE_ATTRIBUTE,
+  );
+  image.alt = "";
+  image.loading = "lazy";
+  image.src = travelImage.src;
+  image.toggleAttribute("data-travel-image-placeholder", travelImage.isPlaceholder);
+  inner.append(image);
 
   const content = scopedElement(document, "div", "card__content", CARD_SCOPE_ATTRIBUTE);
   const duration = scopedElement(document, "div", "card__nights", CARD_SCOPE_ATTRIBUTE);
@@ -192,7 +187,7 @@ export function hydrateSimilarTrips(
   const section = scopedElement(
     document,
     "section",
-    "section colour-scheme-light layout-carousel bg-travel-similar-trips",
+    "section colour-scheme-dark layout-carousel bg-headings bg-travel-similar-trips",
   );
   section.dataset.bgTravelSimilarTrips = "";
   section.style.backgroundImage = "url('/wp-content/themes/blacktomato/dist/images/bg-swirl.png')";

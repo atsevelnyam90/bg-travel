@@ -83,6 +83,46 @@ describe("hydrateLostGenerationSnapshot", () => {
     expect(snapshot.querySelector(".content__read-more")?.textContent?.trim()).toBe("");
   });
 
+  it("restores the fixed desktop hero background when travel data is hydrated", () => {
+    const snapshot = createSnapshotDocument();
+    snapshot.body.innerHTML = `
+      <main>
+        <section class="section--hero-banner">
+          <div class="banner__image"></div>
+          <div class="container--absolute"><h1></h1></div>
+        </section>
+      </main>
+    `;
+    const travel = {
+      ...createTravel(null),
+      coverImage: "/images/formatted-trip.jpg",
+    };
+
+    hydrateLostGenerationSnapshot(snapshot, travel);
+
+    const heroImage = snapshot.querySelector<HTMLElement>(".banner__image");
+    expect(heroImage?.style.backgroundAttachment).toBe("fixed");
+    expect(heroImage?.style.backgroundImage).toContain("/images/formatted-trip.jpg");
+  });
+
+  it("uses the branded placeholder when the travel has no image", () => {
+    const snapshot = createSnapshotDocument();
+    snapshot.body.innerHTML = `
+      <main>
+        <section class="section--hero-banner">
+          <div class="banner__image"></div>
+          <div class="container--absolute"><h1></h1></div>
+        </section>
+      </main>
+    `;
+
+    hydrateLostGenerationSnapshot(snapshot, createTravel(null));
+
+    const heroImage = snapshot.querySelector<HTMLElement>(".banner__image");
+    expect(heroImage?.style.backgroundImage).toContain("bg-swirl-dark.jpg");
+    expect(heroImage?.hasAttribute("data-travel-image-placeholder")).toBe(true);
+  });
+
   it("preserves rich-text headings, marks, and lists inside the overview", () => {
     const snapshot = createSnapshotDocument();
     const overview = addOverview(snapshot);

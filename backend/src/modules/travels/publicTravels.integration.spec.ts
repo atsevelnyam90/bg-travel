@@ -243,6 +243,41 @@ describe("public travels", () => {
     }
   });
 
+  it("filters published travels by category", async () => {
+    const international = await prisma.travel.create({
+      data: {
+        name: "International journey",
+        slug: "international-journey",
+        category: "INTERNATIONAL",
+        status: "PUBLISHED",
+      },
+    });
+    const domestic = await prisma.travel.create({
+      data: {
+        name: "Domestic journey",
+        slug: "domestic-journey",
+        category: "DOMESTIC",
+        status: "PUBLISHED",
+      },
+    });
+    await prisma.travelDeparture.createMany({
+      data: [international, domestic].map((travel) => ({
+        travelId: travel.id,
+        departureDate: new Date("2026-11-05T00:00:00.000Z"),
+        returnDate: new Date("2026-11-12T00:00:00.000Z"),
+        transportType: "GROUND" as const,
+        unitPriceMinor: 100000000n,
+        capacity: 10,
+      })),
+    });
+
+    const response = await api().get(`${PREFIX}/public/travels?category=DOMESTIC`).expect(200);
+    const parsed = travelsContract.listPublicTravelsResponseSchema.parse(response.body);
+    expect(parsed.map((travel) => travel.slug)).toEqual(["domestic-journey"]);
+
+    await api().get(`${PREFIX}/public/travels?category=UNKNOWN`).expect(400);
+  });
+
   it("returns localized content and falls back to Mongolian per field", async () => {
     const travel = await prisma.travel.create({
       data: {
