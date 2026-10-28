@@ -90,6 +90,14 @@ export type ListAdminOrderDepartureOptionsResponse = z.infer<
 >;
 
 export const listAdminOrdersQuerySchema = paginationQuerySchema.extend({
+  publicOrderId: z.string().trim().min(1).max(20).optional(),
+  firstName: z.string().trim().min(1).max(100).optional(),
+  lastName: z.string().trim().min(1).max(100).optional(),
+  phone: z.string().trim().min(1).max(30).optional(),
+  serviceNameSnapshot: z.string().trim().min(1).max(255).optional(),
+  travelDate: z.iso.date().optional(),
+  travelerCount: z.coerce.number().int().positive().optional(),
+  totalPriceMinor: z.coerce.number().int().min(0).max(Number.MAX_SAFE_INTEGER).optional(),
   status: orderStatusSchema.optional(),
 });
 export type ListAdminOrdersQuery = z.infer<typeof listAdminOrdersQuerySchema>;
@@ -104,11 +112,24 @@ export type OrderDashboardQuery = z.infer<typeof orderDashboardQuerySchema>;
 export const orderDashboardSchema = z.object({
   days: orderDashboardDaysSchema,
   totalOrders: z.number().int().min(0),
-  paidRevenueMinor: z.number().int().min(0),
+  totalTravelers: z.number().int().min(0),
+  pending: z.object({
+    orderCount: z.number().int().min(0),
+    travelerCount: z.number().int().min(0),
+    amountMinor: z.number().int().min(0),
+    oldestCreatedAt: z.iso.datetime().nullable(),
+  }),
+  confirmed: z.object({
+    orderCount: z.number().int().min(0),
+    travelerCount: z.number().int().min(0),
+    revenueMinor: z.number().int().min(0),
+  }),
   daily: z.array(
     z.object({
       date: z.iso.date(),
       orders: z.number().int().min(0),
+      confirmedOrders: z.number().int().min(0),
+      pendingOrders: z.number().int().min(0),
       paidRevenueMinor: z.number().int().min(0),
     }),
   ),
@@ -121,6 +142,44 @@ export const orderDashboardSchema = z.object({
   ),
 });
 export type OrderDashboard = z.infer<typeof orderDashboardSchema>;
+
+export const orderDashboardDetailsScopeSchema = z.enum(["PERIOD", "PENDING_ALL"]);
+export const orderDashboardDetailsQuerySchema = orderDashboardQuerySchema.extend({
+  date: z.iso.date().optional(),
+  travelId: z.uuid().optional(),
+  scope: orderDashboardDetailsScopeSchema.default("PERIOD"),
+  search: z.string().trim().min(1).max(100).optional(),
+  travelName: z.string().trim().min(1).max(255).optional(),
+});
+export type OrderDashboardDetailsQuery = z.infer<typeof orderDashboardDetailsQuerySchema>;
+export const orderDashboardDetailItemSchema = z.object({
+  id: z.uuid(),
+  publicOrderId: z.string(),
+  customerName: z.string(),
+  serviceName: z.string(),
+  travelDate: z.iso.date(),
+  travelerCount: z.number().int().positive(),
+  totalPriceMinor: z.number().int().min(0),
+  status: orderStatusSchema,
+  createdAt: z.iso.datetime(),
+  confirmedAt: z.iso.datetime().nullable(),
+});
+export type OrderDashboardDetailItem = z.infer<typeof orderDashboardDetailItemSchema>;
+export const orderDashboardDetailsSchema = z.object({
+  totalOrders: z.number().int().min(0),
+  totalTravelers: z.number().int().min(0),
+  totalAmountMinor: z.number().int().min(0),
+  totalPaidOrders: z.number().int().min(0),
+  totalPaidTravelers: z.number().int().min(0),
+  paidRevenueMinor: z.number().int().min(0),
+  orderTripOptions: z.array(z.string()),
+  paidTripOptions: z.array(z.string()),
+  orders: z.array(orderDashboardDetailItemSchema),
+  paidOrders: z.array(orderDashboardDetailItemSchema),
+  hasMoreOrders: z.boolean(),
+  hasMorePaidOrders: z.boolean(),
+});
+export type OrderDashboardDetails = z.infer<typeof orderDashboardDetailsSchema>;
 
 const adminOrderInputBaseSchema = z.object({
   publicOrderId: z.string().trim().min(1).max(20),

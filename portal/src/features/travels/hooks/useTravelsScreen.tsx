@@ -13,7 +13,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { apiErrorMessage } from "@/lib/api/errorMessage";
 import { createTravel, deleteTravel, getTravel, listTravels, updateTravel } from "../api";
-import { travelCategoryLabels, travelStatusLabels } from "../labels";
+import {
+  travelCategoryLabels,
+  travelCategoryOptions,
+  travelStatusLabels,
+  travelStatusOptions,
+} from "../labels";
 
 const keys = {
   all: ["admin-travels"] as const,
@@ -56,19 +61,27 @@ export function useTravelsScreen() {
       {
         id: "name",
         header: "Аялал",
-        meta: { sortable: true },
+        meta: { sortable: true, label: "Аялал", filter: { type: "text", placeholder: "Нэр…" } },
         cell: ({ row }) => row.original.name,
       },
       {
         id: "category",
         header: "Ангилал",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Ангилал",
+          filter: { type: "select", options: travelCategoryOptions },
+        },
         cell: ({ row }) => travelCategoryLabels[row.original.category],
       },
       {
         id: "status",
         header: "Төлөв",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Төлөв",
+          filter: { type: "select", options: travelStatusOptions },
+        },
         cell: ({ row }) => (
           <Badge variant={row.original.status === "PUBLISHED" ? "default" : "outline"}>
             {travelStatusLabels[row.original.status]}
@@ -78,7 +91,12 @@ export function useTravelsScreen() {
       {
         id: "durationDays",
         header: "Хоног",
-        meta: { sortable: true, align: "right" },
+        meta: {
+          sortable: true,
+          align: "right",
+          label: "Хоног",
+          filter: { type: "number", min: 1, placeholder: "Хоног…" },
+        },
         cell: ({ row }) => <span className="tabular-nums">{row.original.durationDays}</span>,
       },
       {

@@ -24,13 +24,18 @@ import {
   listOrders,
   updateOrder,
 } from "../api";
-import { orderStatusLabels } from "../labels";
+import { orderStatusLabels, orderStatusOptions } from "../labels";
 
 const keys = {
   all: ["orders"] as const,
   list: (query: object) => ["orders", "list", query] as const,
   departureOptions: ["orders", "departure-options"] as const,
 };
+
+const confirmationOptions = [
+  { value: "AWAITING_PAYMENT", label: "Хүлээгдэж байна" },
+  { value: "PAID", label: "Баталгаажсан" },
+];
 
 export function useOrdersScreen() {
   const { can } = usePermissions();
@@ -76,13 +81,20 @@ export function useOrdersScreen() {
       {
         id: "publicOrderId",
         header: "Дугаар",
-        meta: { sortable: true, label: "Дугаар" },
+        meta: {
+          sortable: true,
+          label: "Дугаар",
+          filter: { type: "text", placeholder: "Дугаар…" },
+        },
         cell: ({ row }) => row.original.publicOrderId,
       },
       {
         id: "confirmation",
         header: "Баталгаажуулалт",
-        meta: { label: "Баталгаажуулалт" },
+        meta: {
+          label: "Баталгаажуулалт",
+          filter: { type: "select", key: "status", options: confirmationOptions },
+        },
         cell: ({ row }) =>
           row.original.status === "PAID" ? (
             <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-green-600 text-sm">
@@ -108,43 +120,69 @@ export function useOrdersScreen() {
       {
         id: "firstName",
         header: "Нэр",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Нэр",
+          filter: { type: "text", placeholder: "Нэр…" },
+        },
         cell: ({ row }) => row.original.firstName,
       },
       {
         id: "lastName",
         header: "Овог",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Овог",
+          filter: { type: "text", placeholder: "Овог…" },
+        },
         cell: ({ row }) => row.original.lastName,
       },
       {
         id: "phone",
         header: "Утас",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Утас",
+          filter: { type: "text", placeholder: "Утас…" },
+        },
         cell: ({ row }) => row.original.phone,
       },
       {
         id: "serviceNameSnapshot",
         header: "Аялал",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Аялал",
+          filter: { type: "text", placeholder: "Аялал…" },
+        },
         cell: ({ row }) => row.original.serviceNameSnapshot,
       },
       {
         id: "travelDate",
         header: "Аяллын огноо",
-        meta: { sortable: true },
+        meta: { sortable: true, label: "Аяллын огноо", filter: { type: "date" } },
         cell: ({ row }) => row.original.travelDate,
       },
       {
         id: "travelerCount",
         header: "Зорчигч",
-        meta: { sortable: true, align: "right" },
+        meta: {
+          sortable: true,
+          align: "right",
+          label: "Зорчигч",
+          filter: { type: "number", min: 1, placeholder: "Тоо…" },
+        },
         cell: ({ row }) => <span className="tabular-nums">{row.original.travelerCount}</span>,
       },
       {
         id: "totalPriceMinor",
         header: "Нийт үнэ",
-        meta: { sortable: true, align: "right" },
+        meta: {
+          sortable: true,
+          align: "right",
+          label: "Нийт үнэ",
+          filter: { type: "number", min: 0, placeholder: "Үнэ…" },
+        },
         cell: ({ row }) => (
           <span className="tabular-nums">{formatMinor(row.original.totalPriceMinor)}</span>
         ),
@@ -152,7 +190,11 @@ export function useOrdersScreen() {
       {
         id: "status",
         header: "Төлбөрийн төлөв",
-        meta: { sortable: true },
+        meta: {
+          sortable: true,
+          label: "Төлбөрийн төлөв",
+          filter: { type: "select", options: orderStatusOptions },
+        },
         cell: ({ row }) => (
           <Badge variant={row.original.status === "PAID" ? "secondary" : "outline"}>
             {orderStatusLabels[row.original.status]}

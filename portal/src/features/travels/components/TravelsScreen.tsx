@@ -15,7 +15,7 @@ export function TravelsScreen() {
         description="Аялал, гаралт, өдрийн хөтөлбөр."
         controller={screen.controller}
         isLoading={screen.isLoading}
-        searchPlaceholder="Нэр, slug-аар хайх…"
+        showSearch={false}
         emptyTitle="Аялал алга"
         onRowClick={(row, event) => {
           if ((event.target as HTMLElement).closest("[data-row-action]")) return;

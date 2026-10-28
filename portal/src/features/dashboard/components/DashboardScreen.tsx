@@ -1,6 +1,13 @@
 "use client";
 
-import { CalendarDays, CircleDollarSign, MapPinned, RefreshCw, ShoppingCart } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronRight,
+  CircleCheckBig,
+  Clock3,
+  MapPinned,
+  RefreshCw,
+} from "lucide-react";
 import type { orders } from "@/api/generated/contracts";
 import { formatMinor } from "@/api/generated/contracts/money";
 import { PageHeader } from "@/components/layout";
@@ -15,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardScreen } from "../hooks/useDashboardScreen";
+import { DashboardDetailsSheet } from "./DashboardDetailsSheet";
 
 type Daily = orders.OrderDashboard["daily"][number];
 
@@ -34,40 +42,60 @@ function DashboardLoading() {
   );
 }
 
-function DailyActivity({ daily }: { daily: Daily[] }) {
-  const activeDays = daily.filter((day) => day.orders > 0 || day.paidRevenueMinor > 0);
+function DailyActivity({ daily, onSelect }: { daily: Daily[]; onSelect(date: string): void }) {
+  const activeDays = daily.filter(
+    (day) =>
+      day.orders > 0 ||
+      day.confirmedOrders > 0 ||
+      day.pendingOrders > 0 ||
+      day.paidRevenueMinor > 0,
+  );
 
   return (
     <Card className="shadow-xs">
       <CardHeader>
         <CardTitle>Өдөр тутмын үзүүлэлт</CardTitle>
         <CardDescription>
-          Захиалгыг үүссэн өдрөөр, орлогыг төлбөр баталгаажсан өдрөөр тооцов.
+          Шинэ захиалгыг үүссэн өдрөөр, баталгаажуулалт болон орлогыг төлбөр баталгаажсан өдрөөр
+          тооцов. Хүлээгдэж буй захиалга үүссэн өдрөөрөө харагдана.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="hidden grid-cols-[6rem_6rem_minmax(0,1fr)] gap-3 border-b pb-3 text-muted-foreground text-xs font-medium sm:grid">
+        <div className="hidden grid-cols-[6.5rem_4rem_6.5rem_6.5rem_minmax(0,1fr)_1rem] gap-3 border-b pb-3 text-muted-foreground text-xs font-medium sm:grid">
           <span>Огноо</span>
-          <span>Захиалга</span>
-          <span className="text-right">Төлөгдсөн орлого</span>
+          <span>Шинэ</span>
+          <span>Баталгаажсан</span>
+          <span>Хүлээгдэж буй</span>
+          <span className="text-right">Орлого</span>
+          <span />
         </div>
         {activeDays.length ? (
           <ol className="divide-y">
             {[...activeDays].reverse().map((day) => (
-              <li
-                key={day.date}
-                className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 py-4 sm:grid-cols-[6rem_6rem_minmax(0,1fr)] sm:items-center sm:gap-3"
-              >
-                <time dateTime={day.date} className="font-medium text-sm">
-                  {day.date}
-                </time>
-                <span className="text-right text-sm tabular-nums sm:text-left">
-                  {day.orders}
-                  <span className="ml-1 text-muted-foreground text-xs sm:sr-only">захиалга</span>
-                </span>
-                <span className="col-span-2 text-right font-medium text-sm tabular-nums sm:col-span-1">
-                  {formatMinor(day.paidRevenueMinor)}
-                </span>
+              <li key={day.date}>
+                <button
+                  type="button"
+                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 rounded-md py-4 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:grid-cols-[6.5rem_4rem_6.5rem_6.5rem_minmax(0,1fr)_1rem] sm:items-center sm:gap-3"
+                  onClick={() => onSelect(day.date)}
+                  aria-label={`${day.date} өдрийн дэлгэрэнгүй`}
+                >
+                  <time dateTime={day.date} className="font-medium text-sm">
+                    {day.date}
+                  </time>
+                  <span className="hidden text-sm tabular-nums sm:block">{day.orders}</span>
+                  <span className="hidden text-sm tabular-nums sm:block">
+                    {day.confirmedOrders}
+                  </span>
+                  <span className="hidden text-sm tabular-nums sm:block">{day.pendingOrders}</span>
+                  <span className="text-right font-medium text-sm tabular-nums">
+                    {formatMinor(day.paidRevenueMinor)}
+                  </span>
+                  <ChevronRight className="hidden size-4 text-muted-foreground sm:block" />
+                  <span className="col-span-2 text-muted-foreground text-xs sm:hidden">
+                    Шинэ {day.orders} · Баталгаажсан {day.confirmedOrders} · Хүлээгдэж буй{" "}
+                    {day.pendingOrders}
+                  </span>
+                </button>
               </li>
             ))}
           </ol>
@@ -87,7 +115,11 @@ export function DashboardScreen() {
     <div className="space-y-6">
       <PageHeader
         title="Хяналтын самбар"
-        description="Захиалга, төлөгдсөн орлого болон эрэлттэй аяллын тойм."
+        description={
+          data
+            ? `Сонгосон ${screen.days} хоногт ${data.totalOrders} шинэ захиалга · ${data.totalTravelers} зорчигч.`
+            : "Захиалгын төлөв, орлого болон эрэлттэй аяллын тойм."
+        }
         actions={
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-sm">Хугацаа</span>
@@ -120,40 +152,77 @@ export function DashboardScreen() {
       ) : data ? (
         <>
           <div className="grid gap-4 md:grid-cols-2">
-            <Card data-size="sm" className="shadow-xs">
+            <Card
+              data-size="sm"
+              className="cursor-pointer border-primary/30 bg-primary/5 shadow-xs transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              role="button"
+              tabIndex={0}
+              aria-label="Төлбөр хүлээгдэж буй захиалгын дэлгэрэнгүй"
+              onClick={screen.showPending}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  screen.showPending();
+                }
+              }}
+            >
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <CardDescription>Нийт захиалга</CardDescription>
-                  <CardTitle className="text-3xl tabular-nums">{data.totalOrders}</CardTitle>
+                  <CardDescription>Төлбөр хүлээгдэж байна</CardDescription>
+                  <CardTitle className="text-3xl tabular-nums">{data.pending.orderCount}</CardTitle>
                 </div>
-                <div className="flex size-10 items-center justify-center rounded-lg border bg-muted">
-                  <ShoppingCart className="size-5 text-muted-foreground" />
+                <div className="flex size-10 items-center justify-center rounded-lg border border-primary/20 bg-background">
+                  <Clock3 className="size-5 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent className="text-muted-foreground text-sm">
-                Сонгосон хугацаанд үүссэн бүх захиалга
+              <CardContent className="space-y-1 text-sm">
+                <p className="font-medium tabular-nums">
+                  {data.pending.travelerCount} зорчигч · {formatMinor(data.pending.amountMinor)}
+                </p>
+                <p className="text-muted-foreground">
+                  {data.pending.oldestCreatedAt
+                    ? `Хамгийн хуучин: ${data.pending.oldestCreatedAt.slice(0, 10)}`
+                    : "Хүлээгдэж буй захиалга алга."}
+                </p>
               </CardContent>
             </Card>
-            <Card data-size="sm" className="shadow-xs">
+            <Card
+              data-size="sm"
+              className="cursor-pointer shadow-xs transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              role="button"
+              tabIndex={0}
+              aria-label="Баталгаажсан захиалгын дэлгэрэнгүй"
+              onClick={screen.showPaid}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  screen.showPaid();
+                }
+              }}
+            >
               <CardHeader className="flex flex-row items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <CardDescription>Төлөгдсөн орлого</CardDescription>
+                  <CardDescription>Баталгаажсан</CardDescription>
                   <CardTitle className="text-3xl tabular-nums">
-                    {formatMinor(data.paidRevenueMinor)}
+                    {data.confirmed.orderCount}
                   </CardTitle>
                 </div>
                 <div className="flex size-10 items-center justify-center rounded-lg border bg-muted">
-                  <CircleDollarSign className="size-5 text-muted-foreground" />
+                  <CircleCheckBig className="size-5 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent className="text-muted-foreground text-sm">
-                Төлбөр баталгаажсан захиалгын нийлбэр
+              <CardContent className="space-y-1 text-sm">
+                <p className="font-medium tabular-nums">
+                  {data.confirmed.travelerCount} зорчигч ·{" "}
+                  {formatMinor(data.confirmed.revenueMinor)}
+                </p>
+                <p className="text-muted-foreground">Сонгосон {screen.days} хоногт</p>
               </CardContent>
             </Card>
           </div>
 
           <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,1fr)]">
-            <DailyActivity daily={data.daily} />
+            <DailyActivity daily={data.daily} onSelect={screen.showDay} />
             <Card className="shadow-xs">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -166,17 +235,25 @@ export function DashboardScreen() {
                 {data.topTrips.length ? (
                   <ol className="divide-y border-t">
                     {data.topTrips.map((trip, index) => (
-                      <li key={trip.travelId} className="flex items-center gap-3 py-4">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xs tabular-nums">
-                          {index + 1}
-                        </span>
-                        <span className="min-w-0 flex-1 truncate font-medium text-sm">
-                          {trip.name}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-sm tabular-nums">
-                          <CalendarDays className="size-4 text-muted-foreground" />
-                          {trip.travelerCount}
-                        </span>
+                      <li key={trip.travelId}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-3 rounded-md py-4 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          onClick={() => screen.showTrip(trip.travelId, trip.name)}
+                          aria-label={`${trip.name} аяллын дэлгэрэнгүй`}
+                        >
+                          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xs tabular-nums">
+                            {index + 1}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate font-medium text-sm">
+                            {trip.name}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-sm tabular-nums">
+                            <CalendarDays className="size-4 text-muted-foreground" />
+                            {trip.travelerCount}
+                          </span>
+                          <ChevronRight className="size-4 text-muted-foreground" />
+                        </button>
                       </li>
                     ))}
                   </ol>
@@ -190,6 +267,20 @@ export function DashboardScreen() {
           </div>
         </>
       ) : null}
+      <DashboardDetailsSheet
+        selection={screen.selection}
+        days={screen.days}
+        data={screen.details.data}
+        loading={screen.details.isPending}
+        error={screen.details.isError}
+        filterSearch={screen.detailSearch}
+        filterTrip={screen.detailTrip}
+        onRetry={() => void screen.details.refetch()}
+        onFilterSearchChange={screen.setDetailSearch}
+        onFilterTripChange={screen.setDetailTrip}
+        onClearFilters={screen.clearDetailFilters}
+        onClose={screen.closeDetails}
+      />
     </div>
   );
 }

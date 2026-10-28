@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { DataTableColumnFilter } from "./DataTableColumnFilter";
 import type { DataTableController } from "./useDataTable";
 
 type DataTableProps<T extends RowData> = {
@@ -40,7 +41,9 @@ export function DataTable<T extends RowData>({
   onRowClick,
 }: DataTableProps<T>) {
   const { table, sort, toggleSort } = controller;
-  const columns = table.getAllLeafColumns();
+  const columns = table.getVisibleLeafColumns();
+  const rows = table.getRowModel().rows;
+  const hasColumnFilters = columns.some((column) => Boolean(column.columnDef.meta?.filter));
 
   if (isLoading) {
     return (
@@ -53,7 +56,7 @@ export function DataTable<T extends RowData>({
     );
   }
 
-  if (table.getRowModel().rows.length === 0) {
+  if (rows.length === 0 && !hasColumnFilters) {
     return (
       <Empty className="border-0 py-16">
         <EmptyHeader>
@@ -114,26 +117,48 @@ export function DataTable<T extends RowData>({
               })}
             </TableRow>
           ))}
+          {hasColumnFilters ? (
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={`${column.id}-filter`} className="h-10 px-2 py-1.5">
+                  <DataTableColumnFilter column={column} controller={controller} />
+                </TableHead>
+              ))}
+            </TableRow>
+          ) : null}
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() ? "selected" : undefined}
-              className={cn(onRowClick && "cursor-pointer")}
-              onClick={onRowClick ? (event) => onRowClick(row.original, event) : undefined}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className={cn("h-12 px-4", alignClass(cell.column.columnDef.meta?.align))}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-40 p-0">
+                <Empty className="border-0 py-10">
+                  <EmptyHeader>
+                    <EmptyTitle>{emptyTitle}</EmptyTitle>
+                    <EmptyDescription>{emptyDescription}</EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() ? "selected" : undefined}
+                className={cn(onRowClick && "cursor-pointer")}
+                onClick={onRowClick ? (event) => onRowClick(row.original, event) : undefined}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn("h-12 px-4", alignClass(cell.column.columnDef.meta?.align))}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 

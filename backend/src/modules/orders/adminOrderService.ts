@@ -79,6 +79,20 @@ export async function listAdminOrders(
   query: ordersContract.ListAdminOrdersQuery,
 ): Promise<ordersContract.ListAdminOrdersResponse> {
   const where: Prisma.OrderWhereInput = {
+    ...(query.publicOrderId
+      ? { publicOrderId: { contains: query.publicOrderId, mode: "insensitive" } }
+      : {}),
+    ...(query.firstName ? { firstName: { contains: query.firstName, mode: "insensitive" } } : {}),
+    ...(query.lastName ? { lastName: { contains: query.lastName, mode: "insensitive" } } : {}),
+    ...(query.phone ? { phone: { contains: query.phone, mode: "insensitive" } } : {}),
+    ...(query.serviceNameSnapshot
+      ? { serviceNameSnapshot: { contains: query.serviceNameSnapshot, mode: "insensitive" } }
+      : {}),
+    ...(query.travelDate ? { travelDate: new Date(`${query.travelDate}T00:00:00.000Z`) } : {}),
+    ...(query.travelerCount ? { travelerCount: query.travelerCount } : {}),
+    ...(query.totalPriceMinor !== undefined
+      ? { totalPriceMinor: BigInt(query.totalPriceMinor) }
+      : {}),
     ...(query.status ? { status: query.status } : {}),
     ...(query.search
       ? {
@@ -106,42 +120,65 @@ export async function listAdminOrders(
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DASHBOARD_DETAIL_LIMIT = 50;
+
+function dashboardDateRange(days: ordersContract.OrderDashboard["days"], date?: string) {
+  if (date) {
+    const start = mn.zonedStartOfDayUtc(new Date(`${date}T12:00:00.000Z`));
+    return { start, end: new Date(start.getTime() + DAY_MS) };
+  }
+  const todayStart = mn.zonedStartOfDayUtc(new Date());
+  const end = new Date(todayStart.getTime() + DAY_MS);
+  return { start: new Date(end.getTime() - days * DAY_MS), end };
+}
 
 export async function getOrderDashboard(
   days: ordersContract.OrderDashboard["days"],
 ): Promise<ordersContract.OrderDashboard> {
-  const todayStart = mn.zonedStartOfDayUtc(new Date());
-  const end = new Date(todayStart.getTime() + DAY_MS);
-  const start = new Date(end.getTime() - days * DAY_MS);
-  const [orders, paidOrders] = await Promise.all([
+  const { start, end } = dashboardDateRange(days);
+  const [orders, paidOrders, pendingOrders] = await Promise.all([
     prisma.order.findMany({
       where: { createdAt: { gte: start, lt: end } },
       select: {
         createdAt: true,
         serviceNameSnapshot: true,
+        status: true,
         travelerCount: true,
         travelDeparture: { select: { travelId: true } },
       },
     }),
     prisma.order.findMany({
       where: { status: "PAID", confirmedAt: { gte: start, lt: end } },
-      select: { confirmedAt: true, totalPriceMinor: true },
+      select: { confirmedAt: true, totalPriceMinor: true, travelerCount: true },
+    }),
+    prisma.order.findMany({
+      where: { status: "AWAITING_PAYMENT" },
+      orderBy: { createdAt: "asc" },
+      select: { createdAt: true, totalPriceMinor: true, travelerCount: true },
     }),
   ]);
   const daily = Array.from({ length: days }, (_, index) => ({
     date: mn.zonedParts(new Date(start.getTime() + index * DAY_MS)).dateKey,
     orders: 0,
+    confirmedOrders: 0,
+    pendingOrders: 0,
     paidRevenueMinor: 0n,
   }));
   const byDate = new Map(daily.map((day) => [day.date, day]));
   for (const order of orders) {
     const day = byDate.get(mn.zonedParts(order.createdAt).dateKey);
-    if (day) day.orders += 1;
+    if (day) {
+      day.orders += 1;
+      if (order.status === "AWAITING_PAYMENT") day.pendingOrders += 1;
+    }
   }
   for (const order of paidOrders) {
     if (!order.confirmedAt) continue;
     const day = byDate.get(mn.zonedParts(order.confirmedAt).dateKey);
-    if (day) day.paidRevenueMinor += order.totalPriceMinor;
+    if (day) {
+      day.confirmedOrders += 1;
+      day.paidRevenueMinor += order.totalPriceMinor;
+    }
   }
   const topTrips = new Map<string, { travelId: string; name: string; travelerCount: number }>();
   for (const order of orders) {
@@ -157,12 +194,30 @@ export async function getOrderDashboard(
   const responseDaily = daily.map((day) => ({
     date: day.date,
     orders: day.orders,
+    confirmedOrders: day.confirmedOrders,
+    pendingOrders: day.pendingOrders,
     paidRevenueMinor: safeMoney(day.paidRevenueMinor),
   }));
+  const paidRevenueMinor = safeMoney(
+    paidOrders.reduce((total, order) => total + order.totalPriceMinor, 0n),
+  );
   return {
     days,
     totalOrders: orders.length,
-    paidRevenueMinor: responseDaily.reduce((total, day) => total + day.paidRevenueMinor, 0),
+    totalTravelers: orders.reduce((total, order) => total + order.travelerCount, 0),
+    pending: {
+      orderCount: pendingOrders.length,
+      travelerCount: pendingOrders.reduce((total, order) => total + order.travelerCount, 0),
+      amountMinor: safeMoney(
+        pendingOrders.reduce((total, order) => total + order.totalPriceMinor, 0n),
+      ),
+      oldestCreatedAt: pendingOrders[0]?.createdAt.toISOString() ?? null,
+    },
+    confirmed: {
+      orderCount: paidOrders.length,
+      travelerCount: paidOrders.reduce((total, order) => total + order.travelerCount, 0),
+      revenueMinor: paidRevenueMinor,
+    },
     daily: responseDaily,
     topTrips: [...topTrips.values()]
       .sort(
@@ -170,6 +225,109 @@ export async function getOrderDashboard(
           right.travelerCount - left.travelerCount || left.name.localeCompare(right.name, "mn"),
       )
       .slice(0, 10),
+  };
+}
+
+const DASHBOARD_DETAIL_SELECT = {
+  id: true,
+  publicOrderId: true,
+  firstName: true,
+  lastName: true,
+  serviceNameSnapshot: true,
+  travelDate: true,
+  travelerCount: true,
+  totalPriceMinor: true,
+  status: true,
+  createdAt: true,
+  confirmedAt: true,
+} as const;
+
+type DashboardDetailRow = Prisma.OrderGetPayload<{ select: typeof DASHBOARD_DETAIL_SELECT }>;
+
+function toDashboardDetailItem(row: DashboardDetailRow): ordersContract.OrderDashboardDetailItem {
+  return {
+    id: row.id,
+    publicOrderId: row.publicOrderId,
+    customerName: `${row.lastName} ${row.firstName}`.trim(),
+    serviceName: row.serviceNameSnapshot,
+    travelDate: row.travelDate.toISOString().slice(0, 10),
+    travelerCount: row.travelerCount,
+    totalPriceMinor: safeMoney(row.totalPriceMinor),
+    status: row.status,
+    createdAt: row.createdAt.toISOString(),
+    confirmedAt: row.confirmedAt?.toISOString() ?? null,
+  };
+}
+
+function dashboardTripOptions(rows: DashboardDetailRow[]) {
+  return [...new Set(rows.map((order) => order.serviceNameSnapshot))].sort((left, right) =>
+    left.localeCompare(right, "mn"),
+  );
+}
+
+function filterDashboardDetails(
+  rows: DashboardDetailRow[],
+  query: ordersContract.OrderDashboardDetailsQuery,
+) {
+  const search = query.search?.toLocaleLowerCase("mn-MN");
+  return rows.filter(
+    (order) =>
+      (!query.travelName || order.serviceNameSnapshot === query.travelName) &&
+      (!search ||
+        order.publicOrderId.toLocaleLowerCase("mn-MN").includes(search) ||
+        order.firstName.toLocaleLowerCase("mn-MN").includes(search) ||
+        order.lastName.toLocaleLowerCase("mn-MN").includes(search) ||
+        `${order.lastName} ${order.firstName}`.toLocaleLowerCase("mn-MN").includes(search)),
+  );
+}
+
+export async function getOrderDashboardDetails(
+  query: ordersContract.OrderDashboardDetailsQuery,
+): Promise<ordersContract.OrderDashboardDetails> {
+  const { start, end } = dashboardDateRange(query.days, query.date);
+  const travelFilter = query.travelId
+    ? { travelDeparture: { travelId: query.travelId } }
+    : undefined;
+  const pendingAll = query.scope === "PENDING_ALL";
+  const [createdOrders, paidOrders] = await Promise.all([
+    prisma.order.findMany({
+      where: pendingAll
+        ? { status: "AWAITING_PAYMENT" }
+        : { createdAt: { gte: start, lt: end }, ...travelFilter },
+      orderBy: { createdAt: "desc" },
+      select: DASHBOARD_DETAIL_SELECT,
+    }),
+    pendingAll
+      ? Promise.resolve([])
+      : prisma.order.findMany({
+          where: {
+            status: "PAID",
+            confirmedAt: { gte: start, lt: end },
+            ...travelFilter,
+          },
+          orderBy: { confirmedAt: "desc" },
+          select: DASHBOARD_DETAIL_SELECT,
+        }),
+  ]);
+  const filteredCreatedOrders = filterDashboardDetails(createdOrders, query);
+  const filteredPaidOrders = filterDashboardDetails(paidOrders, query);
+  return {
+    totalOrders: filteredCreatedOrders.length,
+    totalTravelers: filteredCreatedOrders.reduce((total, order) => total + order.travelerCount, 0),
+    totalAmountMinor: safeMoney(
+      filteredCreatedOrders.reduce((total, order) => total + order.totalPriceMinor, 0n),
+    ),
+    totalPaidOrders: filteredPaidOrders.length,
+    totalPaidTravelers: filteredPaidOrders.reduce((total, order) => total + order.travelerCount, 0),
+    paidRevenueMinor: safeMoney(
+      filteredPaidOrders.reduce((total, order) => total + order.totalPriceMinor, 0n),
+    ),
+    orderTripOptions: dashboardTripOptions(createdOrders),
+    paidTripOptions: dashboardTripOptions(paidOrders),
+    orders: filteredCreatedOrders.slice(0, DASHBOARD_DETAIL_LIMIT).map(toDashboardDetailItem),
+    paidOrders: filteredPaidOrders.slice(0, DASHBOARD_DETAIL_LIMIT).map(toDashboardDetailItem),
+    hasMoreOrders: filteredCreatedOrders.length > DASHBOARD_DETAIL_LIMIT,
+    hasMorePaidOrders: filteredPaidOrders.length > DASHBOARD_DETAIL_LIMIT,
   };
 }
 

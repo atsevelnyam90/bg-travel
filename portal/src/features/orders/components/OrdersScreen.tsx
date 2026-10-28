@@ -24,7 +24,7 @@ export function OrdersScreen() {
         description="Аяллын захиалга, төлбөрийн төлөв."
         controller={screen.controller}
         isLoading={screen.isLoading}
-        searchPlaceholder="Дугаар, нэр, утасаар хайх…"
+        showSearch={false}
         emptyTitle="Захиалга алга"
         onRowClick={
           screen.canWrite

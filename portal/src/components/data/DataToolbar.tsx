@@ -17,6 +17,7 @@ import type { DataTableController } from "./useDataTable";
 type DataToolbarProps<T extends RowData> = {
   controller: DataTableController<T>;
   searchPlaceholder?: string;
+  showSearch?: boolean;
   /** Шүүлтүүр, "Нэмэх" товч зэрэг нэмэлт үйлдлүүд. */
   children?: ReactNode;
 };
@@ -24,29 +25,32 @@ type DataToolbarProps<T extends RowData> = {
 export function DataToolbar<T extends RowData>({
   controller,
   searchPlaceholder = "Хайх…",
+  showSearch = true,
   children,
 }: DataToolbarProps<T>) {
   const { table, search, setSearch } = controller;
 
   return (
     <div className="flex w-full flex-wrap justify-start gap-2 md:w-auto md:flex-nowrap md:justify-end">
-      <InputGroup className="h-7 w-full md:w-64">
-        <InputGroupAddon align="inline-start">
-          <Search className="size-3.5" />
-        </InputGroupAddon>
-        <InputGroupInput
-          className="h-7"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-        />
-        <InputGroupAddon align="inline-end">
-          <span className="flex h-4 items-center rounded border bg-muted px-1 font-medium text-[10px]">
-            ⌘K
-          </span>
-        </InputGroupAddon>
-      </InputGroup>
+      {showSearch ? (
+        <InputGroup className="h-7 w-full md:w-64">
+          <InputGroupAddon align="inline-start">
+            <Search className="size-3.5" />
+          </InputGroupAddon>
+          <InputGroupInput
+            className="h-7"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={searchPlaceholder}
+            aria-label={searchPlaceholder}
+          />
+          <InputGroupAddon align="inline-end">
+            <span className="flex h-4 items-center rounded border bg-muted px-1 font-medium text-[10px]">
+              ⌘K
+            </span>
+          </InputGroupAddon>
+        </InputGroup>
+      ) : null}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

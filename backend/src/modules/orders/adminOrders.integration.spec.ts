@@ -12,6 +12,7 @@ import {
 } from "@/test/helpers";
 
 describe("admin orders (integration)", () => {
+  let travelId: string;
   let departureId: string;
 
   beforeEach(async () => {
@@ -36,6 +37,7 @@ describe("admin orders (integration)", () => {
       },
       include: { departures: true },
     });
+    travelId = travel.id;
     departureId = travel.departures[0]?.id ?? "";
   });
 
@@ -48,6 +50,8 @@ describe("admin orders (integration)", () => {
     await api().get(`${PREFIX}/orders/departure-options`).set(bearer(viewerToken)).expect(403);
     await api().get(`${PREFIX}/orders/dashboard`).expect(401);
     await api().get(`${PREFIX}/orders/dashboard`).set(bearer(viewerToken)).expect(200);
+    await api().get(`${PREFIX}/orders/dashboard/details`).expect(401);
+    await api().get(`${PREFIX}/orders/dashboard/details`).set(bearer(viewerToken)).expect(200);
 
     const restrictedRole = await prisma.role.create({
       data: { name: "restricted", permissions: [], isSystem: false },
@@ -59,6 +63,7 @@ describe("admin orders (integration)", () => {
     });
     const restrictedToken = await login("restricted@test.mn", "Test1234!");
     await api().get(`${PREFIX}/orders/dashboard`).set(bearer(restrictedToken)).expect(403);
+    await api().get(`${PREFIX}/orders/dashboard/details`).set(bearer(restrictedToken)).expect(403);
   });
 
   it("dashboard захиалга, төлөгдсөн орлого, эрэлттэй аяллыг нэгтгэнэ", async () => {
@@ -139,14 +144,98 @@ describe("admin orders (integration)", () => {
       .expect(200);
 
     expect(response.body.totalOrders).toBe(3);
-    expect(response.body.paidRevenueMinor).toBe(350000);
+    expect(response.body.totalTravelers).toBe(4);
+    expect(response.body.pending).toEqual(
+      expect.objectContaining({ orderCount: 1, travelerCount: 1, amountMinor: 100000 }),
+    );
+    expect(response.body.pending.oldestCreatedAt).not.toBeNull();
+    expect(response.body.confirmed).toEqual({
+      orderCount: 2,
+      travelerCount: 3,
+      revenueMinor: 350000,
+    });
     expect(response.body.daily).toHaveLength(7);
     expect(
       response.body.daily.reduce((total: number, day: { orders: number }) => total + day.orders, 0),
     ).toBe(3);
+    expect(response.body.daily.at(-1)).toEqual(
+      expect.objectContaining({ confirmedOrders: 2, pendingOrders: 1 }),
+    );
     expect(response.body.topTrips[0]).toEqual(
       expect.objectContaining({ name: "Тест аялал", travelerCount: 3 }),
     );
+
+    const details = await api()
+      .get(`${PREFIX}/orders/dashboard/details?days=7`)
+      .set(bearer(token))
+      .expect(200);
+    expect(details.body).toEqual(
+      expect.objectContaining({
+        totalOrders: 3,
+        totalTravelers: 4,
+        totalAmountMinor: 450000,
+        totalPaidOrders: 2,
+        totalPaidTravelers: 3,
+        paidRevenueMinor: 350000,
+        hasMoreOrders: false,
+        hasMorePaidOrders: false,
+      }),
+    );
+    expect(details.body.orders).toHaveLength(3);
+    expect(details.body.paidOrders).toHaveLength(2);
+    expect(details.body.orderTripOptions).toEqual(
+      expect.arrayContaining(["Тест аялал", "Хоёр дахь аялал"]),
+    );
+    expect(details.body.paidTripOptions).toEqual(
+      expect.arrayContaining(["Тест аялал", "Хоёр дахь аялал"]),
+    );
+
+    const filteredDetails = await api()
+      .get(
+        `${PREFIX}/orders/dashboard/details?days=7&travelName=${encodeURIComponent("Тест аялал")}`,
+      )
+      .set(bearer(token))
+      .expect(200);
+    expect(filteredDetails.body.totalOrders).toBe(2);
+    expect(filteredDetails.body.totalPaidOrders).toBe(1);
+    expect(filteredDetails.body.orders).toHaveLength(2);
+
+    const searchedDetails = await api()
+      .get(`${PREFIX}/orders/dashboard/details?days=7&search=ORD-DASH-3`)
+      .set(bearer(token))
+      .expect(200);
+    expect(searchedDetails.body.totalOrders).toBe(1);
+    expect(searchedDetails.body.totalPaidOrders).toBe(1);
+
+    const pendingDetails = await api()
+      .get(`${PREFIX}/orders/dashboard/details?days=7&scope=PENDING_ALL`)
+      .set(bearer(token))
+      .expect(200);
+    expect(pendingDetails.body).toEqual(
+      expect.objectContaining({
+        totalOrders: 1,
+        totalTravelers: 1,
+        totalAmountMinor: 100000,
+        totalPaidOrders: 0,
+        paidRevenueMinor: 0,
+      }),
+    );
+
+    const day = response.body.daily.at(-1).date;
+    const dayDetails = await api()
+      .get(`${PREFIX}/orders/dashboard/details?days=7&date=${day}`)
+      .set(bearer(token))
+      .expect(200);
+    expect(dayDetails.body.totalOrders).toBe(3);
+    expect(dayDetails.body.paidRevenueMinor).toBe(350000);
+
+    const tripDetails = await api()
+      .get(`${PREFIX}/orders/dashboard/details?days=7&travelId=${travelId}`)
+      .set(bearer(token))
+      .expect(200);
+    expect(tripDetails.body.totalOrders).toBe(2);
+    expect(tripDetails.body.totalTravelers).toBe(3);
+    expect(tripDetails.body.paidRevenueMinor).toBe(200000);
   });
 
   it("захиалгын form-д гаралт болон үлдсэн суудлыг өгнө", async () => {
@@ -164,6 +253,72 @@ describe("admin orders (integration)", () => {
         isBookingOpen: true,
       }),
     ]);
+  });
+
+  it("жагсаалтыг багана бүрийн утгаар хамтатган шүүнэ", async () => {
+    const token = await login("owner@test.mn", "Test1234!");
+    const owner = await prisma.user.findFirstOrThrow({ where: { email: "owner@test.mn" } });
+    const baseOrder = {
+      address: "Улаанбаатар",
+      email: "filter@example.com",
+      serviceCode: "TRAVEL",
+      travelDepartureId: departureId,
+      transportType: "GROUND" as const,
+      transportNameSnapshot: "Автобус",
+      unitPriceMinor: 100000n,
+    };
+    await prisma.order.createMany({
+      data: [
+        {
+          ...baseOrder,
+          publicOrderId: "ORD-FILTER-1",
+          firstName: "Шүүлтнэр",
+          lastName: "Шүүлтовог",
+          phone: "99110011",
+          travelDate: new Date("2027-08-15T00:00:00.000Z"),
+          travelerCount: 3,
+          serviceNameSnapshot: "Шүүлт аялал",
+          totalPriceMinor: 300000n,
+          status: "PAID",
+          confirmedByUserId: owner.id,
+          confirmedAt: new Date(),
+          idempotencyKey: "matching-column-filter-order",
+        },
+        {
+          ...baseOrder,
+          publicOrderId: "ORD-FILTER-2",
+          firstName: "Өөрнэр",
+          lastName: "Өөровог",
+          phone: "99000000",
+          travelDate: new Date("2027-08-16T00:00:00.000Z"),
+          travelerCount: 1,
+          serviceNameSnapshot: "Өөр аялал",
+          totalPriceMinor: 100000n,
+          idempotencyKey: "non-matching-column-filter-order",
+        },
+      ],
+    });
+
+    const params = new URLSearchParams({
+      publicOrderId: "FILTER-1",
+      firstName: "шүүлт",
+      lastName: "шүүлт",
+      phone: "1100",
+      serviceNameSnapshot: "шүүлт аялал",
+      travelDate: "2027-08-15",
+      travelerCount: "3",
+      totalPriceMinor: "300000",
+      status: "PAID",
+    });
+    const response = await api()
+      .get(`${PREFIX}/orders?${params.toString()}`)
+      .set(bearer(token))
+      .expect(200);
+
+    expect(response.body.total).toBe(1);
+    expect(response.body.items[0]).toEqual(
+      expect.objectContaining({ publicOrderId: "ORD-FILTER-1", firstName: "Шүүлтнэр" }),
+    );
   });
 
   it("захиалга үүсгэж, төлбөр баталгаажуулж, зөөлөн устгана", async () => {

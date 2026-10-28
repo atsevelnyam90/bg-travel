@@ -100,8 +100,10 @@ export async function listAdminTravels(
   query: travelsContract.ListAdminTravelsQuery,
 ): Promise<travelsContract.ListAdminTravelsResponse> {
   const where: Prisma.TravelWhereInput = {
+    ...(query.name ? { name: { contains: query.name, mode: "insensitive" } } : {}),
     ...(query.category ? { category: query.category } : {}),
     ...(query.status ? { status: query.status } : {}),
+    ...(query.durationDays ? { durationDays: query.durationDays } : {}),
     ...(query.search
       ? {
           OR: [

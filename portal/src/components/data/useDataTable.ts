@@ -39,12 +39,23 @@ declare module "@tanstack/table-core" {
     hideOnMobile?: boolean;
     /** Mobile карт дээрх шошго. Байхгүй бол header-ийн текст, эсвэл багааны id. */
     label?: string;
+    /** Сервер талын баганын шүүлтүүр. `key` байхгүй бол баганын id-г ашиглана. */
+    filter?:
+      | { type: "text"; key?: string; placeholder?: string }
+      | { type: "number"; key?: string; placeholder?: string; min?: number }
+      | { type: "date"; key?: string }
+      | {
+          type: "select";
+          key?: string;
+          options: ReadonlyArray<{ value: string; label: string }>;
+        };
   }
 }
 
 export type SortState = { id: string; desc: boolean } | null;
 
 export type DataTableQuery = {
+  [key: string]: string | number | boolean | undefined;
   page: number;
   pageSize: number;
   search: string;
@@ -66,13 +77,17 @@ export type DataTableColumnDef<T extends RowData> = ColumnDef<Features, T, unkno
 export function useDataTableState({
   pageSize = 20,
   searchDelayMs = 350,
+  filterDelayMs = 350,
 }: {
   pageSize?: number;
   searchDelayMs?: number;
+  filterDelayMs?: number;
 } = {}) {
   const [page, setPage] = useState(1);
   const [search, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [debouncedFilters, setDebouncedFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState<SortState>(null);
 
   useEffect(() => {
@@ -80,9 +95,26 @@ export function useDataTableState({
     return () => window.clearTimeout(timeout);
   }, [search, searchDelayMs]);
 
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedFilters(filters), filterDelayMs);
+    return () => window.clearTimeout(timeout);
+  }, [filterDelayMs, filters]);
+
   // Шүүлт/хайлт өөрчлөгдвөл эхний хуудас руу — эс тэгвэл хоосон хуудсан дээр үлдэнэ.
   const setSearch = useCallback((value: string) => {
     setSearchValue(value);
+    setPage(1);
+  }, []);
+
+  const setFilter = useCallback((key: string, value: string) => {
+    setFilters((current) => {
+      if (value === "") {
+        const next = { ...current };
+        delete next[key];
+        return next;
+      }
+      return { ...current, [key]: value };
+    });
     setPage(1);
   }, []);
 
@@ -101,11 +133,24 @@ export function useDataTableState({
       pageSize,
       search: debouncedSearch,
       sort: sort ? `${sort.desc ? "-" : ""}${sort.id}` : undefined,
+      ...debouncedFilters,
     }),
-    [debouncedSearch, page, pageSize, sort],
+    [debouncedFilters, debouncedSearch, page, pageSize, sort],
   );
 
-  return { page, setPage, pageSize, search, setSearch, sort, toggleSort, query };
+  return {
+    page,
+    setPage,
+    pageSize,
+    search,
+    setSearch,
+    filters,
+    setFilter,
+    hasActiveFilters: Object.keys(filters).length > 0,
+    sort,
+    toggleSort,
+    query,
+  };
 }
 
 export type DataTableState = ReturnType<typeof useDataTableState>;

@@ -9,6 +9,7 @@ import {
   createAdminOrder,
   deleteAdminOrder,
   getOrderDashboard,
+  getOrderDashboardDetails,
   listAdminOrderDepartureOptions,
   listAdminOrders,
   updateAdminOrder,
@@ -39,6 +40,15 @@ ordersRouter.get(
   asyncHandler(async (req, res) => {
     const { days } = ordersContract.orderDashboardQuerySchema.parse(req.query);
     res.json(await getOrderDashboard(days));
+  }),
+);
+
+ordersRouter.get(
+  "/dashboard/details",
+  requirePermission("order:read"),
+  asyncHandler(async (req, res) => {
+    const query = ordersContract.orderDashboardDetailsQuerySchema.parse(req.query);
+    res.json(await getOrderDashboardDetails(query));
   }),
 );
 

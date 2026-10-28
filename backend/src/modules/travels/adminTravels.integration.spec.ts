@@ -90,6 +90,44 @@ describe("admin travels (integration)", () => {
     await api().get(`${PREFIX}/travels`).set(bearer(viewerToken)).expect(403);
   });
 
+  it("жагсаалтыг багана бүрийн утгаар хамтатган шүүнэ", async () => {
+    const token = await login("owner@test.mn", "Test1234!");
+    await prisma.travel.createMany({
+      data: [
+        {
+          name: "Шүүлт таарах аялал",
+          slug: "matching-column-filters",
+          category: "INTERNATIONAL",
+          status: "ARCHIVED",
+          durationDays: 9,
+        },
+        {
+          name: "Шүүлт таарахгүй аялал",
+          slug: "non-matching-column-filters",
+          category: "DOMESTIC",
+          status: "PUBLISHED",
+          durationDays: 9,
+        },
+      ],
+    });
+
+    const params = new URLSearchParams({
+      name: "таарах аялал",
+      category: "INTERNATIONAL",
+      status: "ARCHIVED",
+      durationDays: "9",
+    });
+    const response = await api()
+      .get(`${PREFIX}/travels?${params.toString()}`)
+      .set(bearer(token))
+      .expect(200);
+
+    expect(response.body.total).toBe(1);
+    expect(response.body.items[0]).toEqual(
+      expect.objectContaining({ name: "Шүүлт таарах аялал", durationDays: 9 }),
+    );
+  });
+
   it("аяллыг nested өгөгдөлтэй үүсгэж, засаж, зөөлөн устгана", async () => {
     const token = await login("owner@test.mn", "Test1234!");
     const created = await api()

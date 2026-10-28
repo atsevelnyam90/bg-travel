@@ -22,4 +22,23 @@ describe("useDataTableState", () => {
     act(() => vi.advanceTimersByTime(1));
     expect(result.current.query.search).toBe("paris");
   });
+
+  it("debounces column filters and returns to the first page", () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useDataTableState({ filterDelayMs: 350 }));
+
+    act(() => result.current.setPage(4));
+    act(() => result.current.setFilter("name", "gobi"));
+    expect(result.current.page).toBe(1);
+    expect(result.current.filters.name).toBe("gobi");
+    expect(result.current.query.name).toBeUndefined();
+
+    act(() => vi.advanceTimersByTime(350));
+    expect(result.current.query.name).toBe("gobi");
+
+    act(() => result.current.setFilter("name", ""));
+    expect(result.current.filters.name).toBeUndefined();
+    act(() => vi.advanceTimersByTime(350));
+    expect(result.current.query.name).toBeUndefined();
+  });
 });

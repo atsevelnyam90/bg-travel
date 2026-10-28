@@ -10,6 +10,11 @@ export const listOrderDepartureOptions = (signal?: AbortSignal) =>
 export const getOrderDashboard = (days: orders.OrderDashboard["days"], signal?: AbortSignal) =>
   api.get<orders.OrderDashboard>("/orders/dashboard", { query: { days }, signal });
 
+export const getOrderDashboardDetails = (
+  query: orders.OrderDashboardDetailsQuery,
+  signal?: AbortSignal,
+) => api.get<orders.OrderDashboardDetails>("/orders/dashboard/details", { query, signal });
+
 export const createOrder = (input: orders.CreateAdminOrderInput) =>
   api.post<orders.AdminOrder>("/orders", input);
 

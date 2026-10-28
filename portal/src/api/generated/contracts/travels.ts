@@ -164,8 +164,10 @@ export const adminTravelSchema = z.object({
 export type AdminTravel = z.infer<typeof adminTravelSchema>;
 
 export const listAdminTravelsQuerySchema = paginationQuerySchema.extend({
+  name: z.string().trim().min(1).max(200).optional(),
   category: travelCategorySchema.optional(),
   status: travelStatusSchema.optional(),
+  durationDays: z.coerce.number().int().positive().optional(),
 });
 export type ListAdminTravelsQuery = z.infer<typeof listAdminTravelsQuerySchema>;
 export const listAdminTravelsResponseSchema = paginatedSchema(adminTravelListItemSchema);

@@ -25,6 +25,7 @@ type DataGridProps<T extends RowData> = {
   description?: string;
   isLoading?: boolean;
   searchPlaceholder?: string;
+  showSearch?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
   onRowClick?: (row: T, event: MouseEvent) => void;
@@ -44,6 +45,7 @@ export function DataGrid<T extends RowData>({
   description,
   isLoading,
   searchPlaceholder,
+  showSearch,
   emptyTitle,
   emptyDescription,
   onRowClick,
@@ -63,7 +65,11 @@ export function DataGrid<T extends RowData>({
           ) : null}
         </div>
         <CardAction className="col-start-1 row-start-auto flex w-full flex-wrap justify-start gap-2 justify-self-stretch md:col-start-2 md:row-span-2 md:row-start-1 md:w-auto md:flex-nowrap md:justify-end md:justify-self-end">
-          <DataToolbar controller={controller} searchPlaceholder={searchPlaceholder}>
+          <DataToolbar
+            controller={controller}
+            searchPlaceholder={searchPlaceholder}
+            showSearch={showSearch}
+          >
             {toolbarExtra}
           </DataToolbar>
         </CardAction>
