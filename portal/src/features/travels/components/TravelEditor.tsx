@@ -10,6 +10,7 @@ import { EditorSheet } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getTravelFormErrorFeedback, type TravelLocaleTab } from "../travelFormErrors";
 import {
   emptyTravel,
   normalizeTravelForm,
@@ -42,6 +43,7 @@ export function TravelEditor(props: TravelEditorProps) {
 
 function TravelEditorForm({ open, loading, travel, isSaving, onClose, onSave }: TravelEditorProps) {
   const [activeTab, setActiveTab] = useState("general");
+  const [activeLocale, setActiveLocale] = useState<TravelLocaleTab>("mn");
   const { isUploading } = useFormUploads();
   const form = useForm<TravelFormValues>({
     resolver: zodResolver(
@@ -52,6 +54,7 @@ function TravelEditorForm({ open, loading, travel, isSaving, onClose, onSave }: 
   useEffect(() => {
     if (!open) return;
     setActiveTab("general");
+    setActiveLocale("mn");
     if (travel) form.reset(travelToForm(travel));
     else if (!loading) form.reset(emptyTravel());
   }, [form, loading, open, travel]);
@@ -99,13 +102,10 @@ function TravelEditorForm({ open, loading, travel, isSaving, onClose, onSave }: 
                 }
               },
               (errors) => {
-                if (errors.departures) setActiveTab("departures");
-                else if (errors.sections) setActiveTab("sections");
-                else if (errors.details) setActiveTab("details");
-                else setActiveTab("general");
-                toast.error(
-                  "Аяллыг хадгалах боломжгүй. Улаанаар тэмдэглэсэн талбаруудыг шалгана уу.",
-                );
+                const feedback = getTravelFormErrorFeedback(errors);
+                setActiveTab(feedback.tab);
+                if (feedback.locale) setActiveLocale(feedback.locale);
+                toast.error(feedback.message);
               },
             )}
           >
@@ -141,7 +141,11 @@ function TravelEditorForm({ open, loading, travel, isSaving, onClose, onSave }: 
                         Монгол контент заавал, бусад хэлний орчуулга сонголтоор байна.
                       </p>
                     </div>
-                    <Tabs defaultValue="mn" className="rounded-xl border bg-card p-4">
+                    <Tabs
+                      value={activeLocale}
+                      onValueChange={(value) => setActiveLocale(value as TravelLocaleTab)}
+                      className="rounded-xl border bg-card p-4"
+                    >
                       <TabsList variant="line" className="max-w-full justify-start overflow-x-auto">
                         <TabsTrigger value="mn">Монгол</TabsTrigger>
                         <TabsTrigger value="en">English</TabsTrigger>
