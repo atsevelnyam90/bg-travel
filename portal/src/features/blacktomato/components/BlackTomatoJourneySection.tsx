@@ -21,7 +21,7 @@ export function BlackTomatoJourneySection({
   bookingScreen,
   initialCategoryId,
   onCategoryChange,
-  variant = "default",
+  variant = "option2",
 }: BlackTomatoJourneySectionProps = {}) {
   const t = useTranslations("publicJourney.ui");
   const isOptionTwo = variant === "option2";

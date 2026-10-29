@@ -34,7 +34,7 @@ export function BlackTomatoJourneyBlocks({
   bookingScreen,
   initialCategoryId = null,
   onCategoryChange,
-  variant = "default",
+  variant = "option2",
 }: BlackTomatoJourneyBlocksProps = {}) {
   const t = useTranslations("publicJourney.ui");
   const bookingT = useTranslations("publicBooking");

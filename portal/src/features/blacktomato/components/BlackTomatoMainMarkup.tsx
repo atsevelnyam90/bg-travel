@@ -20,8 +20,8 @@ export function BlackTomatoMainMarkup() {
       <Suspense
         fallback={
           <>
-            <BlackTomatoBookingBudgetSection variant="drawer" />
-            <BlackTomatoJourneySection />
+            <BlackTomatoBookingBudgetSection variant="sideDrawer" />
+            <BlackTomatoJourneySection variant="option2" />
           </>
         }
       >

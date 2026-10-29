@@ -19,7 +19,7 @@ export function BlackTomatoJourneySectionVariant() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isOptionTwo = searchParams.get("option") === "2";
+  const isOptionTwo = searchParams.get("option") !== "1";
   const initialCategoryId = parseJourneyCategory(searchParams.get("journeyCategory"));
   const bookingScreen = useBookingBudgetScreen();
   const updateJourneyCategory = useCallback(
