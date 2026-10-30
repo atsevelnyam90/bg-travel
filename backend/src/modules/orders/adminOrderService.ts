@@ -4,7 +4,7 @@ import { mn } from "@winu/mn-integrations";
 import type { Prisma } from "@/generated/prisma/client";
 import { conflict, notFound } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
-import { nextDocumentNumber } from "@/lib/sequence/documentNumber";
+import { createOrderReference } from "./orderReference";
 
 const ORDER_SELECT = {
   id: true,
@@ -443,7 +443,7 @@ export async function createAdminOrder(
 ) {
   const createInput: ordersContract.UpdateAdminOrderInput = {
     ...input,
-    publicOrderId: await nextDocumentNumber({ name: "order", prefix: "ORD" }),
+    publicOrderId: createOrderReference(),
     idempotencyKey: randomUUID(),
     version: 0,
   };
@@ -475,14 +475,13 @@ export async function updateAdminOrder(
     }
     return tx.order.findFirstOrThrow({ where: { id }, select: ORDER_SELECT });
   });
-  return { order: toAdminOrder(updated), before: toAdminOrder(existing) };
+  return toAdminOrder(updated);
 }
 
 export async function confirmAdminOrder(id: string, version: number, actorId: string) {
   const existing = await prisma.order.findFirst({ where: { id }, select: ORDER_SELECT });
   if (!existing) throw notFound("Захиалга олдсонгүй");
-  if (existing.status === "PAID")
-    return { order: toAdminOrder(existing), before: toAdminOrder(existing) };
+  if (existing.status === "PAID") return toAdminOrder(existing);
   const updated = await prisma.$transaction(async (tx) => {
     await assertCapacity(tx, existing);
     const result = await tx.order.updateMany({
@@ -499,7 +498,7 @@ export async function confirmAdminOrder(id: string, version: number, actorId: st
     }
     return tx.order.findFirstOrThrow({ where: { id }, select: ORDER_SELECT });
   });
-  return { order: toAdminOrder(updated), before: toAdminOrder(existing) };
+  return toAdminOrder(updated);
 }
 
 export async function deleteAdminOrder(id: string) {

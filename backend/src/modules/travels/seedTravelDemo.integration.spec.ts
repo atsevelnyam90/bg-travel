@@ -35,7 +35,6 @@ describe("seedTravelDemo", () => {
     expect(travel.details.every((detail) => detail.sectionId !== null)).toBe(true);
     expect(JSON.parse(travel.details[0].content ?? "")).toMatchObject({ type: "doc" });
     expect(travel.details[5].images).toHaveLength(5);
-    expect(await prisma.auditLog.count()).toBe(16);
 
     await expect(seedTravelDemo()).resolves.toMatchObject({
       created: { departures: 0, details: 0, sections: 0, travel: 0 },
@@ -45,7 +44,6 @@ describe("seedTravelDemo", () => {
     expect(await prisma.travelDeparture.count()).toBe(4);
     expect(await prisma.travelItinerarySection.count()).toBe(3);
     expect(await prisma.travelDetail.count()).toBe(8);
-    expect(await prisma.auditLog.count()).toBe(16);
   });
 
   it("does not recreate a soft-deleted seeded travel", async () => {

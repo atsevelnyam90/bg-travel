@@ -7,7 +7,6 @@ import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "@/lib/asyncHandler";
 import { publicOrderRateLimit } from "@/middlewares/rateLimit";
-import { auditFromRequest } from "@/modules/audit/writeAudit";
 import { createPublicOrder, getPublicPaymentInfo } from "@/modules/orders/publicOrderService";
 import { getPublicProduct, listPublicProducts } from "@/modules/products/productService";
 import { getPublicTravel, listPublicTravels } from "@/modules/travels/publicTravelService";
@@ -54,14 +53,6 @@ publicRouter.post(
   asyncHandler(async (req, res) => {
     const input = ordersContract.createPublicOrderSchema.parse(req.body);
     const result = await createPublicOrder(input);
-    if (result.created) {
-      await auditFromRequest(req)({
-        action: "create",
-        resource: "order",
-        resourceId: result.orderId,
-        meta: { publicOrderId: result.order.publicOrderId },
-      });
-    }
     res.status(result.created ? 201 : 200).json(result.order);
   }),
 );

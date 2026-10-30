@@ -21,6 +21,16 @@ const TRAVEL_LIST_SELECT = {
   updatedAt: true,
 } as const;
 
+type TravelListRow = Prisma.TravelGetPayload<{ select: typeof TRAVEL_LIST_SELECT }>;
+
+function toTravelListItem(row: TravelListRow): travelsContract.AdminTravelListItem {
+  return {
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
 const TRAVEL_SELECT = {
   ...TRAVEL_LIST_SELECT,
   destinationLabel: true,
@@ -125,11 +135,7 @@ export async function listAdminTravels(
     }),
   ]);
   return {
-    items: rows.map((row) => ({
-      ...row,
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
-    })),
+    items: rows.map(toTravelListItem),
     total,
     page: query.page,
     pageSize: query.pageSize,
@@ -195,20 +201,20 @@ export async function getAdminTravel(id: string): Promise<travelsContract.AdminT
 }
 
 export async function createAdminTravel(input: travelsContract.CreateAdminTravelInput) {
-  const id = await prisma.$transaction(async (tx) => {
-    const travel = await tx.travel.create({ data: travelData(input), select: { id: true } });
-    await createTravelChildren(tx, travel.id, input);
-    return travel.id;
+  const travel = await prisma.$transaction(async (tx) => {
+    const created = await tx.travel.create({
+      data: travelData(input),
+      select: TRAVEL_LIST_SELECT,
+    });
+    await createTravelChildren(tx, created.id, input);
+    return created;
   });
-  return getAdminTravel(id);
+  return toTravelListItem(travel);
 }
 
 export async function updateAdminTravel(id: string, input: travelsContract.UpdateAdminTravelInput) {
-  const [before, children] = await Promise.all([
-    getAdminTravel(id),
-    loadTravelChildrenForUpdate(id),
-  ]);
-  await prisma.$transaction(async (tx) => {
+  const children = await loadTravelChildrenForUpdate(id);
+  const travel = await prisma.$transaction(async (tx) => {
     const result = await tx.travel.updateMany({
       where: { id, version: input.version },
       data: { ...travelData(input), version: { increment: 1 } },
@@ -216,8 +222,9 @@ export async function updateAdminTravel(id: string, input: travelsContract.Updat
     if (result.count === 0)
       throw conflict("Аялал зэрэг өөрчлөгдсөн байна. Жагсаалтаа шинэчилнэ үү.");
     await updateTravelChildren(tx, id, input, children);
+    return tx.travel.findFirstOrThrow({ where: { id }, select: TRAVEL_LIST_SELECT });
   });
-  return { travel: await getAdminTravel(id), before };
+  return toTravelListItem(travel);
 }
 
 export async function deleteAdminTravel(id: string) {

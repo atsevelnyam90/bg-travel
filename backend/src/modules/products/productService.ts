@@ -86,7 +86,7 @@ export async function createProduct(
 export async function updateProduct(
   id: string,
   input: productsContract.UpdateProductInput,
-): Promise<{ product: productsContract.Product; before: productsContract.Product }> {
+): Promise<productsContract.Product> {
   const existing = await prisma.product.findFirst({
     where: { id, deletedAt: null },
     select: SELECT,
@@ -118,7 +118,7 @@ export async function updateProduct(
   }
 
   const updated = await prisma.product.findFirstOrThrow({ where: { id }, select: SELECT });
-  return { product: toDto(updated), before: toDto(existing) };
+  return toDto(updated);
 }
 
 export async function deleteProduct(id: string): Promise<void> {

@@ -15,8 +15,6 @@ export const PERMISSIONS = [
   "org:read",
   "org:manage",
 
-  "audit:read",
-
   "product:read",
   "product:write",
   "product:delete",
@@ -53,7 +51,6 @@ export const SYSTEM_ROLES = {
     "role:manage",
     "org:read",
     "org:manage",
-    "audit:read",
     "report:read",
     "report:export",
   ],

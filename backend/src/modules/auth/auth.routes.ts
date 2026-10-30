@@ -7,7 +7,6 @@ import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE } from "@/middlewares/currentUser";
 import { loginRateLimit, refreshRateLimit } from "@/middlewares/rateLimit";
 import { requireAuth } from "@/middlewares/requirePermission";
-import { writeAudit } from "@/modules/audit/writeAudit";
 import { acceptInvite } from "./acceptInvite";
 import { verifyPassword } from "./passwordService";
 import { refreshTokenStore } from "./refreshTokenStore";
@@ -58,14 +57,6 @@ authRouter.post(
     });
 
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-
-    await writeAudit({
-      action: "login",
-      resource: "user",
-      resourceId: user.id,
-      actorId: user.id,
-      ip: req.ip ?? null,
-    });
 
     // Web нь cookie ашиглана, mobile нь хариунаас токеныг авна.
     res.cookie(SESSION_COOKIE, session.key, cookieOptions());

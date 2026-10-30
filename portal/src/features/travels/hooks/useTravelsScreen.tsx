@@ -21,7 +21,7 @@ import {
 } from "../labels";
 
 const keys = {
-  all: ["admin-travels"] as const,
+  lists: ["admin-travels", "list"] as const,
   list: (query: object) => ["admin-travels", "list", query] as const,
   detail: (id: string) => ["admin-travels", "detail", id] as const,
 };
@@ -42,19 +42,19 @@ export function useTravelsScreen() {
     queryFn: ({ signal }) => getTravel(editingId ?? "", signal),
     enabled: editorOpen && Boolean(editingId),
   });
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.all });
+  const invalidateLists = () => queryClient.invalidateQueries({ queryKey: keys.lists });
   const createMutation = useMutation({
     mutationFn: createTravel,
-    onSuccess: () => void invalidate(),
+    onSuccess: () => void invalidateLists(),
   });
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: travels.UpdateAdminTravelInput }) =>
       updateTravel(id, input),
-    onSuccess: () => void invalidate(),
+    onSuccess: () => void invalidateLists(),
   });
   const deleteMutation = useMutation({
     mutationFn: deleteTravel,
-    onSuccess: () => void invalidate(),
+    onSuccess: () => void invalidateLists(),
   });
   const columns = useMemo<DataTableColumnDef<travels.AdminTravelListItem>[]>(
     () => [

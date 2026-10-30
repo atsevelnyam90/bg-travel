@@ -125,14 +125,12 @@ Portal ↔ backend хооронд хуваалцах цорын ганц зүй�
 | 25 | **`orgId` НЭМЭХГҮЙ.** Нэг deployment = нэг байгууллага. `Organization` нь ганц мөртэй тохиргоо. Салбар хэрэгтэй бол `branchId` хэмжигдэхүүн болгож зөвхөн хэрэгтэй хүснэгтэд |
 | 26 | `deletedAt: null` **гараар бичихгүй** — `lib/softDelete.ts` extension автоматаар. Устгагдсаныг үзэхэд `prismaUnfiltered` |
 | 27 | Зөөлөн устгалтай шинэ model нэмбэл `SOFT_DELETE_MODELS`-д бүртгэнэ |
-| 28 | **Mutation бүрт аудит** — `auditFromRequest(req)({ action, resource, resourceId, meta })`. Засварт `changedFields()` ашиглаж зөвхөн зөрүүг бич, бүтэн объект БИШ |
-| 29 | Аудитын `meta`-д нууц утга бүү хий (нууц үг, токен, картын дугаар) |
 | 30 | **Засаж болох домэйн model-д `version Int @default(0)`** — optimistic locking. `updateMany({ where: { id, version } })` + `version: { increment: 1 }`, `count === 0` бол 409 |
 | 31 | Create/update схемийг САЛГА — үүсгэхэд `version` хэрэггүй, засахад заавал |
 | 32 | **Файлыг backend-ээр дамжуулахгүй** — presign → клиент шууд S3 руу PUT. `lib/api/upload.ts` / `FileField` |
 | 33 | Файлын НЭРИЙГ клиентээс авахгүй — түлхүүрийг сервер үүсгэнэ (зам таах, дарж бичихээс сэргийлнэ) |
 | 34 | Мөнгө = бүхэл тоо, талбар нь `...Minor`. Бүх тооцоо `@winu/contracts` `money` модулиар — `Math.round` тарааж бичихгүй |
-| 35 | **Баримтын дугаарт `count()+1` ХОРИОТОЙ** — `nextDocumentNumber()`. Зэрэг дуудахад давхардана |
+| 35 | **Захиалгын лавлагаанд `count()+1` болон DB sequence ашиглахгүй** — random unique reference үүсгэж, unique constraint-ийн зөрчлийг retry хийнэ |
 
 ## 4. Командууд
 

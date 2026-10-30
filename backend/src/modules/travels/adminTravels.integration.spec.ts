@@ -135,10 +135,14 @@ describe("admin travels (integration)", () => {
       .set(bearer(token))
       .send(travelInput)
       .expect(201);
+    const createdDetail = await api()
+      .get(`${PREFIX}/travels/${created.body.id}`)
+      .set(bearer(token))
+      .expect(200);
 
-    expect(created.body.departures).toHaveLength(1);
-    expect(created.body.sections).toHaveLength(1);
-    expect(created.body.details).toHaveLength(1);
+    expect(createdDetail.body.departures).toHaveLength(1);
+    expect(createdDetail.body.sections).toHaveLength(1);
+    expect(createdDetail.body.details).toHaveLength(1);
 
     const updated = await api()
       .patch(`${PREFIX}/travels/${created.body.id}`)
@@ -146,17 +150,21 @@ describe("admin travels (integration)", () => {
       .send({
         ...travelInput,
         name: "Зассан аялал",
-        version: created.body.version,
-        departures: created.body.departures,
-        sections: created.body.sections,
-        details: created.body.details,
+        version: createdDetail.body.version,
+        departures: createdDetail.body.departures,
+        sections: createdDetail.body.sections,
+        details: createdDetail.body.details,
       })
       .expect(200);
     expect(updated.body.name).toBe("Зассан аялал");
     expect(updated.body.version).toBe(1);
-    expect(updated.body.departures[0].version).toBe(0);
-    expect(updated.body.sections[0].version).toBe(0);
-    expect(updated.body.details[0].version).toBe(0);
+    const updatedDetail = await api()
+      .get(`${PREFIX}/travels/${created.body.id}`)
+      .set(bearer(token))
+      .expect(200);
+    expect(updatedDetail.body.departures[0].version).toBe(0);
+    expect(updatedDetail.body.sections[0].version).toBe(0);
+    expect(updatedDetail.body.details[0].version).toBe(0);
 
     await api().delete(`${PREFIX}/travels/${created.body.id}`).set(bearer(token)).expect(204);
     const list = await api().get(`${PREFIX}/travels`).set(bearer(token)).expect(200);
@@ -181,9 +189,13 @@ describe("admin travels (integration)", () => {
         details: [{ ...travelInput.details[0], sectionId }],
       })
       .expect(201);
+    const createdDetail = await api()
+      .get(`${PREFIX}/travels/${created.body.id}`)
+      .set(bearer(token))
+      .expect(200);
 
-    expect(created.body.sections[0].id).toBe(sectionId);
-    expect(created.body.details[0].sectionId).toBe(sectionId);
+    expect(createdDetail.body.sections[0].id).toBe(sectionId);
+    expect(createdDetail.body.details[0].sectionId).toBe(sectionId);
   });
 
   it("олон гаралт, бүлэг, өдрийн хөтөлбөрийг нэг хүсэлтээр хадгална", async () => {
@@ -213,10 +225,14 @@ describe("admin travels (integration)", () => {
       .set(bearer(token))
       .send(manyInput)
       .expect(201);
+    const createdDetail = await api()
+      .get(`${PREFIX}/travels/${created.body.id}`)
+      .set(bearer(token))
+      .expect(200);
 
-    expect(created.body.departures).toHaveLength(10);
-    expect(created.body.sections).toHaveLength(10);
-    expect(created.body.details).toHaveLength(20);
+    expect(createdDetail.body.departures).toHaveLength(10);
+    expect(createdDetail.body.sections).toHaveLength(10);
+    expect(createdDetail.body.details).toHaveLength(20);
 
     const updated = await api()
       .patch(`${PREFIX}/travels/${created.body.id}`)
@@ -224,9 +240,9 @@ describe("admin travels (integration)", () => {
       .send({
         ...manyInput,
         name: "Олон subform зассан аялал",
-        version: created.body.version,
+        version: createdDetail.body.version,
         departures: [
-          ...created.body.departures,
+          ...createdDetail.body.departures,
           {
             ...manyInput.departures[0],
             departureDate: "2027-07-01",
@@ -234,19 +250,23 @@ describe("admin travels (integration)", () => {
           },
         ],
         sections: [
-          ...created.body.sections,
+          ...createdDetail.body.sections,
           { ...manyInput.sections[0], title: "Шинээр нэмсэн бүлэг", sortOrder: 11 },
         ],
         details: [
-          ...created.body.details,
+          ...createdDetail.body.details,
           { ...manyInput.details[0], dayNumber: 21, title: "Шинээр нэмсэн өдөр" },
         ],
       })
       .expect(200);
 
     expect(updated.body.name).toBe("Олон subform зассан аялал");
-    expect(updated.body.departures).toHaveLength(11);
-    expect(updated.body.sections).toHaveLength(11);
-    expect(updated.body.details).toHaveLength(21);
+    const updatedDetail = await api()
+      .get(`${PREFIX}/travels/${created.body.id}`)
+      .set(bearer(token))
+      .expect(200);
+    expect(updatedDetail.body.departures).toHaveLength(11);
+    expect(updatedDetail.body.sections).toHaveLength(11);
+    expect(updatedDetail.body.details).toHaveLength(21);
   });
 });

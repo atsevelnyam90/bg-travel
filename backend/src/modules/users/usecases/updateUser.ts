@@ -65,7 +65,7 @@ export async function updateUser(id: string, input: usersContract.UpdateUserInpu
   }
 
   const updated = await prisma.user.findFirstOrThrow({ where: { id }, select: USER_SELECT });
-  return { user: toUser(updated), before: toUser(existing) };
+  return toUser(updated);
 }
 
 export async function disableUser(id: string) {

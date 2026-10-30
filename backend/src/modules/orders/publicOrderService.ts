@@ -2,7 +2,7 @@ import type { orders as ordersContract } from "@winu/contracts";
 import { Prisma } from "@/generated/prisma/client";
 import { conflict, notFound } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
-import { nextDocumentNumber } from "@/lib/sequence/documentNumber";
+import { createOrderReference } from "./orderReference";
 
 const transportNames = {
   GROUND: "Газар",
@@ -11,7 +11,6 @@ const transportNames = {
 
 type PublicOrderResult = {
   order: ordersContract.PublicOrder;
-  orderId: string;
   created: boolean;
 };
 
@@ -61,11 +60,9 @@ async function findByIdempotencyKey(
 ): Promise<PublicOrderResult | null> {
   const existing = await prisma.order.findFirst({
     where: { idempotencyKey },
-    select: { id: true, publicOrderId: true, status: true, totalPriceMinor: true },
+    select: { publicOrderId: true, status: true, totalPriceMinor: true },
   });
-  return existing
-    ? { order: toResponse(existing, paymentAccount), orderId: existing.id, created: false }
-    : null;
+  return existing ? { order: toResponse(existing, paymentAccount), created: false } : null;
 }
 
 export async function createPublicOrder(
@@ -75,23 +72,22 @@ export async function createPublicOrder(
   const replay = await findByIdempotencyKey(input.idempotencyKey, paymentAccount);
   if (replay) return replay;
 
-  const publicOrderId = await nextDocumentNumber({ name: "order", prefix: "ORD" });
-
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const slots = await tx.$queryRaw<
-        Array<{
-          id: string;
-          travelId: string;
-          travelPublicId: string;
-          departureDate: Date;
-          transportType: "GROUND" | "DIRECT_FLIGHT";
-          unitPriceMinor: bigint;
-          capacity: number;
-          isBookingOpen: boolean;
-          travelName: string;
-        }>
-      >(Prisma.sql`
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await prisma.$transaction(async (tx) => {
+        const slots = await tx.$queryRaw<
+          Array<{
+            id: string;
+            travelId: string;
+            travelPublicId: string;
+            departureDate: Date;
+            transportType: "GROUND" | "DIRECT_FLIGHT";
+            unitPriceMinor: bigint;
+            capacity: number;
+            isBookingOpen: boolean;
+            travelName: string;
+          }>
+        >(Prisma.sql`
         SELECT
           departure.id,
           departure."travelId" AS "travelId",
@@ -110,53 +106,56 @@ export async function createPublicOrder(
           AND travel.status = 'PUBLISHED'::"TravelStatus"
         FOR UPDATE OF departure
       `);
-      const slot = slots[0];
-      if (!slot) throw notFound("Сонгосон аяллын гаралт олдсонгүй");
-      if (!slot.isBookingOpen) throw conflict("Энэ гаралтын захиалга хаагдсан байна");
+        const slot = slots[0];
+        if (!slot) throw notFound("Сонгосон аяллын гаралт олдсонгүй");
+        if (!slot.isBookingOpen) throw conflict("Энэ гаралтын захиалга хаагдсан байна");
 
-      const booked = await tx.order.aggregate({
-        where: { travelDepartureId: slot.id, status: "PAID", deletedAt: null },
-        _sum: { travelerCount: true },
+        const booked = await tx.order.aggregate({
+          where: { travelDepartureId: slot.id, status: "PAID", deletedAt: null },
+          _sum: { travelerCount: true },
+        });
+        const remainingSeats = slot.capacity - (booked._sum.travelerCount ?? 0);
+        if (remainingSeats < input.travelerCount) {
+          throw conflict(`Энэ гаралт дээр ${Math.max(remainingSeats, 0)} суудал үлдсэн байна`);
+        }
+
+        const totalPriceMinor = slot.unitPriceMinor * BigInt(input.travelerCount);
+        const created = await tx.order.create({
+          data: {
+            publicOrderId: createOrderReference(),
+            firstName: input.firstName,
+            lastName: input.lastName,
+            address: input.address ?? "",
+            phone: input.phone,
+            email: input.email.toLowerCase(),
+            serviceCode: slot.travelPublicId,
+            travelDepartureId: slot.id,
+            transportType: slot.transportType,
+            travelDate: slot.departureDate,
+            travelerCount: input.travelerCount,
+            serviceNameSnapshot: slot.travelName,
+            transportNameSnapshot: transportNames[slot.transportType],
+            unitPriceMinor: slot.unitPriceMinor,
+            totalPriceMinor,
+            idempotencyKey: input.idempotencyKey,
+          },
+          select: {
+            publicOrderId: true,
+            status: true,
+            totalPriceMinor: true,
+          },
+        });
+        return { order: toResponse(created, paymentAccount), created: true };
       });
-      const remainingSeats = slot.capacity - (booked._sum.travelerCount ?? 0);
-      if (remainingSeats < input.travelerCount) {
-        throw conflict(`Энэ гаралт дээр ${Math.max(remainingSeats, 0)} суудал үлдсэн байна`);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        const duplicate = await findByIdempotencyKey(input.idempotencyKey, paymentAccount);
+        if (duplicate) return duplicate;
+        if (attempt < 2) continue;
       }
-
-      const totalPriceMinor = slot.unitPriceMinor * BigInt(input.travelerCount);
-      const created = await tx.order.create({
-        data: {
-          publicOrderId,
-          firstName: input.firstName,
-          lastName: input.lastName,
-          address: input.address ?? "",
-          phone: input.phone,
-          email: input.email.toLowerCase(),
-          serviceCode: slot.travelPublicId,
-          travelDepartureId: slot.id,
-          transportType: slot.transportType,
-          travelDate: slot.departureDate,
-          travelerCount: input.travelerCount,
-          serviceNameSnapshot: slot.travelName,
-          transportNameSnapshot: transportNames[slot.transportType],
-          unitPriceMinor: slot.unitPriceMinor,
-          totalPriceMinor,
-          idempotencyKey: input.idempotencyKey,
-        },
-        select: {
-          id: true,
-          publicOrderId: true,
-          status: true,
-          totalPriceMinor: true,
-        },
-      });
-      return { order: toResponse(created, paymentAccount), orderId: created.id, created: true };
-    });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      const duplicate = await findByIdempotencyKey(input.idempotencyKey, paymentAccount);
-      if (duplicate) return duplicate;
+      throw error;
     }
-    throw error;
   }
+
+  throw conflict("Захиалгын дугаар үүсгэж чадсангүй. Дахин оролдоно уу.");
 }

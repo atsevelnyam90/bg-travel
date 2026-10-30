@@ -11,7 +11,6 @@
 //   backend  → validation (schema.parse)
 //   frontend → type (z.infer)
 
-export * as audit from "./audit";
 export * as auth from "./auth";
 export * as files from "./files";
 export * as money from "./money";

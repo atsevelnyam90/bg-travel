@@ -157,7 +157,7 @@ Detail field-үүд нь `dayNumber`, locale бүрийн `title`, rich-text `co
 - `ARCHIVED`, `DRAFT` аялал, мөн хаалттай departure нь public response-д орохгүй.
 - Public contract-д хэрэгтэй, safe field-үүд: `slug`, `name`, `description`,
   `category`, `coverImage`, `durationDays`, open departure slots, details.
-- Internal database id, audit/version, admin-only status metadata-г public response-д
+- Internal database id, version, admin-only status metadata-г public response-д
   гаргахгүй.
 - Static journey catalog/content-г public API-гийн Travel + TravelDetail data-р аажмаар
   солих; шинэ static domain data бүү нэм.
@@ -165,9 +165,8 @@ Detail field-үүд нь `dayNumber`, locale бүрийн `title`, rich-text `co
   ын улмаас public detail screen query parameter ашиглах эсэхийг portal route architecture-
   тай хамт шийднэ.
 
-## Validation, Audit, and Tests
+## Validation and Tests
 
-- Travel, TravelDeparture, TravelDetail mutation бүр audit trail-тэй байна.
 - `Travel` болон `TravelDetail` update optimistic locking ашиглана.
 - Slug uniqueness болон category/status enum validation байна.
 - `durationDays >= 1`, `dayNumber >= 1`, `dayNumber <= durationDays` validation байна.
@@ -183,7 +182,7 @@ Detail field-үүд нь `dayNumber`, locale бүрийн `title`, rich-text `co
 1. Prisma enum/model, safe migration/backfill, soft-delete registry хийх.
 2. Backend/portal contracts шинэчилж `pnpm gen:contracts` ажиллуулах.
 3. Native admin list + composite editor нэмэх.
-4. Domain validation, audit, optimistic locking, integration tests нэмэх.
+4. Domain validation, optimistic locking, integration tests нэмэх.
 5. Public service/contract/portal API-г PUBLISHED data болон detail content-той болгох.
 6. Static journey usage-г dynamic Travel data-р солих.
 

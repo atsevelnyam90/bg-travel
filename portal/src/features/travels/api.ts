@@ -6,7 +6,7 @@ export const listTravels = (query: travels.ListAdminTravelsQuery, signal?: Abort
 export const getTravel = (id: string, signal?: AbortSignal) =>
   api.get<travels.AdminTravel>(`/travels/${id}`, { signal });
 export const createTravel = (input: travels.CreateAdminTravelInput) =>
-  api.post<travels.AdminTravel>("/travels", input);
+  api.post<travels.AdminTravelListItem>("/travels", input);
 export const updateTravel = (id: string, input: travels.UpdateAdminTravelInput) =>
-  api.patch<travels.AdminTravel>(`/travels/${id}`, input);
+  api.patch<travels.AdminTravelListItem>(`/travels/${id}`, input);
 export const deleteTravel = (id: string) => api.delete<void>(`/travels/${id}`);

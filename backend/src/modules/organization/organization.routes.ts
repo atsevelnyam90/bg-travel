@@ -3,7 +3,6 @@ import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "@/lib/asyncHandler";
 import { requireAuth, requirePermission } from "@/middlewares/requirePermission";
-import { auditFromRequest, changedFields } from "@/modules/audit/writeAudit";
 import {
   buildProductPaymentQr,
   getOrganization,
@@ -28,17 +27,7 @@ organizationRouter.patch(
   requirePermission("org:manage"),
   asyncHandler(async (req, res) => {
     const input = orgContract.updateOrganizationSchema.parse(req.body);
-    const before = await getOrganization();
-    const updated = await updateOrganization(input);
-
-    await auditFromRequest(req)({
-      action: "update",
-      resource: "organization",
-      resourceId: updated.id,
-      meta: { changes: changedFields({ ...before }, { ...updated }) },
-    });
-
-    res.json(updated);
+    res.json(await updateOrganization(input));
   }),
 );
 

@@ -3,7 +3,6 @@ import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "@/lib/asyncHandler";
 import { requirePermission } from "@/middlewares/requirePermission";
-import { auditFromRequest, changedFields } from "@/modules/audit/writeAudit";
 import {
   confirmAdminOrder,
   createAdminOrder,
@@ -58,12 +57,6 @@ ordersRouter.post(
   asyncHandler(async (req, res) => {
     const input = ordersContract.createAdminOrderSchema.parse(req.body);
     const order = await createAdminOrder(input, req.auth?.userId ?? "");
-    await auditFromRequest(req)({
-      action: "create",
-      resource: "order",
-      resourceId: order.id,
-      meta: { publicOrderId: order.publicOrderId },
-    });
     res.status(201).json(order);
   }),
 );
@@ -74,14 +67,7 @@ ordersRouter.patch(
   asyncHandler(async (req, res) => {
     const { id } = idParamSchema.parse(req.params);
     const input = ordersContract.updateAdminOrderSchema.parse(req.body);
-    const { order, before } = await updateAdminOrder(id, input, req.auth?.userId ?? "");
-    await auditFromRequest(req)({
-      action: "update",
-      resource: "order",
-      resourceId: id,
-      meta: { changes: changedFields({ ...before }, { ...order }) },
-    });
-    res.json(order);
+    res.json(await updateAdminOrder(id, input, req.auth?.userId ?? ""));
   }),
 );
 
@@ -91,14 +77,7 @@ ordersRouter.post(
   asyncHandler(async (req, res) => {
     const { id } = idParamSchema.parse(req.params);
     const input = ordersContract.confirmAdminOrderSchema.parse(req.body);
-    const { order, before } = await confirmAdminOrder(id, input.version, req.auth?.userId ?? "");
-    await auditFromRequest(req)({
-      action: "update",
-      resource: "order",
-      resourceId: id,
-      meta: { changes: changedFields({ ...before }, { ...order }) },
-    });
-    res.json(order);
+    res.json(await confirmAdminOrder(id, input.version, req.auth?.userId ?? ""));
   }),
 );
 
@@ -108,7 +87,6 @@ ordersRouter.delete(
   asyncHandler(async (req, res) => {
     const { id } = idParamSchema.parse(req.params);
     await deleteAdminOrder(id);
-    await auditFromRequest(req)({ action: "delete", resource: "order", resourceId: id });
     res.status(204).end();
   }),
 );

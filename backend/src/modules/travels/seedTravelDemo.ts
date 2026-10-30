@@ -267,14 +267,6 @@ export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
 
     if (!travel) {
       travel = await tx.travel.create({ data: DEMO_TRAVEL });
-      await tx.auditLog.create({
-        data: {
-          action: "create",
-          resource: "travel",
-          resourceId: travel.id,
-          meta: { source: "seedTravelDemo" },
-        },
-      });
       created.travel += 1;
     }
 
@@ -285,21 +277,13 @@ export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
       });
       if (existing) continue;
 
-      const row = await tx.travelDeparture.create({
+      await tx.travelDeparture.create({
         data: {
           ...departure,
           travelId: travel.id,
           departureDate,
           returnDate: new Date(`${departure.returnDate}T00:00:00.000Z`),
           isBookingOpen: true,
-        },
-      });
-      await tx.auditLog.create({
-        data: {
-          action: "create",
-          resource: "travelDeparture",
-          resourceId: row.id,
-          meta: { source: "seedTravelDemo", travelId: travel.id },
         },
       });
       created.departures += 1;
@@ -320,14 +304,6 @@ export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
             sortOrder: section.sortOrder,
           },
         });
-        await tx.auditLog.create({
-          data: {
-            action: "create",
-            resource: "travelItinerarySection",
-            resourceId: row.id,
-            meta: { source: "seedTravelDemo", travelId: travel.id },
-          },
-        });
         created.sections += 1;
       }
       for (const day of section.days) sectionIdByDay.set(day, row.id);
@@ -344,28 +320,12 @@ export async function seedTravelDemo(): Promise<SeedTravelDemoResult> {
             where: { id: existing.id },
             data: { sectionId, version: { increment: 1 } },
           });
-          await tx.auditLog.create({
-            data: {
-              action: "update",
-              resource: "travelDetail",
-              resourceId: existing.id,
-              meta: { source: "seedTravelDemo", changedFields: ["sectionId"] },
-            },
-          });
         }
         continue;
       }
 
-      const row = await tx.travelDetail.create({
+      await tx.travelDetail.create({
         data: { ...detail, travelId: travel.id, sectionId },
-      });
-      await tx.auditLog.create({
-        data: {
-          action: "create",
-          resource: "travelDetail",
-          resourceId: row.id,
-          meta: { source: "seedTravelDemo", travelId: travel.id },
-        },
       });
       created.details += 1;
     }

@@ -125,7 +125,7 @@ The backend's development Compose database is named `uizeniveelt` and its test d
 - Use TanStack Query and `apiClient.ts` for portal server state. Put screen state/actions in `use<X>Screen()` hooks. Use `useIsMobile()` for responsive logic.
 - Build UI from existing shadcn primitives. Do not edit `portal/src/components/ui/` or `portal/src/app/globals.css` directly. Avoid `"use server"` because the Capacitor export cannot use it.
 - TanStack Table is version 9. Use this repository's `useDataTableState()` and `useDataTable()` helpers; version 8 examples do not apply.
-- One deployment represents one organization; do not add an `orgId` scope to domain tables. Money is stored as integer minor units (`...Minor`) and calculated with the contracts money helpers. Editable models use a `version` field for optimistic locking; mutations must write audit records. Soft-deleted models are filtered by the Prisma extension in `backend/src/lib/softDelete.ts`; register new soft-deleted models there.
+- One deployment represents one organization; do not add an `orgId` scope to domain tables. Money is stored as integer minor units (`...Minor`) and calculated with the contracts money helpers. Editable models use a `version` field for optimistic locking. Soft-deleted models are filtered by the Prisma extension in `backend/src/lib/softDelete.ts`; register new soft-deleted models there.
 - File uploads use a backend-issued presigned URL, followed by a direct client upload to object storage. Do not proxy file bodies through the API.
 - Before changing Next.js code, read the relevant guide in `portal/node_modules/next/dist/docs/`. For mobile builds, avoid dynamic `[slug]` pages for changing data; use a query parameter and a Suspense boundary around `useSearchParams()`.
 
@@ -140,7 +140,7 @@ The full seed is for initial setup. Re-running it on production can change role 
 For a one-time change to existing production rows:
 
 1. Add a versioned SQL data migration, even if `schema.prisma` does not change. See `backend/prisma/migrations/20261026190000_backfill_existing_demo_travel_sections/`.
-2. Target only the intended rows. Preserve non-null editor-managed values and soft deletions, increment model versions when updating, write an audit entry without sensitive data, and use a transaction.
+2. Target only the intended rows. Preserve non-null editor-managed values and soft deletions, increment model versions when updating, and use a transaction.
 3. Add an integration test that starts with the *old* data shape. Verify the new values, preservation of user edits, and safe repeated execution.
 4. Run backend typecheck, lint, tests, and build. Review destructive SQL such as `DROP`, `TRUNCATE`, and broad `UPDATE` statements before pushing.
 5. Push to `main` only after review. CI must pass before the deployment workflow applies the migration. The deploy script takes a database snapshot before migrations.

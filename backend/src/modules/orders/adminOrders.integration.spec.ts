@@ -344,7 +344,7 @@ describe("admin orders (integration)", () => {
         status: "AWAITING_PAYMENT",
       })
       .expect(201);
-    expect(created.body.publicOrderId).toMatch(/^ORD-\d{4}-\d{6}$/);
+    expect(created.body.publicOrderId).toMatch(/^ORD-[A-F0-9]{16}$/);
 
     const confirmed = await api()
       .post(`${PREFIX}/orders/${created.body.id}/confirm`)

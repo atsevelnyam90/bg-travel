@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { auditRouter } from "@/modules/audit/audit.routes";
 import { authRouter } from "@/modules/auth/auth.routes";
 import { filesRouter } from "@/modules/files/files.routes";
 import { legacyTravelFilesRouter } from "@/modules/files/legacyTravelFiles.routes";
@@ -27,5 +26,4 @@ routes.use("/travels", travelsRouter);
 // Production-д хадгалагдсан хуучин зургийн URL-ыг шинэ хаягаар уншина.
 routes.use("/legacy-travel-files", legacyTravelFilesRouter);
 routes.use("/org", organizationRouter);
-routes.use("/audit", auditRouter);
 routes.use("/files", filesRouter);

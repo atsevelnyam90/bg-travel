@@ -63,8 +63,6 @@ backend/src/modules/<domain>/
 - Business logic module/service/usecase дотор байна.
 - Protected endpoint бүр `requirePermission()`-тэй байна.
 - Public endpoint зөвхөн `/api/v1/public/**` доор байна.
-- Mutation бүр audit бичнэ.
-- Secret/token/password/card data audit meta эсвэл log-д бичихгүй.
 - Prisma client зөвхөн `@/lib/prisma`.
 - Soft delete model нэмбэл `SOFT_DELETE_MODELS`-д бүртгэнэ.
 - Засагддаг domain model-д `version` ашиглаж optimistic locking хийнэ.
